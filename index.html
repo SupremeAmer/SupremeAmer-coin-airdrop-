@@ -67,7 +67,7 @@
 let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
 let miningInterval;
 let timerInterval;
-let startTime = localStorage.getItem('startTime');
+let elapsedTime = parseInt(localStorage.getItem('elapsedTime')) || 0;
 let remainingTime = localStorage.getItem('remainingTime');
 
 if (!remainingTime) {
@@ -79,10 +79,6 @@ function startMining() {
   if (!miningInterval) {
     miningInterval = setInterval(mineCoins, 1000); // mine coins every second
     timerInterval = setInterval(updateTimer, 1000); // update timer every second
-    if (!startTime) {
-      startTime = new Date().getTime();
-      localStorage.setItem('startTime', startTime);
-    }
   }
 }
 
@@ -97,18 +93,17 @@ function updateMinedCoinsDisplay() {
 }
 
 function updateTimer() {
-  const currentTime = new Date().getTime();
-  if (startTime) {
-    remainingTime = 12 * 60 * 60 * 1000 - (currentTime - parseInt(startTime));
-    localStorage.setItem('remainingTime', remainingTime);
-  }
+  elapsedTime += 1000; // increment elapsed time by 1 second
+  localStorage.setItem('elapsedTime', elapsedTime);
+  remainingTime = 12 * 60 * 60 * 1000 - elapsedTime;
+  localStorage.setItem('remainingTime', remainingTime);
   if (remainingTime <= 0) {
     stopMining();
   } else {
     const hours = Math.floor(remainingTime / (60 * 60 * 1000));
     const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
     const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-    const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(second)}`;
+    const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.`;
     document.getElementById('timer').textContent = formattedTime;
   }
 }
@@ -126,7 +121,7 @@ function stopMining() {
 window.onload = function() {
   updateMinedCoinsDisplay();
   updateTimer();
-  if (startTime) {
+  if (localStorage.getItem('elapsedTime')) {
     startMining();
   }
 };
@@ -134,18 +129,16 @@ window.onload = function() {
 // Continue mining even when page is offline
 window.addEventListener('beforeunload', function() {
   localStorage.setItem('minedCoins', minedCoins);
+  localStorage.setItem('elapsedTime', elapsedTime);
   localStorage.setItem('remainingTime', remainingTime);
 });
 
 window.addEventListener('offline', function() {
   localStorage.setItem('minedCoins', minedCoins);
+  localStorage.setItem('elapsedTime', elapsedTime);
   localStorage.setItem('remainingTime', remainingTime);
 });
 
     </script>
 </body>
 </html>
-
-
-
-
