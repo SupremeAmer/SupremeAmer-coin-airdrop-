@@ -90,33 +90,38 @@
             document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins.toFixed(4)}`;
         }
 
-        function updateTimer() {
-            const currentTime = new Date().getTime();
-            const remainingTime = 12 * 60 * 60 * 1000 - (currentTime - startTime);
+function updateTimer() {
+    const currentTime = new Date().getTime();
+    const remainingTime = 12 * 60 * 60 * 1000 - (currentTime - startTime);
 
-            if (remainingTime <= 0) {
-                stopMining();
-            } else {
-                const hours = Math.floor(remainingTime / (60 * 60 * 1000));
-                const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
-                const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+    if (remainingTime <= 0) {
+        stopMining();
+    } else {
+        const minutes = Math.floor(remainingTime / (60 * 1000));
+        const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+        const milliseconds = Math.floor(remainingTime % 1000);
 
-                document.getElementById('timer').textContent = `Time remaining: ${hours} hours ${minutes} minutes ${seconds} seconds`;
-            }
-        }
+        const formattedTime = `${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
 
-        function stopMining() {
-            clearInterval(miningInterval);
-            clearInterval(timerInterval);
-            alert('Mining stopped!');
-        }
+        document.getElementById('timer').textContent = formattedTime;
+    }
+}
 
-        // Update display on page load
-        window.onload = function() {
-            updateMinedCoinsDisplay();
-            updateTimer();
-        };
-        
+function padZero(value, length = 2) {
+    return String(value).padStart(length, '0');
+}
+
+function stopMining() {
+    clearInterval(miningInterval);
+    clearInterval(timerInterval);
+    alert('Mining stopped!');
+}
+
+window.onload = function() {
+    updateMinedCoinsDisplay();
+    updateTimer();
+};
+
     </script>
 </body>
 </html>
