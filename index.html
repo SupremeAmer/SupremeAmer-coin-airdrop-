@@ -64,11 +64,10 @@
     </div>
     <script>
 
-
 let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
 let miningInterval;
 let timerInterval;
-let startTime;
+let startTime = localStorage.getItem('startTime');
 let remainingTime = localStorage.getItem('remainingTime');
 
 if (!remainingTime) {
@@ -80,8 +79,10 @@ function startMining() {
   if (!miningInterval) {
     miningInterval = setInterval(mineCoins, 1000); // mine coins every second
     timerInterval = setInterval(updateTimer, 1000); // update timer every second
-    startTime = new Date().getTime();
-    localStorage.setItem('startTime', startTime);
+    if (!startTime) {
+      startTime = new Date().getTime();
+      localStorage.setItem('startTime', startTime);
+    }
   }
 }
 
@@ -97,15 +98,17 @@ function updateMinedCoinsDisplay() {
 
 function updateTimer() {
   const currentTime = new Date().getTime();
-  remainingTime = 12 * 60 * 60 * 1000 - (currentTime - localStorage.getItem('startTime'));
-  localStorage.setItem('remainingTime', remainingTime);
+  if (startTime) {
+    remainingTime = 12 * 60 * 60 * 1000 - (currentTime - parseInt(startTime));
+    localStorage.setItem('remainingTime', remainingTime);
+  }
   if (remainingTime <= 0) {
     stopMining();
   } else {
     const hours = Math.floor(remainingTime / (60 * 60 * 1000));
     const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
     const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-    const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.`;
+    const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(second)}`;
     document.getElementById('timer').textContent = formattedTime;
   }
 }
@@ -123,7 +126,7 @@ function stopMining() {
 window.onload = function() {
   updateMinedCoinsDisplay();
   updateTimer();
-  if (localStorage.getItem('startTime')) {
+  if (startTime) {
     startMining();
   }
 };
