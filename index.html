@@ -1,0 +1,83 @@
+HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .mining {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: auto;
+        }
+        .mined-coins {
+            font-size: 2em;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .footer {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background: #fff;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="mining">
+        <h1>Mining Page</h1>
+        <div class="mined-coins" id="minedCoins">Mined Coins: 0</div>
+        <button onclick="startMining()">Start Mining</button>
+    </div>
+    
+    <div class="footer">
+        <button onclick="window.location.href='index.html'">Home</button>
+        <button onclick="window.location.href='task.html'">Task</button>
+        <button onclick="window.location.href='wallet.html'">Wallet</button>
+    </div>
+
+    <script>
+        let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
+        let miningInterval;
+
+        function startMining() {
+            if (!miningInterval) {
+                miningInterval = setInterval(mineCoins, 1000); // mine coins every second
+            }
+        }
+
+        function mineCoins() {
+            minedCoins += 0.0002; // increment mined coins by 0.0002
+            localStorage.setItem('minedCoins', minedCoins);
+            updateMinedCoinsDisplay();
+        }
+
+        function updateMinedCoinsDisplay() {
+            document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins.toFixed(4)}`;
+        }
+
+        // Update display on page load
+        window.onload = updateMinedCoinsDisplay;
+    </script>
+</body>
+</html>
