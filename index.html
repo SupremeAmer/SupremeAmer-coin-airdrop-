@@ -63,47 +63,51 @@
         <button onclick="window.location.href='wallet.html'">💸</button>
     </div>
     <script>
-let startTime;
+
+
+let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
 let miningInterval;
 let timerInterval;
-let minedCoins = 0;
+let startTime;
+let remainingTime = localStorage.getItem('remainingTime');
+
+if (!remainingTime) {
+  remainingTime = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
+  localStorage.setItem('remainingTime', remainingTime);
+}
 
 function startMining() {
-  startTime = new Date().getTime();
-  miningInterval = setInterval(mineCoins, 1000);
-  timerInterval = setInterval(updateTimer, 1000);
-  sendMiningRequest();
+  if (!miningInterval) {
+    miningInterval = setInterval(mineCoins, 1000); // mine coins every second
+    timerInterval = setInterval(updateTimer, 1000); // update timer every second
+    startTime = new Date().getTime();
+    localStorage.setItem('startTime', startTime);
+  }
 }
 
 function mineCoins() {
-  minedCoins += 0.0002;
-  document.getElementById('mined-coins').textContent = `Mined Coins: ${minedCoins.toFixed(4)} SupremeAmer Coins`;
+  minedCoins += 0.0002; // increment mined coins by 0.0002
+  localStorage.setItem('minedCoins', minedCoins);
+  updateMinedCoinsDisplay();
+}
+
+function updateMinedCoinsDisplay() {
+  document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins.toFixed(4)}`;
 }
 
 function updateTimer() {
   const currentTime = new Date().getTime();
-  const remainingTime = getRemainingTime();
-  document.getElementById('timer').textContent = formatTime(remainingTime);
+  remainingTime = 12 * 60 * 60 * 1000 - (currentTime - localStorage.getItem('startTime'));
+  localStorage.setItem('remainingTime', remainingTime);
   if (remainingTime <= 0) {
     stopMining();
-  }
-}
-
-function getRemainingTime() {
-  const storedStartTime = localStorage.getItem('startTime');
-  if (storedStartTime) {
-    return 12 * 60 * 60 * 1000 - (new Date().getTime() - parseInt(storedStartTime));
   } else {
-    return 12 * 60 * 60 * 1000;
+    const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+    const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+    const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.`;
+    document.getElementById('timer').textContent = formattedTime;
   }
-}
-
-function formatTime(time) {
-  const hours = Math.floor(time / (60 * 60 * 1000));
-  const minutes = Math.floor((time % (60 * 60 * 1000)) / (60 * 1000));
-  const seconds = Math.floor((time % (60 * 1000)) / 1000);
-  const milliseconds = Math.floor(time % 1000);
-  return `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
 }
 
 function padZero(value, length = 2) {
@@ -113,36 +117,28 @@ function padZero(value, length = 2) {
 function stopMining() {
   clearInterval(miningInterval);
   clearInterval(timerInterval);
-  sendStopMiningRequest();
-}
-
-function sendMiningRequest() {
-  fetch('/start-mining', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ startTime: startTime })
-  });
-}
-
-function sendStopMiningRequest() {
-  fetch('/stop-mining', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
+  alert('Mining stopped!');
 }
 
 window.onload = function() {
-  const startButton = document.getElementById('start-mining');
-  startButton.addEventListener('click', startMining);
-  const storedStartTime = localStorage.getItem('startTime');
-  if (storedStartTime) {
+  updateMinedCoinsDisplay();
+  updateTimer();
+  if (localStorage.getItem('startTime')) {
     startMining();
   }
 };
+
+// Continue mining even when page is offline
+window.addEventListener('beforeunload', function() {
+  localStorage.setItem('minedCoins', minedCoins);
+  localStorage.setItem('remainingTime', remainingTime);
+});
+
+window.addEventListener('offline', function() {
+  localStorage.setItem('minedCoins', minedCoins);
+  localStorage.setItem('remainingTime', remainingTime);
+});
+
     </script>
 </body>
 </html>
