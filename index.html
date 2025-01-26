@@ -63,7 +63,6 @@
         <button onclick="window.location.href='wallet.html'">💸</button>
     </div>
     <script>
-
 let startTime;
 let miningInterval;
 let timerInterval;
@@ -78,7 +77,7 @@ function startMining() {
 
 function mineCoins() {
   minedCoins += 0.0002;
-  document.getElementById('mined-coins').textContent = `Mined Coins: ${minedCoins.toFixed(4)}`;
+  document.getElementById('mined-coins').textContent = `Mined Coins: ${minedCoins.toFixed(4)} SupremeAmer Coins`;
 }
 
 function updateTimer() {
@@ -103,7 +102,8 @@ function formatTime(time) {
   const hours = Math.floor(time / (60 * 60 * 1000));
   const minutes = Math.floor((time % (60 * 60 * 1000)) / (60 * 1000));
   const seconds = Math.floor((time % (60 * 1000)) / 1000);
-  return `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
+  const milliseconds = Math.floor(time % 1000);
+  return `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.${padZero(milliseconds, 3)}`;
 }
 
 function padZero(value, length = 2) {
@@ -143,7 +143,6 @@ window.onload = function() {
     startMining();
   }
 };
-
     </script>
 </body>
 </html>
