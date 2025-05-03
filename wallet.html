@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SupremeAmer Crypto Wallet</title>
-  <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -21,6 +20,83 @@
       <p id="balance" class="text-lg font-bold">Balance:</p>
     </div>
   </div>
+  <style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-details {
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.wallet-details:hover {
+  background-color: #f9f9f9;
+  transition: background-color 0.3s ease-in-out;
+}
+
+#wallet-address {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+#balance {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: #fff;
+  margin: 10px;
+}
+
+button:hover {
+  background-color: #3e8e41;
+}
+
+#connect-wallet {
+  background-color: #4CAF50;
+}
+
+#disconnect-wallet {
+  background-color: #e74c3c;
+}
+
+#start-mining {
+  background-color: #3498db;
+}
+
+#start-mining.active {
+  background-color: #2ecc71;
+}
+
+@media only screen and (max-width: 768px) {
+  .container {
+    max-width: 90%;
+    margin: 20px auto;
+  }
+}
+</style>
   <script src="script2.js"></script>
 </body>
 </html>
