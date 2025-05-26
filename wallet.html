@@ -1,102 +1,243 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SupremeAmer Crypto Wallet</title>
-  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>SupremeAmer Web3 Wallet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS for modern UI -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #222 60%, #1e90ff 100%);
+      color: #fff;
+    }
+    .wallet-card {
+      background: rgba(0,0,0,0.8);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 24px rgba(30,144,255,0.2);
+      margin-top: 2rem;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, #ff9800 10%, #1e90ff 100%);
+      border: none;
+    }
+    .token-logo {
+      width: 40px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+    .tx-list {
+      background: #222;
+      border-radius: 12px;
+      padding: 1rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
 </head>
-<body class="font-sans bg-black text-white">
-  <div class="container mx-auto p-4 flex justify-between items-center">
-    <h1 class="text-2xl font-bold">SupremeAmer Crypto Wallet</h1>
-    <button id="connect-wallet" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Connect Wallet</button>
-    <button id="disconnect-wallet" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-4 hidden">Disconnect Wallet</button>
-  </div>
-  <div class="container mx-auto p-4">
-    <div id="wallet-details" class="text-left">
-      <p id="wallet-address" class="font-semibold"></p>
-      <p id="balance" class="text-lg font-bold">Balance:</p>
+<body>
+<div class="container">
+  <div class="wallet-card mx-auto" style="max-width: 500px;">
+    <h2 class="text-center mb-4">SupremeAmer Web3 Wallet</h2>
+    <div class="mb-3">
+      <button id="connectBtn" class="btn btn-primary w-100 mb-2">Connect Wallet</button>
+      <button id="importBtn" class="btn btn-secondary w-100">Import Wallet (Phrase/Key)</button>
+    </div>
+    <div id="walletInfo" style="display:none;">
+      <div class="mb-3">
+        <strong>Address:</strong> <span id="userAddress"></span>
+      </div>
+      <div class="mb-3">
+        <strong>ETH Balance:</strong> <span id="ethBalance"></span> ETH
+      </div>
+      <div class="mb-3">
+        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="token-logo"/>
+        <strong>SupremeAmer Token:</strong>
+        <span id="tokenBalance"></span> <span style="font-size:0.9em;color:#aaa;">(Mining Balance)</span>
+      </div>
+      <div class="mb-3">
+        <label for="recipient" class="form-label">Send ETH</label>
+        <input type="text" id="recipient" class="form-control mb-2" placeholder="Recipient Address">
+        <input type="number" id="amount" class="form-control mb-2" placeholder="Amount in ETH" min="0" step="0.0001">
+        <button id="sendBtn" class="btn btn-success w-100">Send (6% fee applied)</button>
+      </div>
+      <div class="mb-3">
+        <button id="receiveBtn" class="btn btn-outline-info w-100">Show My Address / Receive</button>
+        <div id="receiveSection" style="display:none;">
+          <p>Your address (share to receive ETH/SupremeAmer):</p>
+          <code id="myAddress"></code>
+        </div>
+      </div>
+      <div class="mb-3">
+        <h5>Transaction History</h5>
+        <div class="tx-list" id="txHistory"></div>
+      </div>
+      <div class="mb-3" id="txNotifications"></div>
     </div>
   </div>
-  <style>
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
+</div>
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
+<script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
+<script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+<script>
+const supremeamerToken = {
+  address: '0xYourSupremeAmerTokenAddress', // TODO: Replace with your token address
+  decimals: 18,
+  symbol: 'SAMR'
+};
+const FEE_RECEIVER = 'gecestrwsfwfrt5gwfstqfwvsh6ggvsqfgafabhfd'; // Your fee address
+
+let provider, signer, userAddress, web3Modal;
+
+// --- Initialize Web3Modal for multi-wallet support ---
+function initWeb3Modal() {
+  web3Modal = new window.Web3Modal.default({
+    cacheProvider: false,
+    providerOptions: {
+      walletconnect: {
+        package: window.WalletConnectProvider.default,
+        options: {
+          infuraId: "1c565a6d8f994bb89139d45ca26d5b0e" // Free Infura ID
+        }
+      }
+    }
+  });
 }
 
-.container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.wallet-details {
-  margin-bottom: 20px;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.wallet-details:hover {
-  background-color: #f9f9f9;
-  transition: background-color 0.3s ease-in-out;
-}
-
-#wallet-address {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-#balance {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  background-color: #4CAF50;
-  color: #fff;
-  margin: 10px;
-}
-
-button:hover {
-  background-color: #3e8e41;
-}
-
-#connect-wallet {
-  background-color: #4CAF50;
-}
-
-#disconnect-wallet {
-  background-color: #e74c3c;
-}
-
-#start-mining {
-  background-color: #3498db;
-}
-
-#start-mining.active {
-  background-color: #2ecc71;
-}
-
-@media only screen and (max-width: 768px) {
-  .container {
-    max-width: 90%;
-    margin: 20px auto;
+async function connectWallet() {
+  try {
+    const instance = await web3Modal.connect();
+    provider = new ethers.providers.Web3Provider(instance);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+    showWalletInfo();
+    fetchBalances();
+    fetchTransactionHistory();
+    listenTxNotifications();
+  } catch (e) {
+    alert('Connection failed: ' + e.message);
   }
 }
-</style>
-  <script src="script2.js"></script>
+
+// --- Import wallet via phrase/private key (not recommended for production) ---
+async function importWallet() {
+  const input = prompt("Enter your 12/24-word phrase or private key:");
+  if (!input) return;
+  try {
+    let wallet;
+    if (input.trim().split(' ').length >= 12) {
+      wallet = ethers.Wallet.fromMnemonic(input.trim());
+    } else {
+      wallet = new ethers.Wallet(input.trim());
+    }
+    provider = ethers.getDefaultProvider('homestead'); // Ethereum mainnet
+    signer = wallet.connect(provider);
+    userAddress = await signer.getAddress();
+    showWalletInfo();
+    fetchBalances();
+    fetchTransactionHistory();
+    listenTxNotifications();
+  } catch (e) {
+    alert('Import failed: ' + e.message);
+  }
+}
+
+// --- UI: Show wallet info section ---
+function showWalletInfo() {
+  document.getElementById('connectBtn').style.display = 'none';
+  document.getElementById('importBtn').style.display = 'none';
+  document.getElementById('walletInfo').style.display = 'block';
+  document.getElementById('userAddress').textContent = userAddress;
+  document.getElementById('myAddress').textContent = userAddress;
+}
+
+// --- Fetch ETH and token balances ---
+async function fetchBalances() {
+  // ETH balance
+  const balance = await provider.getBalance(userAddress);
+  document.getElementById('ethBalance').textContent = ethers.utils.formatEther(balance);
+
+  // SupremeAmer Token balance
+  const tokenAbi = [
+    "function balanceOf(address) view returns (uint256)",
+    "function miningBalance(address) view returns (uint256)"
+  ];
+  const token = new ethers.Contract(supremeamerToken.address, tokenAbi, provider);
+  let tokenBalance = await token.balanceOf(userAddress);
+  let miningBalance = 0;
+  // If miningBalance is a custom function in your contract, try to fetch it
+  try {
+    miningBalance = await token.miningBalance(userAddress);
+  } catch {}
+  document.getElementById('tokenBalance').textContent = `${ethers.utils.formatUnits(tokenBalance, supremeamerToken.decimals)} (+Mining: ${ethers.utils.formatUnits(miningBalance, supremeamerToken.decimals)})`;
+}
+
+// --- Send ETH with 6% fee ---
+document.getElementById('sendBtn').onclick = async function() {
+  const to = document.getElementById('recipient').value.trim();
+  let amount = Number(document.getElementById('amount').value);
+  if (!ethers.utils.isAddress(to)) return alert('Invalid recipient address');
+  if (!amount || amount <= 0) return alert('Amount must be positive');
+  try {
+    // Calculate 6% fee
+    const totalWei = ethers.utils.parseEther(amount.toString());
+    const feeWei = totalWei.mul(6).div(100);
+    const sendWei = totalWei.sub(feeWei);
+
+    // Send 94% to recipient
+    let tx1 = await signer.sendTransaction({ to, value: sendWei });
+    // Send 6% fee to fee address
+    let tx2 = await signer.sendTransaction({ to: FEE_RECEIVER, value: feeWei });
+    alert('Transaction sent!');
+
+    fetchBalances();
+    fetchTransactionHistory();
+  } catch (e) {
+    alert('Transaction failed: ' + e.message);
+  }
+};
+
+// --- Show receive address ---
+document.getElementById('receiveBtn').onclick = function() {
+  let el = document.getElementById('receiveSection');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+};
+
+// --- Fetch transaction history (ETH only, for brevity) ---
+async function fetchTransactionHistory() {
+  const api = `https://api.etherscan.io/api?module=account&action=txlist&address=${userAddress}&sort=desc&apikey=YourApiKeyToken`;
+  const res = await fetch(api);
+  const data = await res.json();
+  if (data.status !== "1") return;
+  const txs = data.result.slice(0, 10); // last 10 txs
+  let html = txs.map(tx => `
+    <div>
+      <small>${new Date(tx.timeStamp * 1000).toLocaleString()}</small><br>
+      <b>${tx.from.toLowerCase() === userAddress.toLowerCase() ? "Sent" : "Received"}:</b>
+      <span>${ethers.utils.formatEther(tx.value)} ETH</span>
+      <br>
+      <a href="https://etherscan.io/tx/${tx.hash}" target="_blank" style="color:#1e90ff">View</a>
+    </div>
+  `).join('<hr>');
+  document.getElementById('txHistory').innerHTML = html;
+}
+
+// --- Transaction notifications (basic) ---
+function listenTxNotifications() {
+  provider.on('block', async (blockNumber) => {
+    fetchTransactionHistory();
+    document.getElementById('txNotifications').innerHTML = `<span class="badge bg-success">New block: ${blockNumber}. Transaction history updated.</span>`;
+    setTimeout(() => document.getElementById('txNotifications').innerHTML = '', 5000);
+  });
+}
+
+// --- Startup ---
+initWeb3Modal();
+document.getElementById('connectBtn').onclick = connectWallet;
+document.getElementById('importBtn').onclick = importWallet;
+</script>
 </body>
 </html>
