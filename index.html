@@ -137,23 +137,14 @@
     <div class="marquee">Welcome to $SA - Mine SupremeAmer coins and join the revolution! 🚀💰🎉</div>
     <div class="container">
         <div id="logoContainer">
-            <!-- SupremeAmer Coin Animated Logo -->
-            <svg id="coinLogo" width="80" height="80" viewBox="0 0 100 100">
-                <defs>
-                    <radialGradient id="coinGradient" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stop-color="#fff700" />
-                        <stop offset="70%" stop-color="#fdc500" />
-                        <stop offset="100%" stop-color="#ff9800" />
-                    </radialGradient>
-                </defs>
-                <circle cx="50" cy="50" r="40" fill="url(#coinGradient)" stroke="#ff9800" stroke-width="6"/>
-                <text x="50" y="57" text-anchor="middle" font-size="36" font-family="Montserrat" font-weight="bold" fill="#fff" >S</text>
-                <g id="sparkleGroup" style="opacity:0;">
-                  <circle cx="80" cy="25" r="6" fill="#fff700" />
-                  <circle cx="20" cy="75" r="3" fill="#fff700" />
-                  <circle cx="70" cy="70" r="2.5" fill="#fff700" />
-                </g>
-            </svg>
+            <!-- SupremeAmer Coin Animated Logo - Replace SVG with the provided image for animation -->
+            <img id="coinLogo" src="supremeamer_coin.png" alt="SupremeAmer Coin" width="80" height="80" style="border-radius: 50%; box-shadow:0 4px 16px #ff980066;">
+            <!-- sparkles overlay -->
+            <div id="sparkleGroup" style="position:absolute; left:0; top:0; width:80px; height:80px; pointer-events:none; opacity:0;">
+                <div style="position:absolute; left:62px; top:10px; width:14px; height:14px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
+                <div style="position:absolute; left:16px; top:62px; width:7px; height:7px; background:radial-gradient(circle,#fff700 60%,transparent 100%); border-radius:50%;"></div>
+                <div style="position:absolute; left:53px; top:53px; width:5px; height:5px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
+            </div>
         </div>
         <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
         <div class="mined-coins" id="minedCoins">Mined Coins: 0</div>
@@ -192,7 +183,6 @@
         const sparkleGroup = document.getElementById('sparkleGroup');
         if (active) {
             logoContainer.classList.add('mining');
-            // Make sparkles visible and animate them
             if (sparkleGroup) sparkleGroup.style.opacity = '1';
             startLogoSpin();
         } else {
@@ -201,7 +191,7 @@
             stopLogoSpin();
         }
     }
-    // SVG spin animation control using JS for reliable start/stop
+    // IMG spin animation control using JS for reliable start/stop
     let spinAnimId = null;
     function startLogoSpin() {
         if(spinAnimId) return;
