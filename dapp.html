@@ -1,0 +1,1090 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SupremeAmer Word Connect Game</title>
+  <meta name="viewport" content="width=340, initial-scale=1">
+  <style>
+    body { background: #e0ffef; font-family: 'Comic Sans MS', cursive, sans-serif; text-align: center; margin: 0; padding: 0; }
+    #main-content { min-height: 600px; max-width: 340px; margin: 30px auto 0 auto; background: #fff; border-radius: 14px 14px 0 0; box-shadow: 0 8px 32px rgba(0,0,0,0.12); padding: 25px 10px 80px 10px;}
+    #footer { position: fixed; left: 0; right: 0; bottom: 0; width: 340px; max-width: 100vw; margin: 0 auto; background: #e0ffef; border-top: 1px solid #cdeacd; display: flex; justify-content: space-around; z-index: 10;}
+    .footer-btn { background: #ffe466; color: #333; border: 2px solid #e3b700; border-radius: 8px; font-size: 16px; font-weight: bold; padding: 8px 18px; cursor: pointer; margin: 0 4px; transition: background 0.2s;}
+    .footer-btn.active, .footer-btn:active { background: #ffd966; }
+    #level { font-weight: bold; color: #62bc5d; margin-bottom: 12px; font-size: 20px; }
+    #sac-point { color: #e3b700; margin-bottom: 8px; font-size: 17px; font-weight: bold; }
+    #grid { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; margin: 18px 0 28px;}
+    .cell { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; background: #f2fff7; border: 2px solid #62bc5d; border-radius: 8px; margin: 2px; font-size: 22px; font-weight: bold;}
+    .cell.hint { background: #ffe466; border-color: #e3b700; color: #ac8c00;}
+    #selector { margin: 0 auto 20px; display: flex; justify-content: center; gap: 10px;}
+    .letter { width: 44px; height: 44px; background: #ffe466; border: 2px solid #e3b700; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; cursor: pointer; margin: 2px;}
+    .letter.selected { background: #ffd966;}
+    #input-word { font-size: 22px; letter-spacing: 3px; margin-bottom: 12px;}
+    #submit-btn { background: #62bc5d; color: #fff; border: none; border-radius: 8px; font-size: 18px; padding: 8px 20px; cursor: pointer; margin-right: 8px;}
+    #submit-btn:active { background: #499c4a;}
+    #hint-btn { background: #ffe466; color: #ac8c00; border: none; border-radius: 8px; font-size: 17px; padding: 8px 20px; cursor: pointer; margin-left: 8px;}
+    #hint-btn:active { background: #ffea99;}
+    #reward-msg { color: #62bc5d; font-weight: bold; margin-bottom: 10px; font-size: 18px; min-height: 22px;}
+    #task-list {text-align: left; margin: 20px auto; max-width: 300px;}
+    .task-item {display: flex; align-items: center; margin-bottom: 14px; background: #f7f7f7; border-radius: 8px; padding: 8px;}
+    .task-item.completed {opacity:0.5; text-decoration:line-through;}
+    .task-title {flex:1;}
+    .complete-btn {background: #62bc5d; color: #fff; border: none; border-radius: 8px; font-size: 14px; padding: 6px 12px; cursor: pointer;}
+    #wallet-content {margin: 34px 0;}
+    #connect-wallet-btn {background: #62bc5d; color: #fff; border: none; border-radius: 8px; font-size: 16px; padding: 10px 26px; cursor: pointer;}
+    #wallet-address {font-size: 14px; color: #444; margin-top: 8px; word-break: break-all;}
+    #user-display {font-size: 15px; color:#333; margin-bottom:10px;}
+    @media (max-width: 350px) {
+      #main-content, #footer { width: 90vw; min-width: 0; }
+    }
+  </style>
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Your React bundle must expose window.renderDashboard -->
+  <script src="dashboard.bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+ </head>
+<body>
+  <div id="main-content"></div>
+  <div id="footer" style="display:none">
+    <button class="footer-btn active" id="home-btn">Home</button>
+    <button class="footer-btn" id="mine-btn">Mine</button>
+    <button class="footer-btn" id="task-btn">Task</button>
+    <button class="footer-btn" id="wallet-btn">Wallet</button>
+    <button class="footer-btn" id="history-btn">History</button>
+  </div>
+
+    <script>
+    const WORDS = [
+  "nooft","hide","defi","veil","skin","skrill","stock","mining","website","bitcoin",
+  "secret","furtive","covert","latent","conceal","hideout","forex","stocks","secrete","stash",
+  "hider","hideling","hidden","exposed","anonymous","pseudonym","incognito","mask","pokerface","cloak"business
+"services"
+"products"
+"software"
+"research"
+"comments"
+"national"
+"internetshipping"
+  
+"reserved"
+"security"
+"american"
+"computer"
+"download"
+"pictures"
+"personal"
+"location"
+"children"
+"students"
+"shopping"
+"previous"
+"property"
+"customer"
+"december"
+"training"
+"advanced"
+"category"
+"register"
+"november"
+"features"
+"industry"
+"provided"
+"required"
+"articles"
+"feedback"
+"complete"
+"standard"
+"programs"
+"language"
+"password"
+"question"
+"building"
+"february"
+"analysis"
+"possible"
+"problems"
+"interest"
+"learning"
+"delivery"
+"original"
+"includes"
+"messages"
+"provides"
+"specific"
+"director"
+"planning"
+"database"
+"official"
+"district"
+"calendar"
+"resource"
+"document"
+"material"
+"together"
+"function"
+"economic"
+"projects"
+"included"
+"received"
+"archives"
+"magazine"
+"policies"
+"position"
+"listings"
+"wireless"
+"purchase"
+"response"
+"practice"
+"hardware"
+"designed"
+"discount"
+"remember"
+"increase"
+"european"
+"activity"
+"although"
+"contents"
+"regional"
+"supplies"
+"exchange
+"continue"
+"benefits"
+"anything"
+"mortgage"
+"solution"
+"addition" "clothing" "military" "decision" "division"
+];
+
+const DEFAULT_TASKS = [
+  {id: 't1', title: 'Invite a friend', completed: false},
+  {id: 't2', title: 'Play 5 game levels', completed: false},
+  {id: 't3', title: 'Share your score', completed: false},
+  {id: 't4', title: 'Set your profile avatar', completed: false}
+];
+
+const ETH_RECEIVER = "YOUR_ETH_RECEIVER_ADDRESS_HERE"; // <-- SET THIS
+
+function getHintEthCost(level) {
+  if (level >= 1501 && level <= 3000) return "0.000019";
+  if (level >= 501 && level <= 1500) return "0.00001";
+  if (level >= 101 && level <= 500) return "0.000009";
+  if (level >= 10 && level <= 100) return "0.00005";
+  return null;
+}
+
+// --- Wallet-based Persistence ---
+function saveState(address, state) {
+  if (!address) return;
+  localStorage.setItem('tokenGameState_' + address, JSON.stringify(state));
+}
+function loadState(address) {
+  if (!address) return null;
+  const saved = localStorage.getItem('tokenGameState_' + address);
+  return saved ? JSON.parse(saved) : null;
+}
+
+// --- Temporary state before wallet connect ---
+let state = {
+  view: 'home',
+  game: { level: 0, sacPoint: 0, hintRevealedIdx: [], found: [] },
+  tasks: JSON.parse(JSON.stringify(DEFAULT_TASKS)),
+  wallet: { address: null },
+  transactions: []
+};
+
+const mainContent = document.getElementById('main-content');
+
+// --- Utility Functions ---
+function shuffle(array) {
+  let currentIndex = array.length, randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+  return array;
+}
+function getLetters(word) {
+  return shuffle(Array.from(word.replace(/ /g, '').toUpperCase()));
+}
+function generateGrid(word) {
+  return Array.from(word.replace(/ /g, '').toUpperCase());
+}
+function getCurrentReward(level) {
+  let reward = 100 * (level + 1);
+  if (reward > 3000000) reward = 3000000;
+  return reward;
+}
+function getHintPointCost(level) {
+  if (level < 10) return 20;
+  else if (level < 50) return 100;
+  else return 1000; // Only for <50, after that use ETH
+}
+
+async function requestHintEthPayment(level, signer) {
+  const ethCost = getHintEthCost(level);
+  if (!ethCost) return {success: true};
+  try {
+    const tx = await signer.sendTransaction({
+      to: ETH_RECEIVER,
+      value: ethers.utils.parseEther(ethCost)
+    });
+    mainContent.innerHTML += `<div style="color:#e3b700;font-weight:bold;">Waiting for payment confirmation...</div>`;
+    await tx.wait();
+    alert(`Payment of ${ethCost} ETH received. Hint unlocked!`);
+    return {success: true, ethCost, txHash: tx.hash};
+  } catch (e) {
+    alert(`ETH Payment failed or cancelled.`);
+    return {success: false};
+  }
+}
+
+function render() {
+  document.getElementById('footer').style.display = "flex";
+  document.getElementById('home-btn').classList.toggle('active', state.view==='home');
+  document.getElementById('task-btn').classList.toggle('active', state.view==='task');
+  document.getElementById('wallet-btn').classList.toggle('active', state.view==='wallet');
+  document.getElementById('history-btn').classList.toggle('active', state.view==='history');
+  if (state.view === 'home') renderGame();
+  else if (state.view === 'task') renderTask();
+  else if (state.view === 'wallet') renderWallet();
+  else if (state.view === 'history') renderHistory();
+}
+
+function renderGame() {
+  const level = state.game.level || 0;
+  const word = WORDS[level];
+  if (!word) {
+    mainContent.innerHTML = `<h2>Congratulations!<br>You finished all levels!</h2>`;
+    if (state.wallet.address) saveState(state.wallet.address, state);
+    return;
+  }
+  const grid = generateGrid(word);
+  const letters = getLetters(word);
+  const hintRevealedIdx = state.game.hintRevealedIdx || [];
+  const found = (state.game.found||[]).includes(level);
+  const sacPoint = state.game.sacPoint||0;
+  mainContent.innerHTML = `
+    <div id="level">LEVEL ${level+1}</div>
+    <div id="sac-point">$SAC-point: ${sacPoint.toLocaleString()}</div>
+    <div id="reward-msg"></div>
+    <div id="grid"></div>
+    <div id="input-word"></div>
+    <div id="selector"></div>
+    <button id="submit-btn">SUBMIT</button>
+    <button id="hint-btn">HINT ${
+      getHintEthCost(level)
+        ? `(-${getHintEthCost(level)} ETH)`
+        : `(-${getHintPointCost(level)} $SAC-point)`
+    }</button>
+  `;
+  const gridDiv = document.getElementById('grid');
+  for (let i = 0; i < grid.length; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    if (found || hintRevealedIdx.includes(i)) {
+      cell.innerText = grid[i];
+      if (hintRevealedIdx.includes(i)) cell.classList.add('hint');
+    } else {
+      cell.innerText = '';
+    }
+    gridDiv.appendChild(cell);
+  }
+  const selectorDiv = document.getElementById('selector');
+  let input = '';
+  letters.forEach((letter, idx) => {
+    const div = document.createElement('div');
+    div.className = 'letter';
+    div.innerText = letter;
+    div.onclick = () => {
+      if (!div.classList.contains('selected')) {
+        div.classList.add('selected');
+        input += letter;
+        document.getElementById('input-word').innerText = input;
+      }
+    };
+    selectorDiv.appendChild(div);
+  });
+  document.getElementById('submit-btn').onclick = () => {
+    if (input.replace(/ /g, '').toLowerCase() === word.replace(/ /g, '').toLowerCase()) {
+      const reward = getCurrentReward(level);
+      state.game.sacPoint = (state.game.sacPoint||0) + reward;
+      state.game.level = level + 1;
+      state.game.hintRevealedIdx = [];
+      state.game.found = state.game.found||[];
+      state.game.found.push(level);
+      state.transactions = state.transactions || [];
+      state.transactions.push({
+        type: "level-up",
+        level: level,
+        amount: reward,
+        timestamp: Date.now()
+      });
+      document.getElementById('reward-msg').innerText = `Correct! +${reward} $SAC-point`;
+      if (state.wallet.address) saveState(state.wallet.address, state);
+      setTimeout(render, 900);
+    } else {
+      document.getElementById('reward-msg').innerText = 'Try again!';
+      input = '';
+      document.querySelectorAll('.letter').forEach(x => x.classList.remove('selected'));
+      document.getElementById('input-word').innerText = '';
+    }
+  }
+  document.getElementById('hint-btn').onclick = async () => {
+    let ethTx = null;
+    if (getHintEthCost(level)) {
+      // ETH payment required
+      if (!state.wallet.address || !window.ethereum) {
+        alert("Connect your Web3 wallet first!");
+        return;
+      }
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      // Payment
+      ethTx = await requestHintEthPayment(level, signer);
+      if (!ethTx.success) return; // Do not reveal hint if payment failed
+    } else {
+      // $SAC-point payment
+      const cost = getHintPointCost(level);
+      if ((state.game.sacPoint||0) < cost) {
+        alert("Not enough $SAC-point for hint!");
+        return;
+      }
+      state.game.sacPoint -= cost;
+    }
+    // Reveal hint!
+    let unrevealed = [];
+    for (let i=0; i<grid.length; i++) {
+      if (!hintRevealedIdx.includes(i)) unrevealed.push(i);
+    }
+    if (unrevealed.length === 0) return;
+    let revealCount = Math.min(2, unrevealed.length);
+    for (let i=0; i<revealCount; i++) {
+      let idx = unrevealed.splice(Math.floor(Math.random()*unrevealed.length), 1)[0];
+      state.game.hintRevealedIdx.push(idx);
+    }
+    // Record transaction
+    state.transactions = state.transactions || [];
+    if (getHintEthCost(level) && ethTx && ethTx.success) {
+      state.transactions.push({
+        type: "hint",
+        level: level,
+        amount: ethTx.ethCost,
+        txHash: ethTx.txHash,
+        timestamp: Date.now()
+      });
+    } else if (!getHintEthCost(level)) {
+      state.transactions.push({
+        type: "hint",
+        level: level,
+        amount: getHintPointCost(level) + " $SAC",
+        timestamp: Date.now()
+      });
+    }
+    if (state.wallet.address) saveState(state.wallet.address, state);
+    render();
+  };
+  if (state.wallet.address) saveState(state.wallet.address, state);
+}
+
+function renderTask() {
+  let tasks = state.tasks || [];
+  mainContent.innerHTML = `<h2>Your Tasks</h2><div id="task-list"></div>`;
+  const taskList = document.getElementById('task-list');
+  tasks.forEach((task, idx) => {
+    const div = document.createElement('div');
+    div.className = 'task-item' + (task.completed ? ' completed' : '');
+    div.innerHTML = `<span class="task-title">${task.title}</span>` +
+      (!task.completed ? `<button class="complete-btn">Complete</button>` : `<span>✔️</span>`);
+    taskList.appendChild(div);
+    if (!task.completed) {
+      div.querySelector('.complete-btn').onclick = () => {
+        state.tasks[idx].completed = true;
+        state.game.sacPoint = (state.game.sacPoint||0) + 15;
+        if (state.wallet.address) saveState(state.wallet.address, state);
+        render();
+      };
+    }
+  });
+  state.tasks = tasks.filter(x=>!x.completed).concat(tasks.filter(x=>x.completed));
+  if (state.wallet.address) saveState(state.wallet.address, state);
+}
+    function rendermine() {
+  let tasks = state.tasks || [];
+  mainContent.innerHTML = `<h2>Your Tasks</h2><div id="task-list"></div>`;
+  const taskList = document.getElementById('task-list');
+  tasks.forEach((mine, idx) => {
+    const div = document.createElement('div');
+    div.className = 'task-item' + (task.completed ? ' completed' : '');
+    div.innerHTML = `<span class="task-title">${mine.title}</span>` +
+      (!task.completed ? `<button class="complete-btn">Complete</button>` : `<span>✔️</span>`);
+    taskList.appendChild(div);
+    if (!task.completed) {
+      div.querySelector('.complete-btn').onclick = () => {
+        state.tasks[idx].completed = true;
+        state.game.sacPoint = (state.game.sacPoint||0) + 15;
+        if (state.wallet.address) saveState(state.wallet.address, state);
+        render();
+      };
+    }
+  });
+  state.tasks = tasks.filter(x=>!x.completed).concat(tasks.filter(x=>x.completed));
+  if (state.wallet.address) saveState(state.wallet.address, state);
+}
+
+function renderWallet() {
+  let address = state.wallet.address;
+  mainContent.innerHTML = `
+    <h2>SupremeAmer Wallet</h2>
+    <div id="wallet-content">
+      <div style="font-size:24px; color:#e3b700; margin-bottom:10px;">$SAC-point: ${(state.game.sacPoint||0).toLocaleString()}</div>
+      <button id="connect-wallet-btn">${address ? "Connected" : "Connect Wallet"}</button>
+      <div id="wallet-address">${address ? "Address: " + address : ""}</div>
+    </div>
+  `;
+  document.getElementById('connect-wallet-btn').onclick = async () => {
+    if (address) return;
+    if (typeof window.ethereum === 'undefined') {
+      alert('Web3 wallet not found. Please install MetaMask or similar.');
+      return;
+    }
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const addr = await signer.getAddress();
+      state.wallet.address = addr;
+      // Load previous state for this wallet if exists!
+      const loaded = loadState(addr);
+      if (loaded) {
+        state = loaded;
+        state.wallet.address = addr; // in case previous state doesn't have wallet field
+      } else {
+        // Save current state for this address
+        saveState(addr, state);
+      }
+      render();
+    } catch (e) {
+      alert('Wallet connection failed!');
+    }
+  };
+  if (state.wallet.address) saveState(state.wallet.address, state);
+}
+
+function renderHistory() {
+  mainContent.innerHTML = `<h2>Transaction History</h2><div id="history-list"></div>`;
+  const list = document.getElementById('history-list');
+  const transactions = state.transactions || [];
+  if (!transactions.length) {
+    list.innerHTML = "<div>No transactions yet.</div>";
+    return;
+  }
+  transactions.slice().reverse().forEach(tx => {
+    const date = new Date(tx.timestamp).toLocaleString();
+    if (tx.type === "hint") {
+      if (tx.amount && tx.amount.toString().includes("ETH")) {
+        list.innerHTML += `<div style="margin-bottom:8px;">[${date}] Hint at Level ${tx.level+1} - Paid <b>${tx.amount} ETH</b>${tx.txHash ? ` (<a href="https://etherscan.io/tx/${tx.txHash}" target="_blank">View Tx</a>)` : ''}</div>`;
+      } else {
+        list.innerHTML += `<div style="margin-bottom:8px;">[${date}] Hint at Level ${tx.level+1} - Used <b>${tx.amount}</b></div>`;
+      }
+    } else if (tx.type === "level-up") {
+      list.innerHTML += `<div style="margin-bottom:8px;">[${date}] Level Up to Level ${tx.level+1} - Rewarded <b>${tx.amount} $SAC</b></div>`;
+    }
+  });
+}
+
+   
+
+    function showGame() {
+      // Unmount React dashboard if present
+      if(window.ReactDOM && window.ReactDOM.unmountComponentAtNode)
+        window.ReactDOM.unmountComponentAtNode(document.getElementById('main-content'));
+      render();
+    }
+
+    // --- Footer button events ---
+    document.getElementById('home-btn').onclick = ()=>{ logUserActivity('home_button_click'); state.view='home'; showGame(); };
+    document.getElementById('mine-btn').onclick = ()=>{ showDashboard(); };
+    document.getElementById('task-btn').onclick = ()=>{ logUserActivity('task_button_click'); state.view='task'; showGame(); };
+    document.getElementById('wallet-btn').onclick = ()=>{ logUserActivity('wallet_button_click'); state.view='wallet'; showGame(); };
+    document.getElementById('history-btn').onclick = ()=>{ logUserActivity('history_button_click'); state.view='history'; showGame(); };
+
+    window.onload = function() { showGame(); };
+
+    // Example: log game win or word guess
+    // function onWordGuessed(level, word) {
+    //   logUserActivity('word_guessed', {level, word});
+    // }
+    // Example: log task completion
+    // function onTaskComplete(taskId) {
+    //   logUserActivity('task_completed', {taskId});
+    // }
+        <script>
+    
+    // --- User Activity Logger ---
+    function logUserActivity(activityType, data={}) {
+      fetch("http://localhost:3001/activity", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          activityType,
+          data
+        })
+      }).catch(e => {
+        // Optionally handle errors (e.g., server down)
+        console.warn("Activity logging failed:", e);
+      });
+    }
+  </script>
+  </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SupremeAmer Word Connect Game</title>
+  <meta name="viewport" content="width=340, initial-scale=1">
+  <style>
+    body { background: #e0ffef; font-family: 'Comic Sans MS', cursive, sans-serif; text-align: center; margin: 0; padding: 0; }
+    #main-content { min-height: 600px; max-width: 340px; margin: 30px auto 0 auto; background: #fff; border-radius: 14px 14px 0 0; box-shadow: 0 8px 32px rgba(0,0,0,0.12); padding: 25px 10px 80px 10px;}
+    #footer { position: fixed; left: 0; right: 0; bottom: 0; width: 340px; max-width: 100vw; margin: 0 auto; background: #e0ffef; border-top: 1px solid #cdeacd; display: flex; justify-content: space-around; z-index: 10;}
+    .footer-btn { background: #ffe466; color: #333; border: 2px solid #e3b700; border-radius: 8px; font-size: 16px; font-weight: bold; padding: 8px 18px; cursor: pointer; margin: 0 4px; transition: background 0.2s;}
+    .footer-btn.active, .footer-btn:active { background: #ffd966; }
+    #level { font-weight: bold; color: #62bc5d; margin-bottom: 12px; font-size: 20px; }
+    #sac-point { color: #e3b700; margin-bottom: 8px; font-size: 17px; font-weight: bold; }
+    #grid { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; margin: 18px 0 28px;}
+    .cell { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; background: #f2fff7; border: 2px solid #62bc5d; border-radius: 8px; margin: 2px; font-size: 22px; font-weight: bold;}
+    .cell.hint { background: #ffe466; border-color: #e3b700; color: #ac8c00;}
+    #selector { margin: 0 auto 20px; display: flex; justify-content: center; gap: 10px;}
+    .letter { width: 44px; height: 44px; background: #ffe466; border: 2px solid #e3b700; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; cursor: pointer; margin: 2px;}
+    .letter.selected { background: #ffd966;}
+    #input-word { font-size: 22px; letter-spacing: 3px; margin-bottom: 12px;}
+    #submit-btn { background: #62bc5d; color: #fff; border: none; border-radius: 8px; font-size: 18px; padding: 8px 20px; cursor: pointer; margin-right: 8px;}
+    #submit-btn:active { background: #499c4a;}
+    #hint-btn { background: #ffe466; color: #ac8c00; border: none; border-radius: 8px; font-size: 17px; padding: 8px 20px; cursor: pointer; margin-left: 8px;}
+    #hint-btn:active { background: #ffea99;}
+    #reward-msg { color: #62bc5d; font-weight: bold; margin-bottom: 10px; font-size: 18px; min-height: 22px;}
+    #task-list {text-align: left; margin: 20px auto; max-width: 300px;}
+    .task-item {display: flex; align-items: center; margin-bottom: 14px; background: #f7f7f7; border-radius: 8px; padding: 8px;}
+    .task-item.completed {opacity:0.5; text-decoration:line-through;}
+    .task-title {flex:1;}
+    .complete-btn {background: #62bc5d; color: #fff; border: none; border-radius: 8px; font-size: 14px; padding: 6px 12px; cursor: pointer;}
+    #wallet-content {margin: 34px 0;}
+    #connect-wallet-btn {background: #62bc5d; color: #fff; border: none; border-radius: 8px; font-size: 16px; padding: 10px 26px; cursor: pointer;}
+    #wallet-address {font-size: 14px; color: #444; margin-top: 8px; word-break: break-all;}
+    #user-display {font-size: 15px; color:#333; margin-bottom:10px;}
+    @media (max-width: 350px) {
+      #main-content, #footer { width: 90vw; min-width: 0; }
+    }
+  </style>
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Your React bundle must expose window.renderDashboard -->
+  <script src="dashboard.bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+ </head>
+<body>
+  <div id="main-content"></div>
+  <div id="footer" style="display:none">
+    <button class="footer-btn active" id="home-btn">Home</button>
+    <button class="footer-btn" id="mine-btn">Mine</button>
+    <button class="footer-btn" id="task-btn">Task</button>
+    <button class="footer-btn" id="wallet-btn">Wallet</button>
+    <button class="footer-btn" id="history-btn">History</button>
+  </div>
+
+    <script>
+    const WORDS = [
+  "nooft","hide","defi","veil","skin","skrill","stock","mining","website","bitcoin",
+  "secret","furtive","covert","latent","conceal","hideout","forex","stocks","secrete","stash",
+  "hider","hideling","hidden","exposed","anonymous","pseudonym","incognito","mask","pokerface","cloak"business
+"services"
+"products"
+"software"
+"research"
+"comments"
+"national"
+"internetshipping"
+  
+"reserved"
+"security"
+"american"
+"computer"
+"download"
+"pictures"
+"personal"
+"location"
+"children"
+"students"
+"shopping"
+"previous"
+"property"
+"customer"
+"december"
+"training"
+"advanced"
+"category"
+"register"
+"november"
+"features"
+"industry"
+"provided"
+"required"
+"articles"
+"feedback"
+"complete"
+"standard"
+"programs"
+"language"
+"password"
+"question"
+"building"
+"february"
+"analysis"
+"possible"
+"problems"
+"interest"
+"learning"
+"delivery"
+"original"
+"includes"
+"messages"
+"provides"
+"specific"
+"director"
+"planning"
+"database"
+"official"
+"district"
+"calendar"
+"resource"
+"document"
+"material"
+"together"
+"function"
+"economic"
+"projects"
+"included"
+"received"
+"archives"
+"magazine"
+"policies"
+"position"
+"listings"
+"wireless"
+"purchase"
+"response"
+"practice"
+"hardware"
+"designed"
+"discount"
+"remember"
+"increase"
+"european"
+"activity"
+"although"
+"contents"
+"regional"
+"supplies"
+"exchange
+"continue"
+"benefits"
+"anything"
+"mortgage"
+"solution"
+"addition" "clothing" "military" "decision" "division"
+];
+
+const DEFAULT_TASKS = [
+  {id: 't1', title: 'Invite a friend', completed: false},
+  {id: 't2', title: 'Play 5 game levels', completed: false},
+  {id: 't3', title: 'Share your score', completed: false},
+  {id: 't4', title: 'Set your profile avatar', completed: false}
+];
+
+const ETH_RECEIVER = "YOUR_ETH_RECEIVER_ADDRESS_HERE"; // <-- SET THIS
+
+function getHintEthCost(level) {
+  if (level >= 1501 && level <= 3000) return "0.000019";
+  if (level >= 501 && level <= 1500) return "0.00001";
+  if (level >= 101 && level <= 500) return "0.000009";
+  if (level >= 10 && level <= 100) return "0.00005";
+  return null;
+}
+
+// --- Wallet-based Persistence ---
+function saveState(address, state) {
+  if (!address) return;
+  localStorage.setItem('tokenGameState_' + address, JSON.stringify(state));
+}
+function loadState(address) {
+  if (!address) return null;
+  const saved = localStorage.getItem('tokenGameState_' + address);
+  return saved ? JSON.parse(saved) : null;
+}
+
+// --- Temporary state before wallet connect ---
+let state = {
+  view: 'home',
+  game: { level: 0, sacPoint: 0, hintRevealedIdx: [], found: [] },
+  tasks: JSON.parse(JSON.stringify(DEFAULT_TASKS)),
+  wallet: { address: null },
+  transactions: []
+};
+
+const mainContent = document.getElementById('main-content');
+
+// --- Utility Functions ---
+function shuffle(array) {
+  let currentIndex = array.length, randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+  return array;
+}
+function getLetters(word) {
+  return shuffle(Array.from(word.replace(/ /g, '').toUpperCase()));
+}
+function generateGrid(word) {
+  return Array.from(word.replace(/ /g, '').toUpperCase());
+}
+function getCurrentReward(level) {
+  let reward = 100 * (level + 1);
+  if (reward > 3000000) reward = 3000000;
+  return reward;
+}
+function getHintPointCost(level) {
+  if (level < 10) return 20;
+  else if (level < 50) return 100;
+  else return 1000; // Only for <50, after that use ETH
+}
+
+async function requestHintEthPayment(level, signer) {
+  const ethCost = getHintEthCost(level);
+  if (!ethCost) return {success: true};
+  try {
+    const tx = await signer.sendTransaction({
+      to: ETH_RECEIVER,
+      value: ethers.utils.parseEther(ethCost)
+    });
+    mainContent.innerHTML += `<div style="color:#e3b700;font-weight:bold;">Waiting for payment confirmation...</div>`;
+    await tx.wait();
+    alert(`Payment of ${ethCost} ETH received. Hint unlocked!`);
+    return {success: true, ethCost, txHash: tx.hash};
+  } catch (e) {
+    alert(`ETH Payment failed or cancelled.`);
+    return {success: false};
+  }
+}
+
+function render() {
+  document.getElementById('footer').style.display = "flex";
+  document.getElementById('home-btn').classList.toggle('active', state.view==='home');
+  document.getElementById('task-btn').classList.toggle('active', state.view==='task');
+  document.getElementById('wallet-btn').classList.toggle('active', state.view==='wallet');
+  document.getElementById('history-btn').classList.toggle('active', state.view==='history');
+  if (state.view === 'home') renderGame();
+  else if (state.view === 'task') renderTask();
+  else if (state.view === 'wallet') renderWallet();
+  else if (state.view === 'history') renderHistory();
+}
+
+function renderGame() {
+  const level = state.game.level || 0;
+  const word = WORDS[level];
+  if (!word) {
+    mainContent.innerHTML = `<h2>Congratulations!<br>You finished all levels!</h2>`;
+    if (state.wallet.address) saveState(state.wallet.address, state);
+    return;
+  }
+  const grid = generateGrid(word);
+  const letters = getLetters(word);
+  const hintRevealedIdx = state.game.hintRevealedIdx || [];
+  const found = (state.game.found||[]).includes(level);
+  const sacPoint = state.game.sacPoint||0;
+  mainContent.innerHTML = `
+    <div id="level">LEVEL ${level+1}</div>
+    <div id="sac-point">$SAC-point: ${sacPoint.toLocaleString()}</div>
+    <div id="reward-msg"></div>
+    <div id="grid"></div>
+    <div id="input-word"></div>
+    <div id="selector"></div>
+    <button id="submit-btn">SUBMIT</button>
+    <button id="hint-btn">HINT ${
+      getHintEthCost(level)
+        ? `(-${getHintEthCost(level)} ETH)`
+        : `(-${getHintPointCost(level)} $SAC-point)`
+    }</button>
+  `;
+  const gridDiv = document.getElementById('grid');
+  for (let i = 0; i < grid.length; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    if (found || hintRevealedIdx.includes(i)) {
+      cell.innerText = grid[i];
+      if (hintRevealedIdx.includes(i)) cell.classList.add('hint');
+    } else {
+      cell.innerText = '';
+    }
+    gridDiv.appendChild(cell);
+  }
+  const selectorDiv = document.getElementById('selector');
+  let input = '';
+  letters.forEach((letter, idx) => {
+    const div = document.createElement('div');
+    div.className = 'letter';
+    div.innerText = letter;
+    div.onclick = () => {
+      if (!div.classList.contains('selected')) {
+        div.classList.add('selected');
+        input += letter;
+        document.getElementById('input-word').innerText = input;
+      }
+    };
+    selectorDiv.appendChild(div);
+  });
+  document.getElementById('submit-btn').onclick = () => {
+    if (input.replace(/ /g, '').toLowerCase() === word.replace(/ /g, '').toLowerCase()) {
+      const reward = getCurrentReward(level);
+      state.game.sacPoint = (state.game.sacPoint||0) + reward;
+      state.game.level = level + 1;
+      state.game.hintRevealedIdx = [];
+      state.game.found = state.game.found||[];
+      state.game.found.push(level);
+      state.transactions = state.transactions || [];
+      state.transactions.push({
+        type: "level-up",
+        level: level,
+        amount: reward,
+        timestamp: Date.now()
+      });
+      document.getElementById('reward-msg').innerText = `Correct! +${reward} $SAC-point`;
+      if (state.wallet.address) saveState(state.wallet.address, state);
+      setTimeout(render, 900);
+    } else {
+      document.getElementById('reward-msg').innerText = 'Try again!';
+      input = '';
+      document.querySelectorAll('.letter').forEach(x => x.classList.remove('selected'));
+      document.getElementById('input-word').innerText = '';
+    }
+  }
+  document.getElementById('hint-btn').onclick = async () => {
+    let ethTx = null;
+    if (getHintEthCost(level)) {
+      // ETH payment required
+      if (!state.wallet.address || !window.ethereum) {
+        alert("Connect your Web3 wallet first!");
+        return;
+      }
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      // Payment
+      ethTx = await requestHintEthPayment(level, signer);
+      if (!ethTx.success) return; // Do not reveal hint if payment failed
+    } else {
+      // $SAC-point payment
+      const cost = getHintPointCost(level);
+      if ((state.game.sacPoint||0) < cost) {
+        alert("Not enough $SAC-point for hint!");
+        return;
+      }
+      state.game.sacPoint -= cost;
+    }
+    // Reveal hint!
+    let unrevealed = [];
+    for (let i=0; i<grid.length; i++) {
+      if (!hintRevealedIdx.includes(i)) unrevealed.push(i);
+    }
+    if (unrevealed.length === 0) return;
+    let revealCount = Math.min(2, unrevealed.length);
+    for (let i=0; i<revealCount; i++) {
+      let idx = unrevealed.splice(Math.floor(Math.random()*unrevealed.length), 1)[0];
+      state.game.hintRevealedIdx.push(idx);
+    }
+    // Record transaction
+    state.transactions = state.transactions || [];
+    if (getHintEthCost(level) && ethTx && ethTx.success) {
+      state.transactions.push({
+        type: "hint",
+        level: level,
+        amount: ethTx.ethCost,
+        txHash: ethTx.txHash,
+        timestamp: Date.now()
+      });
+    } else if (!getHintEthCost(level)) {
+      state.transactions.push({
+        type: "hint",
+        level: level,
+        amount: getHintPointCost(level) + " $SAC",
+        timestamp: Date.now()
+      });
+    }
+    if (state.wallet.address) saveState(state.wallet.address, state);
+    render();
+  };
+  if (state.wallet.address) saveState(state.wallet.address, state);
+}
+
+function renderTask() {
+  let tasks = state.tasks || [];
+  mainContent.innerHTML = `<h2>Your Tasks</h2><div id="task-list"></div>`;
+  const taskList = document.getElementById('task-list');
+  tasks.forEach((task, idx) => {
+    const div = document.createElement('div');
+    div.className = 'task-item' + (task.completed ? ' completed' : '');
+    div.innerHTML = `<span class="task-title">${task.title}</span>` +
+      (!task.completed ? `<button class="complete-btn">Complete</button>` : `<span>✔️</span>`);
+    taskList.appendChild(div);
+    if (!task.completed) {
+      div.querySelector('.complete-btn').onclick = () => {
+        state.tasks[idx].completed = true;
+        state.game.sacPoint = (state.game.sacPoint||0) + 15;
+        if (state.wallet.address) saveState(state.wallet.address, state);
+        render();
+      };
+    }
+  });
+  state.tasks = tasks.filter(x=>!x.completed).concat(tasks.filter(x=>x.completed));
+  if (state.wallet.address) saveState(state.wallet.address, state);
+}
+    function rendermine() {
+  let tasks = state.tasks || [];
+  mainContent.innerHTML = `<h2>Your Tasks</h2><div id="task-list"></div>`;
+  const taskList = document.getElementById('task-list');
+  tasks.forEach((mine, idx) => {
+    const div = document.createElement('div');
+    div.className = 'task-item' + (task.completed ? ' completed' : '');
+    div.innerHTML = `<span class="task-title">${mine.title}</span>` +
+      (!task.completed ? `<button class="complete-btn">Complete</button>` : `<span>✔️</span>`);
+    taskList.appendChild(div);
+    if (!task.completed) {
+      div.querySelector('.complete-btn').onclick = () => {
+        state.tasks[idx].completed = true;
+        state.game.sacPoint = (state.game.sacPoint||0) + 15;
+        if (state.wallet.address) saveState(state.wallet.address, state);
+        render();
+      };
+    }
+  });
+  state.tasks = tasks.filter(x=>!x.completed).concat(tasks.filter(x=>x.completed));
+  if (state.wallet.address) saveState(state.wallet.address, state);
+}
+
+function renderWallet() {
+  let address = state.wallet.address;
+  mainContent.innerHTML = `
+    <h2>SupremeAmer Wallet</h2>
+    <div id="wallet-content">
+      <div style="font-size:24px; color:#e3b700; margin-bottom:10px;">$SAC-point: ${(state.game.sacPoint||0).toLocaleString()}</div>
+      <button id="connect-wallet-btn">${address ? "Connected" : "Connect Wallet"}</button>
+      <div id="wallet-address">${address ? "Address: " + address : ""}</div>
+    </div>
+  `;
+  document.getElementById('connect-wallet-btn').onclick = async () => {
+    if (address) return;
+    if (typeof window.ethereum === 'undefined') {
+      alert('Web3 wallet not found. Please install MetaMask or similar.');
+      return;
+    }
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const addr = await signer.getAddress();
+      state.wallet.address = addr;
+      // Load previous state for this wallet if exists!
+      const loaded = loadState(addr);
+      if (loaded) {
+        state = loaded;
+        state.wallet.address = addr; // in case previous state doesn't have wallet field
+      } else {
+        // Save current state for this address
+        saveState(addr, state);
+      }
+      render();
+    } catch (e) {
+      alert('Wallet connection failed!');
+    }
+  };
+  if (state.wallet.address) saveState(state.wallet.address, state);
+}
+
+function renderHistory() {
+  mainContent.innerHTML = `<h2>Transaction History</h2><div id="history-list"></div>`;
+  const list = document.getElementById('history-list');
+  const transactions = state.transactions || [];
+  if (!transactions.length) {
+    list.innerHTML = "<div>No transactions yet.</div>";
+    return;
+  }
+  transactions.slice().reverse().forEach(tx => {
+    const date = new Date(tx.timestamp).toLocaleString();
+    if (tx.type === "hint") {
+      if (tx.amount && tx.amount.toString().includes("ETH")) {
+        list.innerHTML += `<div style="margin-bottom:8px;">[${date}] Hint at Level ${tx.level+1} - Paid <b>${tx.amount} ETH</b>${tx.txHash ? ` (<a href="https://etherscan.io/tx/${tx.txHash}" target="_blank">View Tx</a>)` : ''}</div>`;
+      } else {
+        list.innerHTML += `<div style="margin-bottom:8px;">[${date}] Hint at Level ${tx.level+1} - Used <b>${tx.amount}</b></div>`;
+      }
+    } else if (tx.type === "level-up") {
+      list.innerHTML += `<div style="margin-bottom:8px;">[${date}] Level Up to Level ${tx.level+1} - Rewarded <b>${tx.amount} $SAC</b></div>`;
+    }
+  });
+}
+
+   
+
+    function showGame() {
+      // Unmount React dashboard if present
+      if(window.ReactDOM && window.ReactDOM.unmountComponentAtNode)
+        window.ReactDOM.unmountComponentAtNode(document.getElementById('main-content'));
+      render();
+    }
+
+    // --- Footer button events ---
+    document.getElementById('home-btn').onclick = ()=>{ logUserActivity('home_button_click'); state.view='home'; showGame(); };
+    document.getElementById('mine-btn').onclick = ()=>{ showDashboard(); };
+    document.getElementById('task-btn').onclick = ()=>{ logUserActivity('task_button_click'); state.view='task'; showGame(); };
+    document.getElementById('wallet-btn').onclick = ()=>{ logUserActivity('wallet_button_click'); state.view='wallet'; showGame(); };
+    document.getElementById('history-btn').onclick = ()=>{ logUserActivity('history_button_click'); state.view='history'; showGame(); };
+
+    window.onload = function() { showGame(); };
+
+    // Example: log game win or word guess
+    // function onWordGuessed(level, word) {
+    //   logUserActivity('word_guessed', {level, word});
+    // }
+    // Example: log task completion
+    // function onTaskComplete(taskId) {
+    //   logUserActivity('task_completed', {taskId});
+    // }
+        <script>
+    
+    // --- User Activity Logger ---
+    function logUserActivity(activityType, data={}) {
+      fetch("http://localhost:3001/activity", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          activityType,
+          data
+        })
+      }).catch(e => {
+        // Optionally handle errors (e.g., server down)
+        console.warn("Activity logging failed:", e);
+      });
+    }
+  </script>
+  </script>
+</body>
+</html>
