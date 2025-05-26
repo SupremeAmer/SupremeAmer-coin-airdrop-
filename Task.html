@@ -1,22 +1,478 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Page</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>SupremeAmer | Task Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Modern Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --secondary: #7c3aed;
+      --ads: #f59e42;
+      --active: #10b981;
+      --bg: #f4f6fb;
+      --white: #fff;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --gray: #6b7280;
+      --light: #e0e7ff;
+      --radius: 14px;
+      --shadow: 0 10px 28px rgba(0,0,0,0.08);
+    }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      font-family: 'Inter', Arial, sans-serif;
+      color: #232323;
+    }
+    .container {
+      max-width: 680px;
+      margin: 40px auto;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 22px 28px 22px;
+    }
+    h1 {
+      margin-bottom: 10px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      font-size: 2rem;
+    }
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .task-card {
+      background: #f9faff;
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 7px solid var(--primary);
+      transition: box-shadow 0.18s, background 0.18s, opacity 0.18s;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.07);
+      position: relative;
+    }
+    .task-card.airdrop { border-left-color: var(--secondary);}
+    .task-card.ads { border-left-color: var(--ads);}
+    .task-card.active { border-left-color: var(--active);}
+    .task-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .task-type {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray);
+      margin-bottom: 1px;
+    }
+    .task-title {
+      font-size: 1.06rem;
+      font-weight: 600;
+      color: #18181b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .task-reward {
+      background: var(--light);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 5px;
+      padding: 2px 10px;
+      margin-left: 7px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .task-desc {
+      font-size: 13px;
+      color: #575757;
+      margin-top: 2px;
+      max-width: 320px;
+      word-break: break-word;
+      line-height: 1.34;
+    }
+    .task-card.completed {
+      opacity: 0.55;
+      pointer-events: none;
+      background: #e5e7eb;
+      box-shadow: none;
+    }
+    .task-action {
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .task-btn {
+      padding: 7px 18px;
+      border: none;
+      border-radius: 7px;
+      background: var(--primary);
+      color: var(--white);
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.17s, color 0.17s;
+      box-shadow: 0 2px 5px rgba(99,102,241,0.04);
+    }
+    .task-btn:disabled, .task-card.completed .task-btn {
+      background: #d1d5db;
+      color: #7c7c7c;
+      cursor: not-allowed;
+    }
+    .task-btn.social { background: var(--secondary);}
+    .task-btn.ads { background: var(--ads);}
+    .task-btn.active { background: var(--active);}
+    /* Popup */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 32px;
+      right: 32px;
+      z-index: 1002;
+      background: var(--white);
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 17px 34px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.14);
+      border: 2.3px solid #e1e1e1;
+      opacity: 0.97;
+      transition: opacity 0.18s;
+    }
+    .popup.success { border-color: var(--success); color: var(--success);}
+    .popup.error { border-color: var(--danger); color: var(--danger);}
+    .popup.show { display: block; }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.18);
+      justify-content: center;
+      align-items: center;
+      z-index: 1001;
+    }
+    .modal-content {
+      background: var(--white);
+      border-radius: 13px;
+      padding: 24px 34px;
+      min-width: 320px;
+      box-shadow: 0 9px 32px rgba(0,0,0,0.13);
+      position: relative;
+      max-width: 92vw;
+    }
+    .modal-header {
+      font-size: 1.18rem;
+      font-weight: 900;
+      margin-bottom: 13px;
+      color: var(--primary);
+    }
+    .modal-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+    .modal-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .modal-list a {
+      color: var(--secondary);
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 1.03rem;
+    }
+    .close-modal {
+      background: #f9fafb;
+      border: none;
+      padding: 8px 22px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 18px;
+      font-size: 1rem;
+      transition: background 0.15s;
+    }
+    .close-modal:hover { background: #ececec;}
+    /* Balance display */
+    .balance-bar {
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 20px;
+      background: #e0e7ff;
+      padding: 10px 18px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 6px rgba(99,102,241,0.04);
+      word-break: break-word;
+    }
+    @media (max-width: 700px) {
+      .container { padding: 14px 5vw;}
+      .modal-content { padding: 16px 8vw;}
+    }
+    @media (max-width: 430px) {
+      h1 { font-size: 1.2rem;}
+      .balance-bar { font-size: 1rem;}
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Complete the Tasks</h1>
-        <div class="task-list"></div>
-        <div class="error-popup" id="error-popup">
-            <p>Error: Task already started!</p>
-        </div>
-        <div class="complete-popup" id="complete-popup">
-            <p>Task completed!</p>
-        </div>
+  <div class="container">
+    <h1>SupremeAmer Tasks</h1>
+    <div class="balance-bar">
+      <span>Mining Dashboard Balance:</span>
+      <span id="balance">0</span>
+      <span style="font-size:0.98em;">SupremeAmer Coin</span>
     </div>
-    <script src="script.js"></script>
+    <div class="task-list"></div>
+  </div>
+  <!-- Popups -->
+  <div class="popup success" id="success-popup"></div>
+  <div class="popup error" id="error-popup"></div>
+  <!-- Social Modal -->
+  <div class="modal" id="social-modal">
+    <div class="modal-content">
+      <div class="modal-header">Follow Our Communities</div>
+      <ul class="modal-list">
+        <li><a href="https://twitter.com/supremeamer" target="_blank">Twitter</a></li>
+        <li><a href="https://t.me/supremeamer" target="_blank">Telegram</a></li>
+        <li><a href="https://discord.gg/supremeamer" target="_blank">Discord</a></li>
+      </ul>
+      <button class="close-modal" onclick="closeSocialModal()">Done</button>
+    </div>
+  </div>
+  <script>
+    // --- Task Definitions ---
+    const tasks = [
+      // --- AIRDROP TASKS ---
+      {
+        id: 'upgrade-speed',
+        type: 'airdrop',
+        title: 'Upgrade mining speed to 0.5/sec',
+        description: 'Upgrade your mining speed to at least 0.5/sec.',
+        reward: 500,
+        verify: () => {
+          const speed = parseFloat(localStorage.getItem('miningSpeed') || '0');
+          return speed >= 0.5;
+        }
+      },
+      {
+        id: 'invite-5-friends',
+        type: 'airdrop',
+        title: 'Invite 5 friends',
+        description: 'Invite at least 5 friends to join SupremeAmer.',
+        reward: 100,
+        verify: () => {
+          const invites = parseInt(localStorage.getItem('invitedFriends') || '0');
+          return invites >= 5;
+        }
+      },
+      {
+        id: 'follow-communities',
+        type: 'airdrop',
+        title: 'Follow our communities',
+        description: 'Follow us on Twitter, Telegram, and Discord.',
+        reward: 50,
+        isSocial: true,
+        verify: () => {
+          return localStorage.getItem('socialFollowed') === 'true';
+        }
+      },
+      {
+        id: 'join-telegram',
+        type: 'airdrop',
+        title: 'Join our Telegram group',
+        description: 'Be part of the SupremeAmer Telegram group.',
+        reward: 50,
+        isSocial: true,
+        verify: () => {
+          return localStorage.getItem('telegramJoined') === 'true';
+        }
+      },
+      {
+        id: 'join-discord',
+        type: 'airdrop',
+        title: 'Join our Discord server',
+        description: 'Participate in SupremeAmer Discord.',
+        reward: 50,
+        isSocial: true,
+        verify: () => {
+          return localStorage.getItem('discordJoined') === 'true';
+        }
+      },
+      // --- ADS TASKS ---
+      ...Array.from({length: 7}, (_, i) => ({
+        id: `ads-task-${i+1}`,
+        type: 'ads',
+        title: `Watch Ad #${i+1}`,
+        description: 'Watch a sponsor video ad to earn reward.',
+        reward: 30,
+        verify: () => {
+          return localStorage.getItem(`adWatched${i+1}`) === 'true';
+        }
+      })),
+      // --- ACTIVE TASKS ---
+      ...Array.from({length: 8}, (_, i) => ({
+        id: `active-task-${i+1}`,
+        type: 'active',
+        title: `Complete Active Task #${i+1}`,
+        description: 'Do daily active engagement to earn reward.',
+        reward: 10,
+        verify: () => {
+          return localStorage.getItem(`activeTask${i+1}`) === 'true';
+        }
+      }))
+    ];
+    // If fewer than 20, fill with more active tasks
+    while (tasks.length < 20) {
+      const n = tasks.length + 1;
+      tasks.push({
+        id: `active-task-extra-${n}`,
+        type: 'active',
+        title: `Complete Active Task #${n}`,
+        description: 'Do daily active engagement to earn reward.',
+        reward: 10,
+        verify: () => {
+          return localStorage.getItem(`activeTaskExtra${n}`) === 'true';
+        }
+      });
+    }
+    // --- Rendering and State ---
+    const taskList = document.querySelector('.task-list');
+    const balanceEl = document.getElementById('balance');
+    const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '{}');
+    function renderBalance() {
+      balanceEl.textContent = localStorage.getItem('miningBalance') || '0';
+    }
+    function renderTasks() {
+      taskList.innerHTML = '';
+      tasks.forEach(task => {
+        const isCompleted = completedTasks[task.id];
+        const card = document.createElement('div');
+        card.className = `task-card ${task.type}${isCompleted ? ' completed' : ''}`;
+        card.innerHTML = `
+          <div class="task-info">
+            <div class="task-type">${task.type === 'airdrop' ? 'Airdrop Task' : task.type === 'ads' ? 'Ads Task' : 'Active Task'}</div>
+            <div class="task-title">${task.title}
+              <span class="task-reward">+${task.reward} SupremeAmer Coin</span>
+            </div>
+            <div class="task-desc">${task.description}</div>
+          </div>
+          <div class="task-action">
+            <button class="task-btn ${task.isSocial ? 'social' : task.type}" ${isCompleted ? 'disabled' : ''} data-task="${task.id}">
+              ${isCompleted ? 'Completed' : (task.isSocial ? 'Show Socials' : (task.type === 'ads' ? 'Watch Ad' : 'Complete'))}
+            </button>
+          </div>
+        `;
+        taskList.appendChild(card);
+      });
+    }
+    renderBalance();
+    renderTasks();
+
+    // --- Popups ---
+    function showPopup(type, msg) {
+      const popup = document.getElementById(type === 'success' ? 'success-popup' : 'error-popup');
+      popup.textContent = msg;
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 2200);
+    }
+    // --- Social Modal ---
+    const socialModal = document.getElementById('social-modal');
+    function openSocialModal(taskId) {
+      socialModal.style.display = 'flex';
+      socialModal.setAttribute('data-taskid', taskId);
+    }
+    function closeSocialModal() {
+      socialModal.style.display = 'none';
+      const tid = socialModal.getAttribute('data-taskid');
+      // Mark as done for relevant tasks
+      if (tid === 'follow-communities') {
+        localStorage.setItem('socialFollowed', 'true');
+      } else if (tid === 'join-telegram') {
+        localStorage.setItem('telegramJoined', 'true');
+      } else if (tid === 'join-discord') {
+        localStorage.setItem('discordJoined', 'true');
+      }
+      handleTaskCompletion(tid);
+    }
+    window.closeSocialModal = closeSocialModal;
+
+    // --- Task Action Handler ---
+    taskList.addEventListener('click', async (e) => {
+      if (!e.target.classList.contains('task-btn')) return;
+      const taskId = e.target.getAttribute('data-task');
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+      if (task.isSocial) {
+        openSocialModal(taskId);
+        return;
+      }
+      if (task.type === 'ads') {
+        await simulateAdWatch(taskId);
+        localStorage.setItem(`adWatched${taskId.split('-').pop()}`, 'true');
+      }
+      if (task.type === 'active') {
+        localStorage.setItem(`activeTask${taskId.split('-').pop()}`, 'true');
+      }
+      handleTaskCompletion(taskId);
+    });
+    function handleTaskCompletion(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+      if (completedTasks[taskId]) return;
+      if (task.verify && task.verify()) {
+        completedTasks[taskId] = true;
+        localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+        // Credit reward
+        const bal = parseInt(localStorage.getItem('miningBalance') || '0');
+        localStorage.setItem('miningBalance', bal + task.reward);
+        renderBalance();
+        showPopup('success', `Task completed & +${task.reward} coins credited!`);
+        renderTasks();
+      } else {
+        showPopup('error', 'Task verification failed! Complete the task first.');
+      }
+    }
+    // --- Simulate Ad Watching ---
+    function simulateAdWatch(taskId) {
+      return new Promise(res => {
+        showPopup('success', 'Watching ad...');
+        setTimeout(res, 1500);
+      });
+    }
+    // --- Ensure initial miningBalance exists ---
+    if (!localStorage.getItem('miningBalance')) {
+      localStorage.setItem('miningBalance', '0');
+    }
+    // --- For demonstration, add easy debug helpers ---
+    window.debugSetMiningSpeed = function(speed) {
+      localStorage.setItem('miningSpeed', speed);
+      alert('Mining speed set to ' + speed);
+    };
+    window.debugInviteFriends = function(cnt) {
+      localStorage.setItem('invitedFriends', cnt);
+      alert('Invited friends set to ' + cnt);
+    };
+  </script>
 </body>
 </html>
