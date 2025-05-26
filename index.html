@@ -3,143 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <marquee behavior="scroll" direction="left" style="background-color: #333; color: #fff; padding: 10px; font-size: 18px;">Welcome to $SA🚀💰💰🚀🎉</marquee>
-    <title>Mining Page</title>
+    <title>SupremeAmer Coin Airdrop</title>
+    <!-- Google Fonts for a modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Montserrat', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #111 70%, #ff9800 100%);
+            color: #fff;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #000;
-            margin: 0;
+            justify-content: center;
         }
-        .mining {
+        .header {
+            width: 100%;
+            padding: 25px 0 10px 0;
             text-align: center;
-            background: green;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: auto;
+            background: rgba(0,0,0,0.7);
+            font-size: 2.4em;
+            font-weight: bold;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 16px #ffeb3b33;
+        }
+        .marquee {
+            background: linear-gradient(90deg, #ff9800, #fdc500, #ff9800);
+            color: #222;
+            font-size: 1.2em;
+            padding: 8px 0;
+            margin-bottom: 18px;
+            animation: marquee 15s linear infinite;
+            white-space: nowrap;
+            overflow: hidden;
+            border-radius: 0 0 16px 16px;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%);}
+            100%{ transform: translateX(-100%);}
+        }
+        .container {
+            background: rgba(30, 30, 40, 0.95);
+            padding: 36px 32px 28px 32px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px #0006;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
         }
         .mined-coins {
-            font-size: 2em;
-            margin: 20px 0;
-            color: orange;
+            font-size: 2.3em;
+            margin: 14px 0;
+            color: #ffb900;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 1em;
+        .timer {
+            font-size: 1.5em;
+            color: #ff3333;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+        .mine-btn {
+            padding: 15px 38px;
+            background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%);
+            color: #111;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
             cursor: pointer;
+            transition: box-shadow 0.2s, background 0.2s;
+            box-shadow: 0 4px 16px #ff980066;
+        }
+        .mine-btn:hover {
+            background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%);
+            box-shadow: 0 8px 24px #ff980099;
         }
         .footer {
             width: 100%;
             display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            background: orange;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+            justify-content: center;
+            gap: 28px;
+            padding: 18px 0;
+            background: rgba(255, 184, 0, 0.09);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            border-radius: 18px 18px 0 0;
+            box-shadow: 0 -4px 24px #ff980022;
+            z-index: 999;
         }
-        .timer {
+        .footer button {
+            background: #fff;
+            color: #ff9800;
+            border: none;
+            border-radius: 50%;
+            width: 52px;
+            height: 52px;
             font-size: 2em;
-            margin: 20px 0;
-            color: red;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px #2222;
+            transition: background 0.2s, color 0.2s;
+        }
+        .footer button:hover {
+            background: #ff9800;
+            color: #fff;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 18px 6px; }
+            .header { font-size: 1.3em; }
+            .footer button { width: 44px; height: 44px; font-size: 1.3em;}
         }
     </style>
 </head>
 <body>
-    <div class="mining">
-        <h1>SUPREMEAMER 💰⛏️⛏️</h1>
+    <div class="header">SUPREMEAMER COIN AIRDROP 🚀💰</div>
+    <div class="marquee">Welcome to $SA - Mine SupremeAmer coins and join the revolution! 🚀💰🎉</div>
+    <div class="container">
+        <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
         <div class="mined-coins" id="minedCoins">Mined Coins: 0</div>
-        <div class="timer" id="timer">Time remaining: 12 hours</div>
-        <button onclick="startMining()">Start Mining</button>
+        <div class="timer" id="timer">12:00:00</div>
+        <button class="mine-btn" onclick="startMining()">Start Mining</button>
     </div>
     <div class="footer">
-        <button onclick="window.location.href='index.html'">🏠</button>
-        <button onclick="window.location.href='Task.html'">📜</button>
-        <button onclick="window.location.href='wallet.html'">💸</button>
-         <button onclick="window.location.href='dapp.html'"></🎮button>
+        <button onclick="window.location.href='index.html'" title="Home">🏠</button>
+        <button onclick="window.location.href='Task.html'" title="Tasks">📜</button>
+        <button onclick="window.location.href='wallet.html'" title="Wallet">💸</button>
+        <button onclick="window.location.href='dapp.html'" title="DApp">🎮</button>
     </div>
     <script>
+        let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
+        let miningInterval;
+        let timerInterval;
+        let elapsedTime = parseInt(localStorage.getItem('elapsedTime')) || 0;
+        let remainingTime = localStorage.getItem('remainingTime');
 
-let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
-let miningInterval;
-let timerInterval;
-let elapsedTime = parseInt(localStorage.getItem('elapsedTime')) || 0;
-let remainingTime = localStorage.getItem('remainingTime');
+        if (!remainingTime) {
+            remainingTime = 12 * 60 * 60 * 1000; // 12 hours in ms
+            localStorage.setItem('remainingTime', remainingTime);
+        }
 
-if (!remainingTime) {
-  remainingTime = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
-  localStorage.setItem('remainingTime', remainingTime);
-}
+        function startMining() {
+            if (!miningInterval) {
+                miningInterval = setInterval(mineCoins, 1000); // mine coins every second
+                timerInterval = setInterval(updateTimer, 1000); // update timer every second
+            }
+        }
 
-function startMining() {
-  if (!miningInterval) {
-    miningInterval = setInterval(mineCoins, 1000); // mine coins every second
-    timerInterval = setInterval(updateTimer, 1000); // update timer every second
-  }
-}
+        function mineCoins() {
+            minedCoins += 0.0002;
+            localStorage.setItem('minedCoins', minedCoins);
+            updateMinedCoinsDisplay();
+        }
 
-function mineCoins() {
-  minedCoins += 0.0002; // increment mined coins by 0.0002
-  localStorage.setItem('minedCoins', minedCoins);
-  updateMinedCoinsDisplay();
-}
+        function updateMinedCoinsDisplay() {
+            document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins.toFixed(4)}`;
+        }
 
-function updateMinedCoinsDisplay() {
-  document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins.toFixed(4)}`;
-}
+        function updateTimer() {
+            elapsedTime += 1000;
+            localStorage.setItem('elapsedTime', elapsedTime);
+            remainingTime = 12 * 60 * 60 * 1000 - elapsedTime;
+            localStorage.setItem('remainingTime', remainingTime);
+            if (remainingTime <= 0) {
+                stopMining();
+                document.getElementById('timer').textContent = "00:00:00";
+            } else {
+                const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+                const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+                const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+                const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
+                document.getElementById('timer').textContent = formattedTime;
+            }
+        }
 
-function updateTimer() {
-  elapsedTime += 1000; // increment elapsed time by 1 second
-  localStorage.setItem('elapsedTime', elapsedTime);
-  remainingTime = 12 * 60 * 60 * 1000 - elapsedTime;
-  localStorage.setItem('remainingTime', remainingTime);
-  if (remainingTime <= 0) {
-    stopMining();
-  } else {
-    const hours = Math.floor(remainingTime / (60 * 60 * 1000));
-    const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
-    const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-    const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}.`;
-    document.getElementById('timer').textContent = formattedTime;
-  }
-}
+        function padZero(value, length = 2) {
+            return String(value).padStart(length, '0');
+        }
 
-function padZero(value, length = 2) {
-  return String(value).padStart(length, '0');
-}
+        function stopMining() {
+            clearInterval(miningInterval);
+            clearInterval(timerInterval);
+            alert('Mining session ended!');
+        }
 
-function stopMining() {
-  clearInterval(miningInterval);
-  clearInterval(timerInterval);
-  alert('Mining stopped!');
-}
+        window.onload = function() {
+            updateMinedCoinsDisplay();
+            updateTimer();
+            if (localStorage.getItem('elapsedTime')) {
+                startMining();
+            }
+        };
 
-window.onload = function() {
-  updateMinedCoinsDisplay();
-  updateTimer();
-  if (localStorage.getItem('elapsedTime')) {
-    startMining();
-  }
-};
+        window.addEventListener('beforeunload', function() {
+            localStorage.setItem('minedCoins', minedCoins);
+            localStorage.setItem('elapsedTime', elapsedTime);
+            localStorage.setItem('remainingTime', remainingTime);
+        });
 
-// Continue mining even when page is offline
-window.addEventListener('beforeunload', function() {
-  localStorage.setItem('minedCoins', minedCoins);
-  localStorage.setItem('elapsedTime', elapsedTime);
-  localStorage.setItem('remainingTime', remainingTime);
-});
-
-window.addEventListener('offline', function() {
-  localStorage.setItem('minedCoins', minedCoins);
-  localStorage.setItem('elapsedTime', elapsedTime);
-  localStorage.setItem('remainingTime', remainingTime);
-});
-
+        window.addEventListener('offline', function() {
+            localStorage.setItem('minedCoins', minedCoins);
+            localStorage.setItem('elapsedTime', elapsedTime);
+            localStorage.setItem('remainingTime', remainingTime);
+        });
     </script>
 </body>
 </html>
