@@ -364,7 +364,7 @@ function renderGame() {
   document.getElementById("submit-btn").onclick = () => {
     if (input.replace(/ /g, '').toLowerCase() === word.replace(/ /g, '').toLowerCase()) {
       // Correct!
-      const reward = 0.01 * (gameState.level + 1); // e.g., 0.01 per level, adjust as you wish
+      const reward = 1 * (gameState.level + 1); // e.g., 0.01 per level, adjust as you wish
       gameState.mining += reward;
       gameState.foundLevels.push(gameState.level);
       gameState.level += 1;
