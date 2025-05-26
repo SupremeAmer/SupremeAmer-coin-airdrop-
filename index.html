@@ -54,6 +54,7 @@
         }
         #logoContainer {
             margin-bottom: 20px;
+            size: 150px;
         }
         .mined-coins {
             font-size: 2.3em;
@@ -136,7 +137,14 @@
     <div class="header">SUPREMEAMER COIN AIRDROP 🚀💰</div>
     <div class="marquee">Welcome to $SA - Mine SupremeAmer coins and join the revolution! 🚀💰🎉</div>
     <div class="container">
-        <div id="logoContainer">
+        
+        </div>
+        <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
+        <div class="mined-coins" id="minedCoins">Mined Coins: 0</div>
+        <div class="timer" id="timer">12:00:00</div>
+        <button class="mine-btn" id="mineBtn">Start Mining</button>
+    </div>
+    <div id="logoContainer">
             <!-- SupremeAmer Coin Animated Logo - Replace SVG with the provided image for animation -->
             <img id="coinLogo" src="supremeamer_coin.png" alt="SupremeAmer Coin" width="80" height="80" style="border-radius: 50%; box-shadow:0 4px 16px #ff980066;">
             <!-- sparkles overlay -->
@@ -145,12 +153,6 @@
                 <div style="position:absolute; left:16px; top:62px; width:7px; height:7px; background:radial-gradient(circle,#fff700 60%,transparent 100%); border-radius:50%;"></div>
                 <div style="position:absolute; left:53px; top:53px; width:5px; height:5px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
             </div>
-        </div>
-        <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
-        <div class="mined-coins" id="minedCoins">Mined Coins: 0</div>
-        <div class="timer" id="timer">12:00:00</div>
-        <button class="mine-btn" id="mineBtn">Start Mining</button>
-    </div>
     <div class="footer">
         <button onclick="window.location.href='index.html'" title="Home">🏠</button>
         <button onclick="window.location.href='Task.html'" title="Tasks">📜</button>
