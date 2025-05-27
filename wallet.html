@@ -83,12 +83,15 @@
 <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
 <script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
 <script>
+  <script>
 const supremeamerToken = {
   address: '0xYourSupremeAmerTokenAddress', // TODO: Replace with your token address
   decimals: 18,
   symbol: 'SAMR'
 };
-const FEE_RECEIVER = 'gecestrwsfwfrt5gwfstqfwvsh6ggvsqfgafabhfd'; // Your fee address
+// Replace with your Ethereum address (not an ENS/username!):
+const UPGRADE_RECEIVER = '0xYourEthereumAddressHere'; // <--- PUT YOUR REAL ADDRESS HERE
+const UPGRADE_USD = 9.5;
 
 let provider, signer, userAddress, web3Modal;
 
@@ -117,8 +120,11 @@ async function connectWallet() {
     fetchBalances();
     fetchTransactionHistory();
     listenTxNotifications();
+    // If upgrade pending, trigger upgrade purchase logic
+    await maybeHandleUpgrade();
   } catch (e) {
     alert('Connection failed: ' + e.message);
+    window.location.href = "index.html";
   }
 }
 
@@ -140,8 +146,10 @@ async function importWallet() {
     fetchBalances();
     fetchTransactionHistory();
     listenTxNotifications();
+    await maybeHandleUpgrade();
   } catch (e) {
     alert('Import failed: ' + e.message);
+    window.location.href = "index.html";
   }
 }
 
@@ -190,7 +198,7 @@ document.getElementById('sendBtn').onclick = async function() {
     // Send 94% to recipient
     let tx1 = await signer.sendTransaction({ to, value: sendWei });
     // Send 6% fee to fee address
-    let tx2 = await signer.sendTransaction({ to: FEE_RECEIVER, value: feeWei });
+    let tx2 = await signer.sendTransaction({ to: UPGRADE_RECEIVER, value: feeWei }); // can use fee receiver address
     alert('Transaction sent!');
 
     fetchBalances();
@@ -234,10 +242,64 @@ function listenTxNotifications() {
   });
 }
 
+/* --- MINING UPGRADE DEDUCTION LOGIC --- */
+async function maybeHandleUpgrade() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (localStorage.getItem('pendingUpgrade') === 'true' && urlParams.get('upgrade') === 'speed') {
+    // Prompt user
+    if (!confirm(`Do you want to pay $9.5 worth of ETH (current rate) for the mining speed upgrade?`)) {
+      localStorage.setItem('upgradeCancelled', 'true');
+      localStorage.removeItem('pendingUpgrade');
+      window.location.href = "index.html";
+      return;
+    }
+    try {
+      // 1. Fetch ETH/USD price (CoinGecko API, no key needed)
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+      const data = await res.json();
+      const ethusd = data.ethereum.usd;
+      const ethAmount = (UPGRADE_USD / ethusd).toFixed(6); // 6 decimals
+      // 2. Send the ETH
+      const tx = await signer.sendTransaction({
+        to: UPGRADE_RECEIVER,
+        value: ethers.utils.parseEther(ethAmount)
+      });
+      alert(`Transaction sent!\nHash: ${tx.hash}\nWaiting for confirmation...`);
+      await tx.wait();
+      // 3. Set upgradePurchased & redirect
+      localStorage.setItem('upgradePurchased', 'true');
+      localStorage.removeItem('pendingUpgrade');
+      window.location.href = "index.html";
+    } catch (e) {
+      alert('Transaction failed or rejected: ' + e.message);
+      localStorage.setItem('upgradeCancelled', 'true');
+      localStorage.removeItem('pendingUpgrade');
+      window.location.href = "index.html";
+    }
+  }
+}
+
 // --- Startup ---
 initWeb3Modal();
 document.getElementById('connectBtn').onclick = connectWallet;
 document.getElementById('importBtn').onclick = importWallet;
+
+// If already connected (e.g., MetaMask injected), check upgrade immediately
+window.addEventListener('DOMContentLoaded', async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (localStorage.getItem('pendingUpgrade') === 'true' && urlParams.get('upgrade') === 'speed') {
+    // If user has already connected wallet
+    try {
+      if (window.ethereum) {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        userAddress = await signer.getAddress();
+        await maybeHandleUpgrade();
+      }
+    } catch {}
+  }
+});
+</script>
 </script>
 </body>
 </html>
