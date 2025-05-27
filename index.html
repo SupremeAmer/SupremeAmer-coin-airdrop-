@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SupremeAmer Coin Airdrop</title>
-    <!-- Google Fonts for a modern look -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <style>
         body {
@@ -71,7 +70,7 @@
             margin-bottom: 18px;
             font-weight: 600;
         }
-        .mine-btn {
+        .mine-btn, .upgrade-btn {
             padding: 15px 38px;
             background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%);
             color: #111;
@@ -82,16 +81,21 @@
             cursor: pointer;
             transition: box-shadow 0.2s, background 0.2s;
             box-shadow: 0 4px 16px #ff980066;
+            margin-bottom: 10px;
         }
-        .mine-btn:hover {
+        .mine-btn:hover, .upgrade-btn:hover {
             background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%);
             box-shadow: 0 8px 24px #ff980099;
+        }
+        .upgrade-btn[disabled] {
+            opacity: 0.65;
+            cursor: not-allowed;
         }
         .footer {
             width: 100%;
             display: flex;
-            justify-content: center;
-            gap: 28px;
+            justify-content: space-evenly;
+            gap: 0;
             padding: 18px 0;
             background: rgba(255, 184, 0, 0.09);
             position: fixed;
@@ -126,7 +130,6 @@
             #logoContainer { width: 180px; height: 180px; }
             #coinLogo, #sparkleGroup { width: 180px !important; height: 180px !important; }
         }
-        /* Coin animation pulse (only when mining) */
         #logoContainer.mining #coinLogo {
             filter: drop-shadow(0 0 16px #fdc500) drop-shadow(0 0 32px #ff980099);
             animation: pulse 1s infinite alternate;
@@ -135,6 +138,11 @@
             0% { transform: scale(1);}
             100% { transform: scale(1.12);}
         }
+        .upgrade-info{
+            font-size: 1em;
+            color: #ffd700;
+            margin-bottom: 12px;
+        }
     </style>
 </head>
 <body>
@@ -142,14 +150,14 @@
     <div class="marquee">Welcome to $SA - Mine SupremeAmer coins and join the revolution! 🚀💰🎉</div>
     <div class="container">
         <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
+        <div class="upgrade-info" id="upgradeInfo"></div>
         <div class="mined-coins" id="minedCoins">Mined Coins: 0</div>
         <div class="timer" id="timer">07:00:00</div>
-        <button class="mine-btn" id="mineBtn">Start Mining</button>
+        <button class="mine-btn" id="mineBtn">Start Mining</button><br>
+        <button class="upgrade-btn" id="upgradeBtn">⚡ Speed Upgrade: 10 coins/sec · 30 days ($9.5 in ETH)</button>
     </div>
     <div id="logoContainer">
-        <!-- SupremeAmer Coin Animated Logo - Now 4× bigger -->
         <img id="coinLogo" src="supremeamer_coin.png" alt="SupremeAmer Coin" width="320" height="320" style="border-radius: 50%; box-shadow:0 4px 16px #ff980066;">
-        <!-- sparkles overlay -->
         <div id="sparkleGroup" style="position:absolute; left:0; top:0; width:320px; height:320px; pointer-events:none; opacity:0;">
             <div style="position:absolute; left:248px; top:40px; width:56px; height:56px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
             <div style="position:absolute; left:64px; top:248px; width:28px; height:28px; background:radial-gradient(circle,#fff700 60%,transparent 100%); border-radius:50%;"></div>
@@ -157,31 +165,88 @@
         </div>
     </div>
     <div class="footer">
-        <button onclick="window.location.href='index.html'" title="Home">🏠</button><b><b><b>
-        <button onclick="window.location.href='Task.html'" title="Tasks">📜</button><b><b>
+        <button onclick="window.location.href='index.html'" title="Home">🏠</button>
+        <button onclick="window.location.href='Task.html'" title="Tasks">📜</button>
         <button onclick="window.location.href='wallet.html'" title="Wallet">💸</button>
         <button onclick="window.location.href='dapp.html'" title="DApp">🎮</button>
     </div>
     <script>
-    // --- Mining logic with animated logo and 7-hour time system ---
+    // --- Mining logic with upgrade system and persistent state ---
+    const UPGRADE_PRICE = 9.5; // USD in ETH (real deduction handled on wallet.html)
+    const UPGRADE_SPEED = 10; // coins/sec
+    const UPGRADE_TIME = 30 * 24 * 3600; // 30 days in seconds
+    const NORMAL_SPEED = 0.07; // coins/sec
+    const NORMAL_TIME = 25200; // 7h in seconds
 
     let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
     let miningInterval = null, timerInterval = null;
-    let remainingTime = parseInt(localStorage.getItem('remainingTime')) || 25200; // 7h in seconds
     let miningActive = false;
+
+    // Upgrade state (persistent)
+    let upgradeActive = localStorage.getItem('upgradeActive') === 'true';
+    let upgradeEndTimestamp = parseInt(localStorage.getItem('upgradeEndTimestamp')) || 0;
+    let remainingTime = parseInt(localStorage.getItem('remainingTime')) || NORMAL_TIME;
+
+    // Used to persist last mining timestamp for "mining continues offline"
+    let lastMinedTimestamp = parseInt(localStorage.getItem('lastMinedTimestamp')) || Date.now()/1000;
+
+    function getSpeed() {
+        // If upgrade active and not expired, use upgrade speed
+        if(upgradeActive && Math.floor(Date.now()/1000) < upgradeEndTimestamp){
+            return UPGRADE_SPEED;
+        }
+        return NORMAL_SPEED;
+    }
+    function getMaxTime() {
+        if(upgradeActive && Math.floor(Date.now()/1000) < upgradeEndTimestamp){
+            return UPGRADE_TIME;
+        }
+        return NORMAL_TIME;
+    }
+    function isUpgradeExpired() {
+        return upgradeActive && Math.floor(Date.now()/1000) >= upgradeEndTimestamp;
+    }
+    function setUpgradeState(active, endTimestamp) {
+        upgradeActive = active;
+        upgradeEndTimestamp = endTimestamp || 0;
+        localStorage.setItem('upgradeActive', active ? 'true' : 'false');
+        localStorage.setItem('upgradeEndTimestamp', endTimestamp ? endTimestamp : '0');
+    }
 
     function updateMinedCoinsDisplay() {
         document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins.toFixed(4)}`;
     }
     function padZero(v) { return String(v).padStart(2, '0'); }
     function formatTime(sec) {
-        const h = Math.floor(sec / 3600);
+        const d = Math.floor(sec/86400);
+        const h = Math.floor((sec%86400) / 3600);
         const m = Math.floor((sec % 3600) / 60);
         const s = sec % 60;
-        return `${padZero(h)}:${padZero(m)}:${padZero(s)}`;
+        return d > 0
+          ? `${padZero(d)}d ${padZero(h)}:${padZero(m)}:${padZero(s)}`
+          : `${padZero(h)}:${padZero(m)}:${padZero(s)}`;
     }
     function updateTimerDisplay() {
-        document.getElementById('timer').textContent = formatTime(remainingTime);
+        let showTime = remainingTime;
+        if(isUpgradeExpired()){ showTime = 0; }
+        document.getElementById('timer').textContent = formatTime(showTime);
+    }
+    function updateUpgradeInfo() {
+        const info = document.getElementById('upgradeInfo');
+        if(upgradeActive && !isUpgradeExpired()){
+            const secondsLeft = upgradeEndTimestamp - Math.floor(Date.now()/1000);
+            info.innerHTML = `🚀 <b>Speed Upgrade active!</b> Mining at <b>10 coins/sec</b>.<br>Time left: <b>${formatTime(secondsLeft)}</b>`;
+            document.getElementById('upgradeBtn').disabled = true;
+            document.getElementById('upgradeBtn').textContent = "Speed Upgrade Active";
+        }else{
+            if(isUpgradeExpired()){
+                info.innerHTML = `<b>Speed Upgrade expired.</b> Mining will reset to normal speed after restart.`;
+            }else{
+                info.innerHTML = "Mine faster! Upgrade to 10 coins/sec for $9.5 in ETH.";
+            }
+            document.getElementById('upgradeBtn').disabled = false;
+            document.getElementById('upgradeBtn').textContent = "⚡ Speed Upgrade: 10 coins/sec · 30 days ($9.5 in ETH)";
+        }
     }
     function animateLogo(active) {
         const logoContainer = document.getElementById('logoContainer');
@@ -218,8 +283,10 @@
         logo.style.transform = '';
     }
 
+    // Mining logic
     function mineCoins() {
-        minedCoins += 0.07;
+        let speed = getSpeed();
+        minedCoins += speed;
         updateMinedCoinsDisplay();
         localStorage.setItem('minedCoins', minedCoins);
     }
@@ -234,7 +301,15 @@
         }
     }
     function startMining() {
-        if (miningActive || remainingTime === 0) return;
+        if (miningActive) return;
+        // If upgrade expired, reset to normal state
+        if(isUpgradeExpired()){
+            setUpgradeState(false, 0);
+            remainingTime = NORMAL_TIME;
+            localStorage.setItem('remainingTime', remainingTime);
+            updateUpgradeInfo();
+        }
+        if (remainingTime === 0) return;
         miningActive = true;
         miningInterval = setInterval(mineCoins, 1000);
         timerInterval = setInterval(timerTick, 1000);
@@ -250,34 +325,122 @@
         document.getElementById('mineBtn').disabled = false;
         document.getElementById('mineBtn').textContent = 'Start Mining';
         if (timeEnded) {
-            setTimeout(() => {
-              alert('⏰ Mining session ended!\nPlease click Start Mining to begin a new 7-hour session.');
-            }, 200);
+            if(upgradeActive && !isUpgradeExpired()) {
+                // For upgrade, session should not restart until user clicks again
+                setTimeout(() => {
+                  alert('⏰ Mining session ended!\nSpeed Upgrade expired. Please click Start Mining to restart at normal speed.');
+                }, 200);
+            } else {
+                setTimeout(() => {
+                  alert('⏰ Mining session ended!\nPlease click Start Mining to begin a new 7-hour session.');
+                }, 200);
+            }
         }
     }
     function resetMining() {
-        remainingTime = 25200;
+        if(upgradeActive && !isUpgradeExpired()){
+            remainingTime = UPGRADE_TIME;
+        }else{
+            setUpgradeState(false, 0); // reset upgrade if expired
+            remainingTime = NORMAL_TIME;
+        }
         localStorage.setItem('remainingTime', remainingTime);
         updateTimerDisplay();
     }
-    window.onload = function() {
-        updateMinedCoinsDisplay();
-        updateTimerDisplay();
-        animateLogo(false);
-        document.getElementById('mineBtn').disabled = false;
+
+    // Mining continues even if offline or page is refreshed
+    function restoreMiningProgress() {
+        const now = Math.floor(Date.now()/1000);
+        let lastTime = parseInt(localStorage.getItem('lastMinedTimestamp')) || now;
+        let elapsed = now - lastTime;
+        // Don't allow negative or huge values (e.g. system clock change)
+        if(elapsed > 0 && elapsed < 60*60*24*31){
+            let speed = getSpeed();
+            let addCoins = Math.min(elapsed, remainingTime) * speed;
+            minedCoins += addCoins;
+            remainingTime = Math.max(remainingTime - elapsed, 0);
+        }
+        localStorage.setItem('lastMinedTimestamp', now);
+        localStorage.setItem('minedCoins', minedCoins);
+        localStorage.setItem('remainingTime', remainingTime);
+    }
+
+    // Upgrade purchase logic (stub for integration)
+    document.getElementById('upgradeBtn').onclick = function() {
+        // Simulate wallet deduction via wallet.html
+        if(upgradeActive && !isUpgradeExpired()){
+            alert("Upgrade already active!");
+            return;
+        }
+        if(!confirm(`Upgrade mining speed to 10 coins/sec for 30 days?\nThis will cost $9.5 worth of ETH and will be deducted from your wallet. Continue?`)){
+            return; // Cancelled
+        }
+        // Save pending upgrade request to localStorage so wallet.html can pick it up
+        localStorage.setItem('pendingUpgrade', 'true');
+        // Redirect to wallet.html for payment (you must handle payment logic there)
+        window.location.href = "wallet.html?upgrade=speed";
     };
+
+    // Mining button logic
     document.getElementById('mineBtn').onclick = function() {
+        if(isUpgradeExpired()){
+            setUpgradeState(false, 0);
+            remainingTime = NORMAL_TIME;
+            localStorage.setItem('remainingTime', remainingTime);
+            updateUpgradeInfo();
+            updateTimerDisplay();
+        }
         if (remainingTime === 0) resetMining();
         startMining();
     };
-    window.addEventListener('beforeunload', function() {
+
+    window.onload = function() {
+        // On page load, check and apply upgrade status
+        if(upgradeActive && isUpgradeExpired()){
+            setUpgradeState(false, 0);
+            remainingTime = NORMAL_TIME;
+            localStorage.setItem('remainingTime', remainingTime);
+        }else if(upgradeActive){
+            remainingTime = Math.min(remainingTime, upgradeEndTimestamp - Math.floor(Date.now()/1000));
+            if(remainingTime < 0) remainingTime = 0;
+        }
+        restoreMiningProgress();
+        updateMinedCoinsDisplay();
+        updateTimerDisplay();
+        updateUpgradeInfo();
+        animateLogo(false);
+        document.getElementById('mineBtn').disabled = false;
+
+        // Check if wallet.html has set upgrade complete
+        if(localStorage.getItem('upgradePurchased') === 'true'){
+            // Upgrade payment successful
+            const endTs = Math.floor(Date.now()/1000) + UPGRADE_TIME;
+            setUpgradeState(true, endTs);
+            remainingTime = UPGRADE_TIME;
+            localStorage.setItem('remainingTime', remainingTime);
+            localStorage.removeItem('upgradePurchased');
+            localStorage.removeItem('pendingUpgrade');
+            updateUpgradeInfo();
+            updateTimerDisplay();
+            alert("Speed Upgrade successful!\nMining speed increased to 10 coins/sec for 30 days.");
+        }
+        if(localStorage.getItem('upgradeCancelled') === 'true'){
+            // Upgrade payment cancelled
+            localStorage.removeItem('upgradeCancelled');
+            localStorage.removeItem('pendingUpgrade');
+            alert("Speed Upgrade cancelled or failed. No changes were made.");
+        }
+    };
+
+    // Persist mining state on unload/offline
+    function persistState(){
         localStorage.setItem('minedCoins', minedCoins);
         localStorage.setItem('remainingTime', remainingTime);
-    });
-    window.addEventListener('offline', function() {
-        localStorage.setItem('minedCoins', minedCoins);
-        localStorage.setItem('remainingTime', remainingTime);
-    });
+        localStorage.setItem('lastMinedTimestamp', Math.floor(Date.now()/1000));
+    }
+    window.addEventListener('beforeunload', persistState);
+    window.addEventListener('offline', persistState);
+
     </script>
 </body>
 </html>
