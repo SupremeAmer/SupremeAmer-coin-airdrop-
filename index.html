@@ -54,7 +54,9 @@
         }
         #logoContainer {
             margin-bottom: 20px;
-            size: 150px;
+            position: relative;
+            width: 320px;
+            height: 320px;
         }
         .mined-coins {
             font-size: 2.3em;
@@ -121,6 +123,8 @@
             .container { padding: 18px 6px; }
             .header { font-size: 1.3em; }
             .footer button { width: 44px; height: 44px; font-size: 1.3em;}
+            #logoContainer { width: 180px; height: 180px; }
+            #coinLogo, #sparkleGroup { width: 180px !important; height: 180px !important; }
         }
         /* Coin animation pulse (only when mining) */
         #logoContainer.mining #coinLogo {
@@ -137,22 +141,21 @@
     <div class="header">SUPREMEAMER COIN AIRDROP 🚀💰</div>
     <div class="marquee">Welcome to $SA - Mine SupremeAmer coins and join the revolution! 🚀💰🎉</div>
     <div class="container">
-        
-        </div>
         <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
         <div class="mined-coins" id="minedCoins">Mined Coins: 0</div>
-        <div class="timer" id="timer">12:00:00</div>
+        <div class="timer" id="timer">07:00:00</div>
         <button class="mine-btn" id="mineBtn">Start Mining</button>
     </div>
     <div id="logoContainer">
-            <!-- SupremeAmer Coin Animated Logo - Replace SVG with the provided image for animation -->
-            <img id="coinLogo" src="supremeamer_coin.png" alt="SupremeAmer Coin" width="80" height="80" style="border-radius: 50%; box-shadow:0 4px 16px #ff980066;">
-            <!-- sparkles overlay -->
-            <div id="sparkleGroup" style="position:absolute; left:0; top:0; width:80px; height:80px; pointer-events:none; opacity:0;">
-                <div style="position:absolute; left:62px; top:10px; width:14px; height:14px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
-                <div style="position:absolute; left:16px; top:62px; width:7px; height:7px; background:radial-gradient(circle,#fff700 60%,transparent 100%); border-radius:50%;"></div>
-                <div style="position:absolute; left:53px; top:53px; width:5px; height:5px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
-            </div>
+        <!-- SupremeAmer Coin Animated Logo - Now 4× bigger -->
+        <img id="coinLogo" src="supremeamer_coin.png" alt="SupremeAmer Coin" width="320" height="320" style="border-radius: 50%; box-shadow:0 4px 16px #ff980066;">
+        <!-- sparkles overlay -->
+        <div id="sparkleGroup" style="position:absolute; left:0; top:0; width:320px; height:320px; pointer-events:none; opacity:0;">
+            <div style="position:absolute; left:248px; top:40px; width:56px; height:56px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
+            <div style="position:absolute; left:64px; top:248px; width:28px; height:28px; background:radial-gradient(circle,#fff700 60%,transparent 100%); border-radius:50%;"></div>
+            <div style="position:absolute; left:212px; top:212px; width:20px; height:20px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
+        </div>
+    </div>
     <div class="footer">
         <button onclick="window.location.href='index.html'" title="Home">🏠</button>
         <button onclick="window.location.href='Task.html'" title="Tasks">📜</button>
@@ -160,11 +163,11 @@
         <button onclick="window.location.href='dapp.html'" title="DApp">🎮</button>
     </div>
     <script>
-    // --- Mining logic with animated logo and 12-hour time system ---
+    // --- Mining logic with animated logo and 7-hour time system ---
 
     let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
     let miningInterval = null, timerInterval = null;
-    let remainingTime = parseInt(localStorage.getItem('remainingTime')) || 43200; // 12h in seconds
+    let remainingTime = parseInt(localStorage.getItem('remainingTime')) || 25200; // 7h in seconds
     let miningActive = false;
 
     function updateMinedCoinsDisplay() {
@@ -248,12 +251,12 @@
         document.getElementById('mineBtn').textContent = 'Start Mining';
         if (timeEnded) {
             setTimeout(() => {
-              alert('⏰ Mining session ended!\nPlease click Start Mining to begin a new 12-hour session.');
+              alert('⏰ Mining session ended!\nPlease click Start Mining to begin a new 7-hour session.');
             }, 200);
         }
     }
     function resetMining() {
-        remainingTime = 43200;
+        remainingTime = 25200;
         localStorage.setItem('remainingTime', remainingTime);
         updateTimerDisplay();
     }
