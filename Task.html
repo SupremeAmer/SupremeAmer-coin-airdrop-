@@ -4,42 +4,72 @@
   <meta charset="UTF-8">
   <title>SupremeAmer | Task Page</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Modern Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <!-- Match index.html's Montserrat font -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #6366f1;
-      --secondary: #7c3aed;
+      --primary: #ff9800;
+      --secondary: #fdc500;
       --ads: #f59e42;
       --active: #10b981;
-      --bg: #f4f6fb;
+      --bg: #111;
+      --panel: rgba(30,30,40,0.97);
       --white: #fff;
       --danger: #dc2626;
       --success: #16a34a;
-      --gray: #6b7280;
-      --light: #e0e7ff;
-      --radius: 14px;
-      --shadow: 0 10px 28px rgba(0,0,0,0.08);
+      --gray: #bbb;
+      --radius: 18px;
+      --shadow: 0 8px 28px #0006;
     }
     html, body {
-      margin: 0; padding: 0;
-      background: var(--bg);
-      font-family: 'Inter', Arial, sans-serif;
-      color: #232323;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #111 70%, #ff9800 100%);
+      font-family: 'Montserrat', Arial, sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      width: 100vw;
+    }
+    .header {
+      width: 100%;
+      padding: 30px 0 12px 0;
+      text-align: center;
+      background: rgba(0,0,0,0.74);
+      font-size: 2.1em;
+      font-weight: bold;
+      letter-spacing: 2px;
+      box-shadow: 0 2px 16px #ffeb3b33;
     }
     .container {
-      max-width: 680px;
-      margin: 40px auto;
-      background: var(--white);
+      max-width: 600px;
+      margin: 38px auto 0 auto;
+      background: var(--panel);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 32px 22px 28px 22px;
+      padding: 34px 22px 28px 22px;
     }
     h1 {
-      margin-bottom: 10px;
+      margin-bottom: 13px;
       font-weight: 900;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.045em;
       font-size: 2rem;
+      color: var(--secondary);
+      text-align: center;
+    }
+    .balance-bar {
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 25px;
+      background: #222;
+      padding: 12px 16px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 10px #ff980033;
+      word-break: break-word;
+      justify-content: center;
     }
     .task-list {
       display: flex;
@@ -47,15 +77,15 @@
       gap: 18px;
     }
     .task-card {
-      background: #f9faff;
-      border-radius: 10px;
+      background: rgba(44,44,60,0.97);
+      border-radius: 12px;
       padding: 18px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-left: 7px solid var(--primary);
       transition: box-shadow 0.18s, background 0.18s, opacity 0.18s;
-      box-shadow: 0 2px 8px rgba(99,102,241,0.07);
+      box-shadow: 0 2px 8px #0003;
       position: relative;
     }
     .task-card.airdrop { border-left-color: var(--secondary);}
@@ -66,69 +96,70 @@
       flex-direction: column;
       gap: 4px;
       min-width: 0;
+      color: #fff;
     }
     .task-type {
       font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.11em;
       color: var(--gray);
-      margin-bottom: 1px;
+      margin-bottom: 2px;
     }
     .task-title {
-      font-size: 1.06rem;
+      font-size: 1.07rem;
       font-weight: 600;
-      color: #18181b;
+      color: #ffb900;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .task-reward {
-      background: var(--light);
+      background: #222;
       color: var(--primary);
       font-size: 13px;
       font-weight: 600;
       border-radius: 5px;
       padding: 2px 10px;
-      margin-left: 7px;
+      margin-left: 8px;
       display: inline-block;
       vertical-align: middle;
     }
     .task-desc {
       font-size: 13px;
-      color: #575757;
-      margin-top: 2px;
-      max-width: 320px;
+      color: #ffe9b6;
+      margin-top: 3px;
+      max-width: 340px;
       word-break: break-word;
       line-height: 1.34;
     }
     .task-card.completed {
-      opacity: 0.55;
+      opacity: 0.56;
       pointer-events: none;
-      background: #e5e7eb;
+      background: #222;
       box-shadow: none;
     }
     .task-action {
-      min-width: 120px;
+      min-width: 110px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
     }
     .task-btn {
       padding: 7px 18px;
       border: none;
-      border-radius: 7px;
+      border-radius: 8px;
       background: var(--primary);
-      color: var(--white);
+      color: #18181b;
       font-weight: 700;
       cursor: pointer;
       font-size: 14px;
       transition: background 0.17s, color 0.17s;
-      box-shadow: 0 2px 5px rgba(99,102,241,0.04);
+      box-shadow: 0 2px 6px #ff980033;
     }
     .task-btn:disabled, .task-card.completed .task-btn {
-      background: #d1d5db;
-      color: #7c7c7c;
+      background: #444;
+      color: #bbb;
       cursor: not-allowed;
     }
     .task-btn.social { background: var(--secondary);}
@@ -141,14 +172,14 @@
       top: 32px;
       right: 32px;
       z-index: 1002;
-      background: var(--white);
+      background: var(--panel);
       border-radius: 8px;
       font-weight: 700;
       font-size: 1rem;
       padding: 17px 34px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.14);
-      border: 2.3px solid #e1e1e1;
-      opacity: 0.97;
+      box-shadow: 0 6px 24px #0008;
+      border: 2px solid #ffd670;
+      opacity: 0.98;
       transition: opacity 0.18s;
     }
     .popup.success { border-color: var(--success); color: var(--success);}
@@ -165,16 +196,17 @@
       z-index: 1001;
     }
     .modal-content {
-      background: var(--white);
+      background: var(--panel);
       border-radius: 13px;
-      padding: 24px 34px;
+      padding: 28px 36px;
       min-width: 320px;
-      box-shadow: 0 9px 32px rgba(0,0,0,0.13);
+      box-shadow: 0 9px 32px #0007;
       position: relative;
-      max-width: 92vw;
+      max-width: 94vw;
+      color: #fff;
     }
     .modal-header {
-      font-size: 1.18rem;
+      font-size: 1.16rem;
       font-weight: 900;
       margin-bottom: 13px;
       color: var(--primary);
@@ -199,45 +231,66 @@
       font-size: 1.03rem;
     }
     .close-modal {
-      background: #f9fafb;
+      background: #18181b;
       border: none;
-      padding: 8px 22px;
-      border-radius: 6px;
+      padding: 9px 26px;
+      border-radius: 7px;
       font-weight: 700;
       cursor: pointer;
       margin-top: 18px;
       font-size: 1rem;
+      color: var(--primary);
       transition: background 0.15s;
     }
-    .close-modal:hover { background: #ececec;}
-    /* Balance display */
-    .balance-bar {
-      font-size: 1.13rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 20px;
-      background: #e0e7ff;
-      padding: 10px 18px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 2px 6px rgba(99,102,241,0.04);
-      word-break: break-word;
-    }
+    .close-modal:hover { background: #222;}
+    /* Responsive */
     @media (max-width: 700px) {
-      .container { padding: 14px 5vw;}
-      .modal-content { padding: 16px 8vw;}
+      .container { padding: 13px 3vw;}
+      .modal-content { padding: 14px 6vw;}
     }
     @media (max-width: 430px) {
-      h1 { font-size: 1.2rem;}
-      .balance-bar { font-size: 1rem;}
+      h1 { font-size: 1.15rem;}
+      .balance-bar { font-size: 0.97rem;}
+    }
+    /* Footer navigation to match index.html */
+    .footer {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      padding: 15px 0;
+      background: rgba(255, 184, 0, 0.09);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      border-radius: 18px 18px 0 0;
+      box-shadow: 0 -4px 24px #ff980022;
+      z-index: 999;
+    }
+    .footer button {
+      background: #fff;
+      color: #ff9800;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px #2222;
+      transition: background 0.2s, color 0.2s;
+    }
+    .footer button:hover {
+      background: #ff9800;
+      color: #fff;
     }
   </style>
 </head>
 <body>
+  <div class="header">SUPREMEAMER COIN AIRDROP TASKS 📜</div>
   <div class="container">
-    <h1>SupremeAmer Tasks</h1>
+    <h1>Complete Tasks, Get <span style="color:#fdc500;">SupremeAmer</span> Coins!</h1>
     <div class="balance-bar">
       <span>Mining Dashboard Balance:</span>
       <span id="balance">0</span>
@@ -259,6 +312,12 @@
       </ul>
       <button class="close-modal" onclick="closeSocialModal()">Done</button>
     </div>
+  </div>
+  <div class="footer">
+    <button onclick="window.location.href='index.html'" title="Home">🏠</button>
+    <button onclick="window.location.href='Task.html'" title="Tasks">📜</button>
+    <button onclick="window.location.href='wallet.html'" title="Wallet">💸</button>
+    <button onclick="window.location.href='dapp.html'" title="DApp">🎮</button>
   </div>
   <script>
     // --- Task Definitions ---
@@ -342,7 +401,7 @@
         }
       }))
     ];
-    // If fewer than 20, fill with more active tasks
+    // Fill up to at least 20 tasks
     while (tasks.length < 20) {
       const n = tasks.length + 1;
       tasks.push({
@@ -356,12 +415,16 @@
         }
       });
     }
+
+    // Use same key as index.html for balance, i.e. "minedCoins"
+    const balanceKey = 'minedCoins';
+
     // --- Rendering and State ---
     const taskList = document.querySelector('.task-list');
     const balanceEl = document.getElementById('balance');
     const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '{}');
     function renderBalance() {
-      balanceEl.textContent = localStorage.getItem('miningBalance') || '0';
+      balanceEl.textContent = parseFloat(localStorage.getItem(balanceKey) || '0').toFixed(4);
     }
     function renderTasks() {
       taskList.innerHTML = '';
@@ -443,9 +506,10 @@
       if (task.verify && task.verify()) {
         completedTasks[taskId] = true;
         localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
-        // Credit reward
-        const bal = parseInt(localStorage.getItem('miningBalance') || '0');
-        localStorage.setItem('miningBalance', bal + task.reward);
+        // Credit reward to minedCoins (same as index.html)
+        let bal = parseFloat(localStorage.getItem(balanceKey) || '0');
+        bal += task.reward;
+        localStorage.setItem(balanceKey, bal);
         renderBalance();
         showPopup('success', `Task completed & +${task.reward} coins credited!`);
         renderTasks();
@@ -460,9 +524,9 @@
         setTimeout(res, 1500);
       });
     }
-    // --- Ensure initial miningBalance exists ---
-    if (!localStorage.getItem('miningBalance')) {
-      localStorage.setItem('miningBalance', '0');
+    // --- Ensure initial minedCoins exists ---
+    if (!localStorage.getItem(balanceKey)) {
+      localStorage.setItem(balanceKey, '0');
     }
     // --- For demonstration, add easy debug helpers ---
     window.debugSetMiningSpeed = function(speed) {
