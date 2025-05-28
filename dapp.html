@@ -89,16 +89,6 @@
       color: #fff;
       transition: background .2s, border .2s;
     }
-    .cell.hint {
-      background: #fdc500;
-      border-color: #ff9800;
-      color: #222;
-      animation: hintPulse 1s infinite alternate;
-    }
-    @keyframes hintPulse {
-      0% { box-shadow: 0 0 0 0 #fdc50066;}
-      100% { box-shadow: 0 0 12px 4px #ff980044;}
-    }
     #selector {
       display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
       margin: 0 0 14px 0;
@@ -223,7 +213,6 @@
     <div id="selector"></div>
     <div id="footer-buttons">
       <button class="main-btn" id="submit-btn">SUBMIT</button>
-      <button class="main-btn" id="hint-btn">HINT</button>
       <button class="main-btn" id="history-btn">History</button>
       <button class="main-btn" id="restart-btn">Restart</button>
     </div>
@@ -264,7 +253,6 @@ const WORDS = [
 let gameState = {
   level: 0,
   mining: 0,
-  hintRevealedIdx: [],
   foundLevels: [],
   history: []
 };
@@ -285,7 +273,7 @@ function saveGame() {
   localStorage.setItem(LS_KEY, JSON.stringify(gameState));
   // Sync mining balance to global minedCoins (index.html)
   let totalMined = getMainMinedCoins();
-  // Only add newly mined coins, not hints spent
+  // Only add newly mined coins
   let newBalance = Math.max(totalMined, 0) + gameState.mining;
   setMainMinedCoins(newBalance);
   // For display in game
@@ -306,7 +294,6 @@ function resetGame() {
   gameState = {
     level: 0,
     mining: 0,
-    hintRevealedIdx: [],
     foundLevels: [],
     history: []
   };
@@ -314,16 +301,10 @@ function resetGame() {
   renderGame();
 }
 
-// --- REWARD/HINT COST RULES ---
+// --- REWARD RULES ---
 function getLevelReward(level) {
   // Level is zero-based index; level+1 is user-facing level
   return 30 * (level + 1);
-}
-function getHintCost(level) {
-  let n = level + 1;
-  if (n <= 15) return {type: "coin", value: 15};
-  if (n <= 100) return {type: "eth", value: 0.10};
-  return {type: "eth", value: 0.50};
 }
 
 // --- GAME LOGIC + UI ---
@@ -340,21 +321,19 @@ function renderGame() {
     document.getElementById("selector").innerHTML = "";
     document.getElementById("input-word").innerText = "";
     document.getElementById("submit-btn").disabled = true;
-    document.getElementById("hint-btn").disabled = true;
     return;
   }
   document.getElementById("submit-btn").disabled = false;
-  document.getElementById("hint-btn").disabled = false;
   document.getElementById("level").innerHTML = `LEVEL ${gameState.level + 1}`;
   document.getElementById("reward-msg").textContent = "";
-  // Render grid (for hints)
+  // Render grid
   const gridDiv = document.getElementById("grid");
   gridDiv.innerHTML = "";
   const grid = Array.from(word.replace(/ /g, '').toUpperCase());
   for (let i = 0; i < grid.length; i++) {
     const cell = document.createElement("div");
-    cell.className = "cell" + (gameState.hintRevealedIdx.includes(i) ? " hint" : "");
-    cell.innerText = gameState.hintRevealedIdx.includes(i) ? grid[i] : "";
+    cell.className = "cell";
+    cell.innerText = "";
     gridDiv.appendChild(cell);
   }
   // Render selector
@@ -383,7 +362,6 @@ function renderGame() {
       gameState.mining += reward;
       gameState.foundLevels.push(gameState.level);
       gameState.level += 1;
-      gameState.hintRevealedIdx = [];
       gameState.history.push({
         type: "level-up",
         level: gameState.level,
@@ -402,59 +380,6 @@ function renderGame() {
       document.querySelectorAll(".letter").forEach(x => x.classList.remove("selected"));
     }
   };
-  // Hint logic
-  document.getElementById("hint-btn").onclick = async () => {
-    const costInfo = getHintCost(gameState.level);
-    let canReveal = false;
-
-    if (costInfo.type === "coin") {
-      if (gameState.mining < costInfo.value) {
-        showMsg("Not enough coins for hint!", "#e67e22");
-        return;
-      }
-      gameState.mining -= costInfo.value;
-      canReveal = true;
-    } else if (costInfo.type === "eth") {
-      // Confirmation dialog for ETH deduction
-      const confirmMsg = `This hint costs $${costInfo.value.toFixed(2)} worth of Ethereum (ETH), sent to the game creator. Proceed?`;
-      if (!confirm(confirmMsg)) {
-        showMsg("Hint not revealed. No deduction.", "#e67e22");
-        return;
-      }
-      try {
-        await deductEthForHint(costInfo.value);
-        canReveal = true;
-      } catch (err) {
-        showMsg("ETH deduction failed or cancelled. Hint not revealed.", "#e74c3c");
-        return;
-      }
-    }
-
-    // Reveal hint logic
-    let grid = Array.from(WORDS[gameState.level].replace(/ /g, '').toUpperCase());
-    let unrevealed = [];
-    for (let i = 0; i < grid.length; i++) {
-      if (!gameState.hintRevealedIdx.includes(i)) unrevealed.push(i);
-    }
-    if (unrevealed.length === 0) {
-      showMsg("All letters revealed!", "#2ecc71");
-      return;
-    }
-    let revealCount = Math.min(2, unrevealed.length);
-    for (let i = 0; i < revealCount; i++) {
-      let idx = unrevealed.splice(Math.floor(Math.random() * unrevealed.length), 1)[0];
-      gameState.hintRevealedIdx.push(idx);
-    }
-    gameState.history.push({
-      type: "hint",
-      level: gameState.level,
-      amount: costInfo.value,
-      costType: costInfo.type,
-      timestamp: Date.now()
-    });
-    saveGame();
-    renderGame();
-  };
 }
 
 // --- HISTORY ---
@@ -466,12 +391,7 @@ function showHistory() {
   } else {
     gameState.history.slice().reverse().forEach(tx => {
       const date = new Date(tx.timestamp).toLocaleString();
-      if (tx.type === "hint") {
-        if (tx.costType === "coin")
-          list.innerHTML += `<div class="history-item">[${date}] Hint at Level ${tx.level+1} - Used <b>${tx.amount} coins</b></div>`;
-        else
-          list.innerHTML += `<div class="history-item">[${date}] Hint at Level ${tx.level+1} - Used <b>$${tx.amount.toFixed(2)} in ETH</b></div>`;
-      } else if (tx.type === "level-up") {
+      if (tx.type === "level-up") {
         list.innerHTML += `<div class="history-item">[${date}] Level ${tx.level} cleared - Rewarded <b>${tx.amount} coins</b></div>`;
       }
     });
@@ -501,30 +421,6 @@ function shuffle(array) {
 function showMsg(msg, color) {
   document.getElementById("reward-msg").style.color = color;
   document.getElementById("reward-msg").innerText = msg;
-}
-
-// --- ETH Deduction Helper ---
-async function deductEthForHint(dollarAmount) {
-  // Get current ETH/USD price (from CoinGecko)
-  const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
-  const data = await res.json();
-  const ethPrice = data.ethereum.usd;
-  const ethAmount = (dollarAmount / ethPrice).toFixed(6); // ETH to send
-
-  // MetaMask integration (simple for most users)
-  if (window.ethereum) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const tx = await signer.sendTransaction({
-      to: OWNER_ETH_ADDRESS,
-      value: ethers.utils.parseEther(ethAmount)
-    });
-    await tx.wait(); // Wait for confirmation
-    return true;
-  }
-  // Optionally, integrate with wallet.html via postMessage or open in new window if desired.
-  throw new Error("Ethereum wallet not found. Please connect MetaMask or use wallet.html.");
 }
 
 // --- INIT ---
