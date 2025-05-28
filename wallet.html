@@ -42,7 +42,6 @@
     <h2 class="text-center mb-4">SupremeAmer Web3 Wallet</h2>
     <div class="mb-3">
       <button id="connectBtn" class="btn btn-primary w-100 mb-2">Connect Wallet</button>
-      <button id="importBtn" class="btn btn-secondary w-100">Import Wallet (Phrase/Key)</button>
     </div>
     <div id="walletInfo" style="display:none;">
       <div class="mb-3">
@@ -83,7 +82,6 @@
 <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
 <script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
 <script>
-  <script>
 const supremeamerToken = {
   address: '0xYourSupremeAmerTokenAddress', // TODO: Replace with your token address
   decimals: 18,
@@ -95,7 +93,6 @@ const UPGRADE_USD = 9.5;
 
 let provider, signer, userAddress, web3Modal;
 
-// --- Initialize Web3Modal for multi-wallet support ---
 function initWeb3Modal() {
   web3Modal = new window.Web3Modal.default({
     cacheProvider: false,
@@ -117,52 +114,23 @@ async function connectWallet() {
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
     showWalletInfo();
-    fetchBalances();
-    fetchTransactionHistory();
+    await fetchBalances();
+    await fetchTransactionHistory();
     listenTxNotifications();
-    // If upgrade pending, trigger upgrade purchase logic
     await maybeHandleUpgrade();
   } catch (e) {
-    alert('Connection failed: ' + e.message);
+    alert('Connection failed: ' + (e && e.message ? e.message : e));
     window.location.href = "index.html";
   }
 }
 
-// --- Import wallet via phrase/private key (not recommended for production) ---
-async function importWallet() {
-  const input = prompt("Enter your 12/24-word phrase or private key:");
-  if (!input) return;
-  try {
-    let wallet;
-    if (input.trim().split(' ').length >= 12) {
-      wallet = ethers.Wallet.fromMnemonic(input.trim());
-    } else {
-      wallet = new ethers.Wallet(input.trim());
-    }
-    provider = ethers.getDefaultProvider('homestead'); // Ethereum mainnet
-    signer = wallet.connect(provider);
-    userAddress = await signer.getAddress();
-    showWalletInfo();
-    fetchBalances();
-    fetchTransactionHistory();
-    listenTxNotifications();
-    await maybeHandleUpgrade();
-  } catch (e) {
-    alert('Import failed: ' + e.message);
-    window.location.href = "index.html";
-  }
-}
-
-// --- UI: Show wallet info section ---
 function showWalletInfo() {
   document.getElementById('connectBtn').style.display = 'none';
-  document.getElementById('importBtn').style.display = 'none';
   document.getElementById('walletInfo').style.display = 'block';
   document.getElementById('userAddress').textContent = userAddress;
   document.getElementById('myAddress').textContent = userAddress;
 }
 
-// --- Fetch ETH and token balances ---
 async function fetchBalances() {
   // ETH balance
   const balance = await provider.getBalance(userAddress);
@@ -176,51 +144,44 @@ async function fetchBalances() {
   const token = new ethers.Contract(supremeamerToken.address, tokenAbi, provider);
   let tokenBalance = await token.balanceOf(userAddress);
   let miningBalance = 0;
-  // If miningBalance is a custom function in your contract, try to fetch it
   try {
     miningBalance = await token.miningBalance(userAddress);
   } catch {}
   document.getElementById('tokenBalance').textContent = `${ethers.utils.formatUnits(tokenBalance, supremeamerToken.decimals)} (+Mining: ${ethers.utils.formatUnits(miningBalance, supremeamerToken.decimals)})`;
 }
 
-// --- Send ETH with 6% fee ---
-document.getElementById('sendBtn').onclick = async function() {
+async function sendETHWithFee() {
   const to = document.getElementById('recipient').value.trim();
   let amount = Number(document.getElementById('amount').value);
   if (!ethers.utils.isAddress(to)) return alert('Invalid recipient address');
   if (!amount || amount <= 0) return alert('Amount must be positive');
   try {
-    // Calculate 6% fee
     const totalWei = ethers.utils.parseEther(amount.toString());
     const feeWei = totalWei.mul(6).div(100);
     const sendWei = totalWei.sub(feeWei);
 
-    // Send 94% to recipient
     let tx1 = await signer.sendTransaction({ to, value: sendWei });
-    // Send 6% fee to fee address
-    let tx2 = await signer.sendTransaction({ to: UPGRADE_RECEIVER, value: feeWei }); // can use fee receiver address
+    let tx2 = await signer.sendTransaction({ to: UPGRADE_RECEIVER, value: feeWei });
     alert('Transaction sent!');
 
-    fetchBalances();
-    fetchTransactionHistory();
+    await fetchBalances();
+    await fetchTransactionHistory();
   } catch (e) {
-    alert('Transaction failed: ' + e.message);
+    alert('Transaction failed: ' + (e && e.message ? e.message : e));
   }
-};
+}
 
-// --- Show receive address ---
-document.getElementById('receiveBtn').onclick = function() {
+function toggleReceiveSection() {
   let el = document.getElementById('receiveSection');
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
-};
+}
 
-// --- Fetch transaction history (ETH only, for brevity) ---
 async function fetchTransactionHistory() {
   const api = `https://api.etherscan.io/api?module=account&action=txlist&address=${userAddress}&sort=desc&apikey=YourApiKeyToken`;
   const res = await fetch(api);
   const data = await res.json();
   if (data.status !== "1") return;
-  const txs = data.result.slice(0, 10); // last 10 txs
+  const txs = data.result.slice(0, 10);
   let html = txs.map(tx => `
     <div>
       <small>${new Date(tx.timeStamp * 1000).toLocaleString()}</small><br>
@@ -233,20 +194,17 @@ async function fetchTransactionHistory() {
   document.getElementById('txHistory').innerHTML = html;
 }
 
-// --- Transaction notifications (basic) ---
 function listenTxNotifications() {
   provider.on('block', async (blockNumber) => {
-    fetchTransactionHistory();
+    await fetchTransactionHistory();
     document.getElementById('txNotifications').innerHTML = `<span class="badge bg-success">New block: ${blockNumber}. Transaction history updated.</span>`;
     setTimeout(() => document.getElementById('txNotifications').innerHTML = '', 5000);
   });
 }
 
-/* --- MINING UPGRADE DEDUCTION LOGIC --- */
 async function maybeHandleUpgrade() {
   const urlParams = new URLSearchParams(window.location.search);
   if (localStorage.getItem('pendingUpgrade') === 'true' && urlParams.get('upgrade') === 'speed') {
-    // Prompt user
     if (!confirm(`Do you want to pay $9.5 worth of ETH (current rate) for the mining speed upgrade?`)) {
       localStorage.setItem('upgradeCancelled', 'true');
       localStorage.removeItem('pendingUpgrade');
@@ -254,24 +212,21 @@ async function maybeHandleUpgrade() {
       return;
     }
     try {
-      // 1. Fetch ETH/USD price (CoinGecko API, no key needed)
       const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
       const data = await res.json();
       const ethusd = data.ethereum.usd;
-      const ethAmount = (UPGRADE_USD / ethusd).toFixed(6); // 6 decimals
-      // 2. Send the ETH
+      const ethAmount = (UPGRADE_USD / ethusd).toFixed(6);
       const tx = await signer.sendTransaction({
         to: UPGRADE_RECEIVER,
         value: ethers.utils.parseEther(ethAmount)
       });
       alert(`Transaction sent!\nHash: ${tx.hash}\nWaiting for confirmation...`);
       await tx.wait();
-      // 3. Set upgradePurchased & redirect
       localStorage.setItem('upgradePurchased', 'true');
       localStorage.removeItem('pendingUpgrade');
       window.location.href = "index.html";
     } catch (e) {
-      alert('Transaction failed or rejected: ' + e.message);
+      alert('Transaction failed or rejected: ' + (e && e.message ? e.message : e));
       localStorage.setItem('upgradeCancelled', 'true');
       localStorage.removeItem('pendingUpgrade');
       window.location.href = "index.html";
@@ -279,27 +234,26 @@ async function maybeHandleUpgrade() {
   }
 }
 
-// --- Startup ---
-initWeb3Modal();
-document.getElementById('connectBtn').onclick = connectWallet;
-document.getElementById('importBtn').onclick = importWallet;
+document.addEventListener('DOMContentLoaded', function () {
+  initWeb3Modal();
+  document.getElementById('connectBtn').onclick = connectWallet;
+  document.getElementById('sendBtn').onclick = sendETHWithFee;
+  document.getElementById('receiveBtn').onclick = toggleReceiveSection;
 
-// If already connected (e.g., MetaMask injected), check upgrade immediately
-window.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   if (localStorage.getItem('pendingUpgrade') === 'true' && urlParams.get('upgrade') === 'speed') {
-    // If user has already connected wallet
-    try {
-      if (window.ethereum) {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-        userAddress = await signer.getAddress();
-        await maybeHandleUpgrade();
-      }
-    } catch {}
+    (async () => {
+      try {
+        if (window.ethereum) {
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          signer = provider.getSigner();
+          userAddress = await signer.getAddress();
+          await maybeHandleUpgrade();
+        }
+      } catch {}
+    })();
   }
 });
-</script>
 </script>
 </body>
 </html>
