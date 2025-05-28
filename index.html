@@ -33,14 +33,23 @@
             font-size: 1.2em;
             padding: 8px 0;
             margin-bottom: 18px;
-            animation: marquee 15s linear infinite;
+            border-radius: 0 0 16px 16px;
             white-space: nowrap;
             overflow: hidden;
-            border-radius: 0 0 16px 16px;
+            position: relative;
+            height: 1.5em;
+        }
+        .marquee-text {
+            display: inline-block;
+            position: absolute;
+            left: 100%;
+            animation: marquee 15s linear infinite;
+            white-space: nowrap;
+            will-change: transform;
         }
         @keyframes marquee {
-            0% { transform: translateX(100%);}
-            100%{ transform: translateX(-100%);}
+            0%   { transform: translateX(0%);}
+            100% { transform: translateX(-100vw);}
         }
         .container {
             background: rgba(30, 30, 40, 0.95);
@@ -147,7 +156,9 @@
 </head>
 <body>
     <div class="header">SUPREMEAMER COIN AIRDROP 🚀💰</div>
-    <div class="marquee">Welcome to $SA - Mine SupremeAmer coins and join the revolution! 🚀💰🎉</div>
+    <div class="marquee">
+        <span class="marquee-text">Welcome to $SA - Mine SupremeAmer coins and join the revolution! 🚀💰🎉</span>
+    </div>
     <div class="container">
         <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
         <div class="upgrade-info" id="upgradeInfo"></div>
