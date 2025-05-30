@@ -6,7 +6,6 @@
     <title>SupremeAmer Coin Airdrop</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <style>
-        /* Keep your original CSS from before */
         body { font-family: 'Montserrat', Arial, sans-serif; min-height: 100vh; margin: 0; background: linear-gradient(135deg, #111 70%, #ff9800 100%); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .header { width: 100%; padding: 25px 0 10px 0; text-align: center; background: rgba(0,0,0,0.7); font-size: 2.4em; font-weight: bold; letter-spacing: 2px; box-shadow: 0 2px 16px #ffeb3b33; }
         .marquee { background: linear-gradient(90deg, #ff9800, #fdc500, #ff9800); color: #222; font-size: 1.2em; padding: 8px 0; margin-bottom: 18px; border-radius: 0 0 16px 16px; white-space: nowrap; overflow: hidden; position: relative; height: 1.5em; }
@@ -14,12 +13,19 @@
         @keyframes marquee { 0% { transform: translateX(0%);} 100% { transform: translateX(-100vw);} }
         .container { background: rgba(30, 30, 40, 0.95); padding: 36px 32px 28px 32px; border-radius: 20px; box-shadow: 0 8px 32px #0006; text-align: center; max-width: 400px; width: 90%; }
         .mined-coins { font-size: 2.3em; margin: 14px 0; color: #ffb900; font-weight: 700; letter-spacing: 1px; }
-        .timer { font-size: 1.5em; color: #ff3333; margin-bottom: 18px; font-weight: 600; }
-        .mine-btn, .upgrade-btn, .reward-btn, .boost-btn { padding: 15px 38px; background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%); color: #111; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: box-shadow 0.2s, background 0.2s; box-shadow: 0 4px 16px #ff980066; margin-bottom: 10px; }
-        .mine-btn:hover, .upgrade-btn:hover, .reward-btn:hover, .boost-btn:hover { background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%); box-shadow: 0 8px 24px #ff980099; }
-        .upgrade-btn[disabled], .reward-btn[disabled], .boost-btn[disabled] { opacity: 0.65; cursor: not-allowed; }
+        .mine-btn, .reward-btn, .boost-btn { padding: 15px 38px; background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%); color: #111; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: box-shadow 0.2s, background 0.2s; box-shadow: 0 4px 16px #ff980066; margin-bottom: 10px; }
+        .mine-btn:hover, .reward-btn:hover, .boost-btn:hover { background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%); box-shadow: 0 8px 24px #ff980099; }
+        .reward-btn[disabled], .boost-btn[disabled] { opacity: 0.65; cursor: not-allowed; }
         .ref-container { margin: 12px 0 6px 0; }
         #leaderboard { margin: 14px 0 0 0; background:rgba(20,20,20,0.35); border-radius:10px; padding:10px; }
+        .footer { width: 100%; display: flex; justify-content: space-evenly; gap: 0; padding: 18px 0; background: rgba(255, 184, 0, 0.09); position: fixed; bottom: 0; left: 0; border-radius: 18px 18px 0 0; box-shadow: 0 -4px 24px #ff980022; z-index: 999; }
+        .footer button { background: #fff; color: #ff9800; border: none; border-radius: 50%; width: 52px; height: 52px; font-size: 2em; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px #2222; transition: background 0.2s, color 0.2s; }
+        .footer button:hover { background: #ff9800; color: #fff; }
+        @media (max-width: 600px) {
+            .container { padding: 18px 6px; }
+            .header { font-size: 1.3em; }
+            .footer button { width: 44px; height: 44px; font-size: 1.3em;}
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
 </head>
@@ -30,11 +36,8 @@
     </div>
     <div class="container">
         <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
-        <div class="upgrade-info" id="upgradeInfo"></div>
         <div class="mined-coins" id="minedCoins">Mined Coins: 0</div>
-        <div class="timer" id="timer">07:00:00</div>
-        <button class="mine-btn" id="mineBtn">Start Mining</button><br>
-        <button class="upgrade-btn" id="upgradeBtn">⚡ Speed Upgrade: 10 coins/sec · 30 days ($9.5 in ETH)</button>
+        <button class="mine-btn" id="mineBtn">Start Mining</button>
         <button class="reward-btn" id="rewardBtn">Claim Daily Reward</button>
         <button class="boost-btn" id="boostBtn">Buy 1hr Boost (50 coins)</button>
         <div class="ref-container">
@@ -44,49 +47,40 @@
         </div>
         <div id="leaderboard"></div>
     </div>
-
+    <div class="footer">
+        <button onclick="window.location.href='index.html'" title="Home">🏠</button>
+        <button onclick="window.location.href='Task.html'" title="Tasks">📜</button>
+        <button onclick="window.location.href='wallet.html'" title="Wallet">💸</button>
+        <button onclick="window.location.href='dapp.html'" title="DApp">🎮</button>
+    </div>
     <script>
-    // --- Appwrite Setup ---
+    // ==== Appwrite Setup ====
     const client = new Appwrite.Client()
-        .setEndpoint('https://fra.cloud.appwrite.io/v1') // Replace with your endpoint
-        .setProject('6839d9640019316a160d'); // Replace with your project ID
+        .setEndpoint('https://YOUR_APPWRITE_ENDPOINT/v1') // CHANGE THIS
+        .setProject('YOUR_PROJECT_ID'); // CHANGE THIS
 
     const account = new Appwrite.Account(client);
     const databases = new Appwrite.Databases(client);
 
-    // --- Collection IDs (replace if different in your Appwrite project) ---
-    const DB_ID = '6839dcca000190bf99f6';
+    const DB_ID = 'YOUR_DB_ID'; // CHANGE THIS
     const USERS_COLL = 'users';
     const REFERRALS_COLL = 'referrals';
     const DAILY_COLL = 'daily_rewards';
     const BOOSTS_COLL = 'boosts';
 
-    // --- Mining Parameters ---
+    // ==== Mining Parameters ====
     const NORMAL_SPEED = 0.07;
-    const UPGRADE_SPEED = 10;
     const BOOST_MULTIPLIER = 1.5;
     const BOOST_COST = 50;
     const BOOST_DURATION_MS = 3600 * 1000; // 1 hour
 
-    // --- State ---
+    // ==== State ====
     let userId = null;
     let miningInterval = null;
     let miningActive = false;
     let minedCoins = 0;
-    let upgradeActive = false;
-    let upgradeEnd = 0;
-    let miningSpeed = NORMAL_SPEED;
 
-    // --- Utility ---
-    function padZero(v) { return String(v).padStart(2, '0'); }
-    function formatTime(sec) {
-        const h = Math.floor(sec / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = sec % 60;
-        return `${padZero(h)}:${padZero(m)}:${padZero(s)}`;
-    }
-
-    // --- Referral System ---
+    // ==== Referral System ====
     function generateReferralLink(userId) {
         return `${window.location.origin + window.location.pathname}?ref=${userId}`;
     }
@@ -94,55 +88,42 @@
         const params = new URLSearchParams(window.location.search);
         const ref = params.get('ref');
         if (ref && ref !== newUserId) {
-            // Store referral in its own collection
             try {
                 await databases.createDocument(DB_ID, REFERRALS_COLL, Appwrite.ID.unique(), {
                     referrer_user_id: ref,
                     referred_user_id: newUserId,
                     bonus_claimed: false
                 });
-            } catch (e) {
-                // Ignore if already exists
-            }
+            } catch (e) {/* Ignore if already exists */}
         }
     }
-    // Call this when a referred user finishes their first mining session
+    // Called after first mining session
     async function claimReferralBonusIfNeeded() {
-        // Find the referral doc
         const res = await databases.listDocuments(DB_ID, REFERRALS_COLL, [
             Appwrite.Query.equal('referred_user_id', [userId]),
             Appwrite.Query.equal('bonus_claimed', [false])
         ]);
         if (res.documents.length > 0) {
             const referral = res.documents[0];
-            // Give bonus coins to referrer
             const referrer = referral.referrer_user_id;
-            // Find referrer user doc
             const refUser = await databases.getDocument(DB_ID, USERS_COLL, referrer);
             await databases.updateDocument(DB_ID, USERS_COLL, referrer, {
-                mined_coins: (refUser.mined_coins || 0) + 10 // Example bonus
+                mined_coins: (refUser.mined_coins || 0) + 10
             });
-            // Mark referral bonus as claimed
             await databases.updateDocument(DB_ID, REFERRALS_COLL, referral.$id, { bonus_claimed: true });
             alert("Your referrer has received a bonus! 🎉");
         }
     }
 
-    // --- Daily Rewards ---
+    // ==== Daily Rewards ====
     async function claimDailyReward() {
         const today = new Date().toISOString().split('T')[0];
         let rewardData;
-        try {
-            rewardData = await databases.getDocument(DB_ID, DAILY_COLL, userId);
-        } catch {
-            // No doc yet
-        }
-
+        try { rewardData = await databases.getDocument(DB_ID, DAILY_COLL, userId); } catch {}
         if (rewardData && rewardData.last_claim_date === today) {
             alert("You have already claimed today's reward!");
             return;
         }
-        // Update streak
         let newStreak = 1;
         if (rewardData && rewardData.last_claim_date) {
             const lastDate = new Date(rewardData.last_claim_date);
@@ -159,13 +140,13 @@
                 streak_count: newStreak
             });
         });
-        await addCoins(userId, newStreak * 10); // Reward increases with streak
+        await addCoins(userId, newStreak * 10);
         alert(`Daily reward claimed! +${newStreak * 10} coins (streak: ${newStreak} days)`);
         updateCoinsDisplay();
         showLeaderboard();
     }
 
-    // --- Mining Boosts ---
+    // ==== Mining Boosts ====
     async function buyBoost() {
         const user = await getUser();
         if (user.mined_coins < BOOST_COST) {
@@ -191,7 +172,7 @@
         return res.documents.length > 0;
     }
 
-    // --- Leaderboard ---
+    // ==== Leaderboard ====
     async function getLeaderboard() {
         const res = await databases.listDocuments(DB_ID, USERS_COLL, [
             Appwrite.Query.orderDesc('mined_coins'),
@@ -207,7 +188,7 @@
             '</ol>';
     }
 
-    // --- Users & Coins ---
+    // ==== Users & Coins ====
     async function getUser() {
         return await databases.getDocument(DB_ID, USERS_COLL, userId);
     }
@@ -223,11 +204,9 @@
         document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins}`;
     }
 
-    // --- Mining Logic ---
+    // ==== Mining Logic ====
     async function getMiningRate() {
         let speed = NORMAL_SPEED;
-        // Check for upgrade (implement as needed)
-        // Example: if (upgradeActive) speed = UPGRADE_SPEED;
         if (await getActiveBoost()) speed *= BOOST_MULTIPLIER;
         return speed;
     }
@@ -239,7 +218,6 @@
             await addCoins(userId, speed);
             updateCoinsDisplay();
         }, 1000);
-        // On first mining session after registration, check referral milestone
         claimReferralBonusIfNeeded();
     }
     function stopMining() {
@@ -247,12 +225,12 @@
         clearInterval(miningInterval);
     }
 
-    // --- UI Handlers ---
+    // ==== UI Handlers ====
     document.getElementById('mineBtn').onclick = startMining;
     document.getElementById('rewardBtn').onclick = claimDailyReward;
     document.getElementById('boostBtn').onclick = buyBoost;
 
-    // --- On Load: Auth, UI, Referrals ---
+    // ==== On Load: Auth, UI, Referrals ====
     (async () => {
         let session;
         try {
@@ -263,7 +241,6 @@
         }
         userId = session.$id;
 
-        // Ensure user doc exists
         try {
             await databases.getDocument(DB_ID, USERS_COLL, userId);
         } catch {
@@ -272,12 +249,9 @@
                 mined_coins: 0
             });
         }
-        // Referral
         await createReferralIfNeeded(userId);
-        // Populate referral link
         document.getElementById('refLink').value = generateReferralLink(userId);
 
-        // Initial UI update
         await updateCoinsDisplay();
         await showLeaderboard();
     })();
