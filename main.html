@@ -69,14 +69,14 @@
     <script>
     // ---- Appwrite Setup ----
     const appwrite = new Appwrite.Client()
-        .setEndpoint('https://[YOUR_APPWRITE_ENDPOINT]') // <-- CHANGE ME
-        .setProject('[YOUR_PROJECT_ID]'); // <-- CHANGE ME
+        .setEndpoint('https://fra.cloud.appwrite.io/v1') // <-- CHANGE ME
+        .setProject('6839d9640019316a160d'); // <-- CHANGE ME
 
     const account = new Appwrite.Account(appwrite);
     const databases = new Appwrite.Databases(appwrite);
 
-    const DB_ID = '[YOUR_DB_ID]'; // <-- CHANGE ME
-    const USER_COLL_ID = 'users'; // Must exist in Appwrite
+    const DB_ID = '6839dcca000190bf99f6'; // <-- CHANGE ME
+    const USER_COLL_ID = '6839ddda001d122fc8b7'; // Must exist in Appwrite
     let currentUser = null, userId = null, userDoc = null;
 
     // ---- Mining Logic ----
