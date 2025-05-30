@@ -148,10 +148,49 @@
             #logoContainer { width: 180px; height: 180px; }
             #coinLogo, #sparkleGroup { width: 180px !important; height: 180px !important; }
         }
-        #logoContainer.mining #coinLogo {
-            filter: drop-shadow(0 0 16px #fdc500) drop-shadow(0 0 32px #ff980099);
-            animation: pulse 1s infinite alternate;
-        }
+      #logoContainer {
+    width: 80px !important;
+    height: 80px !important;
+    margin-bottom: 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#coinLogo {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px #ff980066;
+    z-index: 2;
+    position: relative;
+}
+#hammer {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    left: 35px;
+    top: -25px;
+    z-index: 3;
+    transform: rotate(-30deg);
+    pointer-events: none;
+    transition: transform 0.1s;
+}
+.pieces {
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+}
+.piece {
+    width: 18px;
+    height: 18px;
+    background: radial-gradient(circle, #ffd700 75%, #ff9800 100%);
+    border-radius: 50%;
+    position: absolute;
+    opacity: 1;
+    transition: transform 0.7s, opacity 0.7s;
+    pointer-events: none;
+}
         @keyframes pulse {
             0% { transform: scale(1);}
             100% { transform: scale(1.12);}
@@ -237,18 +276,22 @@
     <div class="container">
         <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
         <div class="upgrade-info" id="upgradeInfo"></div>
+          <div id="logoContainer"
+                <img id="coinLogo" src="supremeamer_coin.png" alt="SupremeAmer Coin" width="320" height="320" style="border-radius: 50%; box-shadow:0 4px 16px #ff980066;"
+              style="position:absolute; left:248px; top:40px; width:56px; height:56px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"
+               style="position:absolute; left:64px; top:248px; width:28px; height:28px; background:radial-gradient(circle,#fff700 60%,transparent 100%); border-radius:50%;"
+               style="position:absolute; left:212px; top:212px; width:20px; height:20px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
+       
+        
         <div class="mined-coins" id="minedCoins">Mined Coins: 0</div>
         <div class="timer" id="timer">07:00:00</div>
         <button class="mine-btn" id="mineBtn">Start Mining</button><br>
         <button class="upgrade-btn" id="upgradeBtn">⚡ Speed Upgrade: 10 coins/sec · 30 days ($9.5 in ETH)</button>
     </div>
-    <div id="logoContainer">
+  
         <img id="coinLogo" src="supremeamer_coin.png" alt="SupremeAmer Coin" width="320" height="320" style="border-radius: 50%; box-shadow:0 4px 16px #ff980066;">
         <div id="sparkleGroup" style="position:absolute; left:0; top:0; width:320px; height:320px; pointer-events:none; opacity:0;">
-            <div style="position:absolute; left:248px; top:40px; width:56px; height:56px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
-            <div style="position:absolute; left:64px; top:248px; width:28px; height:28px; background:radial-gradient(circle,#fff700 60%,transparent 100%); border-radius:50%;"></div>
-            <div style="position:absolute; left:212px; top:212px; width:20px; height:20px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
-        </div>
+            </div>
     </div>
     <div class="footer">
         <button onclick="window.location.href='index.html'" title="Home">🏠</button>
@@ -536,6 +579,61 @@
             alert("Speed Upgrade cancelled or failed. No changes were made.");
         }
     };
+        // --- Hammer and Pieces Animation ---
+const logoContainer = document.getElementById('logoContainer');
+const hammer = document.getElementById('hammer');
+const pieces = document.getElementById('pieces');
+const coinLogo = document.getElementById('coinLogo');
+let miningActive = false;
+
+function animateHammerAndPieces() {
+    // Show hammer
+    hammer.style.display = 'block';
+    hammer.style.transform = 'rotate(-30deg) scale(1.12)';
+    setTimeout(() => {
+        hammer.style.transform = 'rotate(10deg) scale(1.0)';
+        splashPieces();
+        setTimeout(() => {
+            hammer.style.display = 'none';
+            hammer.style.transform = 'rotate(-30deg)';
+        }, 350);
+    }, 220);
+}
+
+function splashPieces() {
+    pieces.innerHTML = '';
+    const n = 6;
+    for (let i = 0; i < n; i++) {
+        const angle = (Math.PI * 2 / n) * i + Math.random()*0.2;
+        const dist = 48 + Math.random() * 22;
+        const x = Math.cos(angle) * dist;
+        const y = Math.sin(angle) * dist;
+        const el = document.createElement('div');
+        el.className = 'piece';
+        el.style.left = '36px';
+        el.style.top = '36px';
+        pieces.appendChild(el);
+        setTimeout(() => {
+            el.style.transform = `translate(${x}px,${y}px) scale(${0.4 + Math.random()*0.3})`;
+            el.style.opacity = 0;
+        }, 20);
+        setTimeout(() => {
+            el.remove();
+            // Optionally animate to balance
+        }, 720);
+    }
+}
+
+// Call this function when mining occurs (e.g., in mineCoins())
+function mineCoins() {
+    let speed = getSpeed();
+    minedCoins += speed;
+    updateMinedCoinsDisplay();
+    localStorage.setItem('minedCoins', minedCoins);
+
+    // Animate hammer and pieces
+    animateHammerAndPieces();
+}
     function persistState(){
         localStorage.setItem('minedCoins', minedCoins);
         localStorage.setItem('remainingTime', remainingTime);
