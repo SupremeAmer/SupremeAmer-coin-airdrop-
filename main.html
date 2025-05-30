@@ -6,26 +6,18 @@
     <title>SupremeAmer Coin Airdrop</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <style>
-        /* -- Your full CSS from original code. Omitted here for brevity, use your full CSS. -- */
+        /* Keep your original CSS from before */
         body { font-family: 'Montserrat', Arial, sans-serif; min-height: 100vh; margin: 0; background: linear-gradient(135deg, #111 70%, #ff9800 100%); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .header { width: 100%; padding: 25px 0 10px 0; text-align: center; background: rgba(0,0,0,0.7); font-size: 2.4em; font-weight: bold; letter-spacing: 2px; box-shadow: 0 2px 16px #ffeb3b33; }
         .marquee { background: linear-gradient(90deg, #ff9800, #fdc500, #ff9800); color: #222; font-size: 1.2em; padding: 8px 0; margin-bottom: 18px; border-radius: 0 0 16px 16px; white-space: nowrap; overflow: hidden; position: relative; height: 1.5em; }
         .marquee-text { display: inline-block; position: absolute; left: 100%; animation: marquee 15s linear infinite; white-space: nowrap; will-change: transform; }
         @keyframes marquee { 0% { transform: translateX(0%);} 100% { transform: translateX(-100vw);} }
         .container { background: rgba(30, 30, 40, 0.95); padding: 36px 32px 28px 32px; border-radius: 20px; box-shadow: 0 8px 32px #0006; text-align: center; max-width: 400px; width: 90%; }
-        #logoContainer { margin-bottom: 20px; position: relative; width: 370px; height: 370px; }
         .mined-coins { font-size: 2.3em; margin: 14px 0; color: #ffb900; font-weight: 700; letter-spacing: 1px; }
         .timer { font-size: 1.5em; color: #ff3333; margin-bottom: 18px; font-weight: 600; }
         .mine-btn, .upgrade-btn, .reward-btn, .boost-btn { padding: 15px 38px; background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%); color: #111; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: box-shadow 0.2s, background 0.2s; box-shadow: 0 4px 16px #ff980066; margin-bottom: 10px; }
         .mine-btn:hover, .upgrade-btn:hover, .reward-btn:hover, .boost-btn:hover { background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%); box-shadow: 0 8px 24px #ff980099; }
         .upgrade-btn[disabled], .reward-btn[disabled], .boost-btn[disabled] { opacity: 0.65; cursor: not-allowed; }
-        .footer { width: 100%; display: flex; justify-content: space-evenly; gap: 0; padding: 18px 0; background: rgba(255, 184, 0, 0.09); position: fixed; bottom: 0; left: 0; border-radius: 18px 18px 0 0; box-shadow: 0 -4px 24px #ff980022; z-index: 999; }
-        .footer button { background: #fff; color: #ff9800; border: none; border-radius: 50%; width: 52px; height: 52px; font-size: 2em; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px #2222; transition: background 0.2s, color 0.2s; }
-        .footer button:hover { background: #ff9800; color: #fff; }
-        @media (max-width: 600px) { .container { padding: 18px 6px; } .header { font-size: 1.3em; } .footer button { width: 44px; height: 44px; font-size: 1.3em;} #logoContainer { width: 180px; height: 180px; } #coinLogo, #sparkleGroup { width: 180px !important; height: 180px !important; } }
-        #logoContainer.mining #coinLogo { filter: drop-shadow(0 0 16px #fdc500) drop-shadow(0 0 32px #ff980099); animation: pulse 1s infinite alternate; }
-        @keyframes pulse { 0% { transform: scale(1);} 100% { transform: scale(1.12);} }
-        .upgrade-info{ font-size: 1em; color: #ffd700; margin-bottom: 12px; }
         .ref-container { margin: 12px 0 6px 0; }
         #leaderboard { margin: 14px 0 0 0; background:rgba(20,20,20,0.35); border-radius:10px; padding:10px; }
     </style>
@@ -52,368 +44,243 @@
         </div>
         <div id="leaderboard"></div>
     </div>
-    <div id="logoContainer">
-        <img id="coinLogo" src="supremeamer_coin.png" alt="SupremeAmer Coin" width="320" height="320" style="border-radius: 50%; box-shadow:0 4px 16px #ff980066;">
-        <div id="sparkleGroup" style="position:absolute; left:0; top:0; width:320px; height:320px; pointer-events:none; opacity:0;">
-            <div style="position:absolute; left:248px; top:40px; width:56px; height:56px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
-            <div style="position:absolute; left:64px; top:248px; width:28px; height:28px; background:radial-gradient(circle,#fff700 60%,transparent 100%); border-radius:50%;"></div>
-            <div style="position:absolute; left:212px; top:212px; width:20px; height:20px; background:radial-gradient(circle,#fff700 70%,transparent 100%); border-radius:50%;"></div>
-        </div>
-    </div>
-    <div class="footer">
-        <button onclick="window.location.href='index.html'" title="Home">🏠</button>
-        <button onclick="window.location.href='Task.html'" title="Tasks">📜</button>
-        <button onclick="window.location.href='wallet.html'" title="Wallet">💸</button>
-        <button onclick="window.location.href='dapp.html'" title="DApp">🎮</button>
-    </div>
+
     <script>
-    // ---- Appwrite Setup ----
-    const appwrite = new Appwrite.Client()
-        .setEndpoint('https://fra.cloud.appwrite.io/v1') // <-- CHANGE ME
-        .setProject('6839d9640019316a160d'); // <-- CHANGE ME
+    // --- Appwrite Setup ---
+    const client = new Appwrite.Client()
+        .setEndpoint('https://fra.cloud.appwrite.io/v1') // Replace with your endpoint
+        .setProject('6839d9640019316a160d'); // Replace with your project ID
 
-    const account = new Appwrite.Account(appwrite);
-    const databases = new Appwrite.Databases(appwrite);
+    const account = new Appwrite.Account(client);
+    const databases = new Appwrite.Databases(client);
 
-    const DB_ID = '6839dcca000190bf99f6'; // <-- CHANGE ME
-    const USER_COLL_ID = '6839ddda001d122fc8b7'; // Must exist in Appwrite
-    let currentUser = null, userId = null, userDoc = null;
+    // --- Collection IDs (replace if different in your Appwrite project) ---
+    const DB_ID = '6839dcca000190bf99f6';
+    const USERS_COLL = 'users';
+    const REFERRALS_COLL = 'referrals';
+    const DAILY_COLL = 'daily_rewards';
+    const BOOSTS_COLL = 'boosts';
 
-    // ---- Mining Logic ----
-    const UPGRADE_PRICE = 9.5, UPGRADE_SPEED = 10, UPGRADE_TIME = 30 * 24 * 3600;
-    const NORMAL_SPEED = 0.07, NORMAL_TIME = 25200, BOOST_SPEED = 5, BOOST_COST = 50, BOOST_TIME = 3600;
+    // --- Mining Parameters ---
+    const NORMAL_SPEED = 0.07;
+    const UPGRADE_SPEED = 10;
+    const BOOST_MULTIPLIER = 1.5;
+    const BOOST_COST = 50;
+    const BOOST_DURATION_MS = 3600 * 1000; // 1 hour
 
-    let miningInterval = null, timerInterval = null, miningActive = false;
-    let minedCoins = 0, upgradeActive = false, upgradeEndTimestamp = 0, remainingTime = NORMAL_TIME;
-    let lastMinedTimestamp = Math.floor(Date.now()/1000), boostUntil = 0, streak = 0, lastDaily = 0;
-    let referrals = [];
+    // --- State ---
+    let userId = null;
+    let miningInterval = null;
+    let miningActive = false;
+    let minedCoins = 0;
+    let upgradeActive = false;
+    let upgradeEnd = 0;
+    let miningSpeed = NORMAL_SPEED;
 
-    // --- Auth and User Data ---
-    async function loginOrRegister() {
-        try {
-            currentUser = await account.get();
-        } catch {
-            await account.createAnonymousSession();
-            currentUser = await account.get();
-        }
-        userId = currentUser.$id;
-        // Get or create user document
-        try {
-            userDoc = await databases.getDocument(DB_ID, USER_COLL_ID, userId);
-        } catch {
-            // First time: create
-            userDoc = await databases.createDocument(DB_ID, USER_COLL_ID, userId, {
-                minedCoins: 0, lastDaily: 0, referrals: [], streak: 0, upgradeActive: false, upgradeEndTimestamp: 0, boostUntil: 0, remainingTime: NORMAL_TIME
-            });
-        }
-        // Update state from db
-        minedCoins = userDoc.minedCoins || 0;
-        upgradeActive = userDoc.upgradeActive || false;
-        upgradeEndTimestamp = userDoc.upgradeEndTimestamp || 0;
-        remainingTime = userDoc.remainingTime != null ? userDoc.remainingTime : NORMAL_TIME;
-        boostUntil = userDoc.boostUntil || 0;
-        lastDaily = userDoc.lastDaily || 0;
-        streak = userDoc.streak || 0;
-        referrals = userDoc.referrals || [];
+    // --- Utility ---
+    function padZero(v) { return String(v).padStart(2, '0'); }
+    function formatTime(sec) {
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = sec % 60;
+        return `${padZero(h)}:${padZero(m)}:${padZero(s)}`;
     }
 
     // --- Referral System ---
-    function getReferralLink() {
+    function generateReferralLink(userId) {
         return `${window.location.origin + window.location.pathname}?ref=${userId}`;
     }
-    async function handleReferral() {
+    async function createReferralIfNeeded(newUserId) {
         const params = new URLSearchParams(window.location.search);
         const ref = params.get('ref');
-        if(ref && ref != userId) {
+        if (ref && ref !== newUserId) {
+            // Store referral in its own collection
             try {
-                let refDoc = await databases.getDocument(DB_ID, USER_COLL_ID, ref);
-                let newRefs = refDoc.referrals || [];
-                if(!newRefs.includes(userId)) {
-                    newRefs.push(userId);
-                    await databases.updateDocument(DB_ID, USER_COLL_ID, ref, {
-                        referrals: newRefs,
-                        minedCoins: (refDoc.minedCoins || 0) + 10 // +10 coins per referral
-                    });
-                    alert("Referral bonus sent to your referrer!");
-                }
-            } catch {}
+                await databases.createDocument(DB_ID, REFERRALS_COLL, Appwrite.ID.unique(), {
+                    referrer_user_id: ref,
+                    referred_user_id: newUserId,
+                    bonus_claimed: false
+                });
+            } catch (e) {
+                // Ignore if already exists
+            }
+        }
+    }
+    // Call this when a referred user finishes their first mining session
+    async function claimReferralBonusIfNeeded() {
+        // Find the referral doc
+        const res = await databases.listDocuments(DB_ID, REFERRALS_COLL, [
+            Appwrite.Query.equal('referred_user_id', [userId]),
+            Appwrite.Query.equal('bonus_claimed', [false])
+        ]);
+        if (res.documents.length > 0) {
+            const referral = res.documents[0];
+            // Give bonus coins to referrer
+            const referrer = referral.referrer_user_id;
+            // Find referrer user doc
+            const refUser = await databases.getDocument(DB_ID, USERS_COLL, referrer);
+            await databases.updateDocument(DB_ID, USERS_COLL, referrer, {
+                mined_coins: (refUser.mined_coins || 0) + 10 // Example bonus
+            });
+            // Mark referral bonus as claimed
+            await databases.updateDocument(DB_ID, REFERRALS_COLL, referral.$id, { bonus_claimed: true });
+            alert("Your referrer has received a bonus! 🎉");
         }
     }
 
     // --- Daily Rewards ---
     async function claimDailyReward() {
-        await refreshUserDoc();
-        const now = Math.floor(Date.now() / 1000);
-        if(now - lastDaily >= 86400) {
-            streak = (now - lastDaily < 2 * 86400) ? streak + 1 : 1;
-            const dailyCoins = 5 + streak;
-            minedCoins += dailyCoins;
-            lastDaily = now;
-            await databases.updateDocument(DB_ID, USER_COLL_ID, userId, {
-                minedCoins, lastDaily, streak
-            });
-            alert(`Daily reward claimed! +${dailyCoins} coins (streak: ${streak} days)`);
-            updateMinedCoinsDisplay();
-            updateLeaderboard();
-        } else {
-            alert('Already claimed daily reward. Come back tomorrow!');
+        const today = new Date().toISOString().split('T')[0];
+        let rewardData;
+        try {
+            rewardData = await databases.getDocument(DB_ID, DAILY_COLL, userId);
+        } catch {
+            // No doc yet
         }
-        updateRewardBtn();
-    }
-    function updateRewardBtn() {
-        const now = Math.floor(Date.now() / 1000);
-        document.getElementById('rewardBtn').disabled = (now - lastDaily < 86400);
+
+        if (rewardData && rewardData.last_claim_date === today) {
+            alert("You have already claimed today's reward!");
+            return;
+        }
+        // Update streak
+        let newStreak = 1;
+        if (rewardData && rewardData.last_claim_date) {
+            const lastDate = new Date(rewardData.last_claim_date);
+            const diff = (new Date(today) - lastDate) / (1000 * 60 * 60 * 24);
+            if (diff === 1) newStreak = rewardData.streak_count + 1;
+        }
+        await databases.createDocument(DB_ID, DAILY_COLL, userId, {
+            user_id: userId,
+            last_claim_date: today,
+            streak_count: newStreak
+        }).catch(async () => {
+            await databases.updateDocument(DB_ID, DAILY_COLL, userId, {
+                last_claim_date: today,
+                streak_count: newStreak
+            });
+        });
+        await addCoins(userId, newStreak * 10); // Reward increases with streak
+        alert(`Daily reward claimed! +${newStreak * 10} coins (streak: ${newStreak} days)`);
+        updateCoinsDisplay();
+        showLeaderboard();
     }
 
     // --- Mining Boosts ---
-    async function buyMiningBoost() {
-        await refreshUserDoc();
-        const now = Math.floor(Date.now() / 1000);
-        if(minedCoins < BOOST_COST) {
-            alert('Not enough coins for boost.');
+    async function buyBoost() {
+        const user = await getUser();
+        if (user.mined_coins < BOOST_COST) {
+            alert("Not enough coins.");
             return;
         }
-        minedCoins -= BOOST_COST;
-        boostUntil = now + BOOST_TIME;
-        await databases.updateDocument(DB_ID, USER_COLL_ID, userId, { minedCoins, boostUntil });
-        alert('Boost purchased! +5 coins/sec for 1 hour.');
-        updateBoostBtn();
-        updateMinedCoinsDisplay();
-    }
-    function updateBoostBtn() {
-        const now = Math.floor(Date.now() / 1000);
-        document.getElementById('boostBtn').disabled = (boostUntil > now);
-        document.getElementById('boostBtn').textContent = (boostUntil > now) ? "Boost Active!" : "Buy 1hr Boost (50 coins)";
-    }
-
-    // --- Mining/Upgrade Logic ---
-    function getSpeed() {
-        const now = Math.floor(Date.now()/1000);
-        let speed = NORMAL_SPEED;
-        if (boostUntil && boostUntil > now) speed += BOOST_SPEED;
-        if (upgradeActive && upgradeEndTimestamp > now) speed = UPGRADE_SPEED;
-        return speed;
-    }
-    function getMaxTime() {
-        const now = Math.floor(Date.now()/1000);
-        if (upgradeActive && upgradeEndTimestamp > now) return UPGRADE_TIME;
-        return NORMAL_TIME;
-    }
-    function isUpgradeExpired() {
-        const now = Math.floor(Date.now()/1000);
-        return upgradeActive && upgradeEndTimestamp <= now;
-    }
-    async function setUpgradeState(active, endTimestamp) {
-        upgradeActive = active;
-        upgradeEndTimestamp = endTimestamp || 0;
-        await databases.updateDocument(DB_ID, USER_COLL_ID, userId, {
-            upgradeActive: active, upgradeEndTimestamp: endTimestamp || 0
+        const expiresAt = new Date(Date.now() + BOOST_DURATION_MS).toISOString();
+        await databases.createDocument(DB_ID, BOOSTS_COLL, Appwrite.ID.unique(), {
+            user_id: userId,
+            boost_type: "speed",
+            expires_at: expiresAt
         });
+        await addCoins(userId, -BOOST_COST);
+        alert("Boost purchased! +50% mining rate for 1 hour.");
+        updateCoinsDisplay();
     }
-
-    function padZero(v) { return String(v).padStart(2, '0'); }
-    function formatTime(sec) {
-        const d = Math.floor(sec/86400);
-        const h = Math.floor((sec%86400) / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = sec % 60;
-        return d > 0 ? `${padZero(d)}d ${padZero(h)}:${padZero(m)}:${padZero(s)}` : `${padZero(h)}:${padZero(m)}:${padZero(s)}`;
+    async function getActiveBoost() {
+        const nowIso = new Date().toISOString();
+        const res = await databases.listDocuments(DB_ID, BOOSTS_COLL, [
+            Appwrite.Query.equal('user_id', [userId]),
+            Appwrite.Query.greaterThan('expires_at', nowIso)
+        ]);
+        return res.documents.length > 0;
     }
-    function updateUpgradeInfo() {
-        const info = document.getElementById('upgradeInfo');
-        const now = Math.floor(Date.now()/1000);
-        if(upgradeActive && upgradeEndTimestamp > now){
-            const secondsLeft = upgradeEndTimestamp - now;
-            info.innerHTML = `🚀 <b>Speed Upgrade active!</b> Mining at <b>10 coins/sec</b>.<br>Time left: <b>${formatTime(secondsLeft)}</b>`;
-            document.getElementById('upgradeBtn').disabled = true;
-            document.getElementById('upgradeBtn').textContent = "Speed Upgrade Active";
-        }else{
-            if(isUpgradeExpired()){
-                info.innerHTML = `<b>Speed Upgrade expired.</b> Mining will reset to normal speed after restart.`;
-            }else{
-                info.innerHTML = "Mine faster! Upgrade to 10 coins/sec for $9.5 in ETH.";
-            }
-            document.getElementById('upgradeBtn').disabled = false;
-            document.getElementById('upgradeBtn').textContent = "⚡ Speed Upgrade: 10 coins/sec · 30 days ($9.5 in ETH)";
-        }
-    }
-
-    function updateMinedCoinsDisplay() {
-        document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins.toFixed(4)}`;
-    }
-    function updateTimerDisplay() {
-        document.getElementById('timer').textContent = formatTime(remainingTime);
-    }
-
-    // --- Mining engine ---
-    function mineCoins() {
-        let speed = getSpeed();
-        minedCoins += speed;
-        updateMinedCoinsDisplay();
-        databases.updateDocument(DB_ID, USER_COLL_ID, userId, { minedCoins });
-    }
-    function timerTick() {
-        if (remainingTime > 0) {
-            remainingTime--;
-            updateTimerDisplay();
-            databases.updateDocument(DB_ID, USER_COLL_ID, userId, { remainingTime });
-            if (remainingTime === 0) stopMining(true);
-        }
-    }
-    function startMining() {
-        if (miningActive) return;
-        if(isUpgradeExpired()) {
-            setUpgradeState(false, 0);
-            remainingTime = NORMAL_TIME;
-            databases.updateDocument(DB_ID, USER_COLL_ID, userId, { remainingTime });
-            updateUpgradeInfo();
-        }
-        if (remainingTime === 0) resetMining();
-        miningActive = true;
-        miningInterval = setInterval(mineCoins, 1000);
-        timerInterval = setInterval(timerTick, 1000);
-        animateLogo(true);
-        document.getElementById('mineBtn').textContent = 'Mining...';
-        document.getElementById('mineBtn').disabled = true;
-    }
-    function stopMining(timeEnded = false) {
-        miningActive = false;
-        clearInterval(miningInterval);
-        clearInterval(timerInterval);
-        animateLogo(false);
-        document.getElementById('mineBtn').disabled = false;
-        document.getElementById('mineBtn').textContent = 'Start Mining';
-        if (timeEnded) {
-            setTimeout(() => { alert('⏰ Mining session ended!\nPlease click Start Mining to begin a new session.'); }, 200);
-        }
-    }
-    function resetMining() {
-        if(upgradeActive && !isUpgradeExpired()){
-            remainingTime = UPGRADE_TIME;
-        } else {
-            setUpgradeState(false, 0);
-            remainingTime = NORMAL_TIME;
-        }
-        databases.updateDocument(DB_ID, USER_COLL_ID, userId, { remainingTime });
-        updateTimerDisplay();
-    }
-
-    // --- Logo Animation ---
-    let spinAnimId = null;
-    function animateLogo(active) {
-        const logoContainer = document.getElementById('logoContainer');
-        const sparkleGroup = document.getElementById('sparkleGroup');
-        if (active) {
-            logoContainer.classList.add('mining');
-            if (sparkleGroup) sparkleGroup.style.opacity = '1';
-            startLogoSpin();
-        } else {
-            logoContainer.classList.remove('mining');
-            if (sparkleGroup) sparkleGroup.style.opacity = '0';
-            stopLogoSpin();
-        }
-    }
-    function startLogoSpin() {
-        if(spinAnimId) return;
-        const logo = document.getElementById('coinLogo');
-        let angle = 0;
-        function spin() {
-            angle = (angle + 2.5) % 360;
-            logo.style.transform = `rotate(${angle}deg)`;
-            spinAnimId = requestAnimationFrame(spin);
-        }
-        spinAnimId = requestAnimationFrame(spin);
-    }
-    function stopLogoSpin() {
-        if (spinAnimId) {
-            cancelAnimationFrame(spinAnimId);
-            spinAnimId = null;
-        }
-        const logo = document.getElementById('coinLogo');
-        logo.style.transform = '';
-    }
-
-    // --- Upgrade Button Logic ---
-    document.getElementById('upgradeBtn').onclick = async function() {
-        await refreshUserDoc();
-        const now = Math.floor(Date.now() / 1000);
-        if(upgradeActive && upgradeEndTimestamp > now){
-            alert("Upgrade already active!");
-            return;
-        }
-        if(!confirm(`Upgrade mining speed to 10 coins/sec for 30 days?\nThis will cost $9.5 worth of ETH and will be deducted from your wallet. Continue?`)){
-            return;
-        }
-        // Simulate payment, then:
-        const endTs = now + UPGRADE_TIME;
-        await setUpgradeState(true, endTs);
-        remainingTime = UPGRADE_TIME;
-        await databases.updateDocument(DB_ID, USER_COLL_ID, userId, { remainingTime });
-        updateUpgradeInfo();
-        updateTimerDisplay();
-        alert("Speed Upgrade successful!\nMining speed increased to 10 coins/sec for 30 days.");
-    };
-
-    // --- Mining Button Logic ---
-    document.getElementById('mineBtn').onclick = function() {
-        if(isUpgradeExpired()){
-            setUpgradeState(false, 0);
-            remainingTime = NORMAL_TIME;
-            databases.updateDocument(DB_ID, USER_COLL_ID, userId, { remainingTime });
-            updateUpgradeInfo();
-            updateTimerDisplay();
-        }
-        if (remainingTime === 0) resetMining();
-        startMining();
-    };
-
-    // --- Daily Reward and Boost Button ---
-    document.getElementById('rewardBtn').onclick = claimDailyReward;
-    document.getElementById('boostBtn').onclick = buyMiningBoost;
 
     // --- Leaderboard ---
-    async function updateLeaderboard() {
+    async function getLeaderboard() {
+        const res = await databases.listDocuments(DB_ID, USERS_COLL, [
+            Appwrite.Query.orderDesc('mined_coins'),
+            Appwrite.Query.limit(10)
+        ]);
+        return res.documents;
+    }
+    async function showLeaderboard() {
+        const data = await getLeaderboard();
+        document.getElementById('leaderboard').innerHTML =
+            '<h3>Leaderboard</h3><ol>' +
+            data.map(u => `<li>${u.user_id?.slice(0, 6) || ''}... — <b>${u.mined_coins || 0}</b> coins</li>`).join('') +
+            '</ol>';
+    }
+
+    // --- Users & Coins ---
+    async function getUser() {
+        return await databases.getDocument(DB_ID, USERS_COLL, userId);
+    }
+    async function addCoins(userId, amount) {
+        const user = await getUser();
+        await databases.updateDocument(DB_ID, USERS_COLL, userId, {
+            mined_coins: (user.mined_coins || 0) + amount
+        });
+    }
+    async function updateCoinsDisplay() {
+        const user = await getUser();
+        minedCoins = user.mined_coins || 0;
+        document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins}`;
+    }
+
+    // --- Mining Logic ---
+    async function getMiningRate() {
+        let speed = NORMAL_SPEED;
+        // Check for upgrade (implement as needed)
+        // Example: if (upgradeActive) speed = UPGRADE_SPEED;
+        if (await getActiveBoost()) speed *= BOOST_MULTIPLIER;
+        return speed;
+    }
+    async function startMining() {
+        if (miningActive) return;
+        miningActive = true;
+        miningInterval = setInterval(async () => {
+            const speed = await getMiningRate();
+            await addCoins(userId, speed);
+            updateCoinsDisplay();
+        }, 1000);
+        // On first mining session after registration, check referral milestone
+        claimReferralBonusIfNeeded();
+    }
+    function stopMining() {
+        miningActive = false;
+        clearInterval(miningInterval);
+    }
+
+    // --- UI Handlers ---
+    document.getElementById('mineBtn').onclick = startMining;
+    document.getElementById('rewardBtn').onclick = claimDailyReward;
+    document.getElementById('boostBtn').onclick = buyBoost;
+
+    // --- On Load: Auth, UI, Referrals ---
+    (async () => {
+        let session;
         try {
-            const result = await databases.listDocuments(DB_ID, USER_COLL_ID, [
-                Appwrite.Query.orderDesc('minedCoins'),
-                Appwrite.Query.limit(10)
-            ]);
-            let html = '<h3>Leaderboard</h3><ol style="text-align:left;">';
-            result.documents.forEach((u, i) => {
-                html += `<li>${i===0?"🏆 ":""}User: <b>${u.$id.substring(0,6)}...</b> — <b>${u.minedCoins||0} coins</b>${(u.$id===userId?' <span style="color:#ffd700;">(You)</span>':'')}</li>`;
+            session = await account.get();
+        } catch {
+            await account.createAnonymousSession();
+            session = await account.get();
+        }
+        userId = session.$id;
+
+        // Ensure user doc exists
+        try {
+            await databases.getDocument(DB_ID, USERS_COLL, userId);
+        } catch {
+            await databases.createDocument(DB_ID, USERS_COLL, userId, {
+                user_id: userId,
+                mined_coins: 0
             });
-            html += '</ol>';
-            document.getElementById('leaderboard').innerHTML = html;
-        } catch (e) { document.getElementById('leaderboard').textContent = "Could not load leaderboard."; }
-    }
+        }
+        // Referral
+        await createReferralIfNeeded(userId);
+        // Populate referral link
+        document.getElementById('refLink').value = generateReferralLink(userId);
 
-    // --- Utility ---
-    async function refreshUserDoc() {
-        userDoc = await databases.getDocument(DB_ID, USER_COLL_ID, userId);
-        minedCoins = userDoc.minedCoins || 0;
-        upgradeActive = userDoc.upgradeActive || false;
-        upgradeEndTimestamp = userDoc.upgradeEndTimestamp || 0;
-        remainingTime = userDoc.remainingTime != null ? userDoc.remainingTime : NORMAL_TIME;
-        boostUntil = userDoc.boostUntil || 0;
-        lastDaily = userDoc.lastDaily || 0;
-        streak = userDoc.streak || 0;
-        referrals = userDoc.referrals || [];
-    }
-
-    // --- On Load ---
-    window.onload = async function() {
-        await loginOrRegister();
-        await handleReferral();
-        document.getElementById('refLink').value = getReferralLink();
-        updateMinedCoinsDisplay();
-        updateTimerDisplay();
-        updateUpgradeInfo();
-        updateRewardBtn();
-        updateBoostBtn();
-        updateLeaderboard();
-        animateLogo(false);
-        document.getElementById('mineBtn').disabled = false;
-    };
+        // Initial UI update
+        await updateCoinsDisplay();
+        await showLeaderboard();
+    })();
 
     </script>
 </body>
