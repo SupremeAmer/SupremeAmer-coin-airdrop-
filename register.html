@@ -125,6 +125,15 @@
       .setProject(APPWRITE_PROJECT);
     const account = new Account(client);
     const databases = new Databases(client);
+    // ---- REDIRECT IF ALREADY REGISTERED/LOGGED IN ----
+(async function checkAlreadyRegistered() {
+  try {
+    await account.get(); // If this works, user is logged in
+    window.location.href = 'login.html';
+  } catch (e) {
+    // User is not logged in; do nothing, let them register
+  }
+})();
 
     document.getElementById('registerForm').onsubmit = async function(e) {
       e.preventDefault();
