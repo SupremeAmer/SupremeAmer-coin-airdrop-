@@ -11,18 +11,21 @@
         .marquee { background: linear-gradient(90deg, #ff9800, #fdc500, #ff9800); color: #222; font-size: 1.2em; padding: 8px 0; margin-bottom: 18px; border-radius: 0 0 16px 16px; white-space: nowrap; overflow: hidden; position: relative; height: 1.5em; }
         .marquee-text { display: inline-block; position: absolute; left: 100%; animation: marquee 15s linear infinite; white-space: nowrap; will-change: transform; }
         @keyframes marquee { 0% { transform: translateX(0%);} 100% { transform: translateX(-100vw);} }
-        .container { background: rgba(30, 30, 40, 0.95); padding: 36px 32px 28px 32px; border-radius: 20px; box-shadow: 0 8px 32px #0006; text-align: center; max-width: 400px; width: 90%; }
+        .container { background: rgba(30, 30, 40, 0.95); padding: 36px 32px 28px 32px; border-radius: 20px; box-shadow: 0 8px 32px #0006; text-align: center; max-width: 420px; width: 96%; }
         .mined-coins { font-size: 2.3em; margin: 14px 0; color: #ffb900; font-weight: 700; letter-spacing: 1px; }
-        .mine-btn, .reward-btn, .boost-btn { padding: 15px 38px; background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%); color: #111; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: box-shadow 0.2s, background 0.2s; box-shadow: 0 4px 16px #ff980066; margin-bottom: 10px; }
-        .mine-btn:hover, .reward-btn:hover, .boost-btn:hover { background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%); box-shadow: 0 8px 24px #ff980099; }
-        .reward-btn[disabled], .boost-btn[disabled] { opacity: 0.65; cursor: not-allowed; }
+        .avatar { font-size: 2.1em; border-radius: 50%; display: inline-block; margin-bottom: 8px; }
+        .timer { font-size: 1.5em; color: #ff3333; margin-bottom: 8px; font-weight: 600; }
+        .mine-btn, .upgrade-btn, .reward-btn, .boost-btn { padding: 12px 34px; background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%); color: #111; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: box-shadow 0.2s, background 0.2s; box-shadow: 0 4px 16px #ff980066; margin-bottom: 10px; }
+        .mine-btn:hover, .upgrade-btn:hover, .reward-btn:hover, .boost-btn:hover { background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%); box-shadow: 0 8px 24px #ff980099; }
+        .reward-btn[disabled], .boost-btn[disabled], .upgrade-btn[disabled] { opacity: 0.65; cursor: not-allowed; }
+        .upgrade-info{ font-size: 1em; color: #ffd700; margin-bottom: 6px; }
         .ref-container { margin: 12px 0 6px 0; }
         #leaderboard { margin: 14px 0 0 0; background:rgba(20,20,20,0.35); border-radius:10px; padding:10px; }
         .footer { width: 100%; display: flex; justify-content: space-evenly; gap: 0; padding: 18px 0; background: rgba(255, 184, 0, 0.09); position: fixed; bottom: 0; left: 0; border-radius: 18px 18px 0 0; box-shadow: 0 -4px 24px #ff980022; z-index: 999; }
         .footer button { background: #fff; color: #ff9800; border: none; border-radius: 50%; width: 52px; height: 52px; font-size: 2em; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px #2222; transition: background 0.2s, color 0.2s; }
         .footer button:hover { background: #ff9800; color: #fff; }
         @media (max-width: 600px) {
-            .container { padding: 18px 6px; }
+            .container { padding: 12px 5px; }
             .header { font-size: 1.3em; }
             .footer button { width: 44px; height: 44px; font-size: 1.3em;}
         }
@@ -35,9 +38,13 @@
         <span class="marquee-text">Welcome to $SA - Mine SupremeAmer coins and join the revolution! 🚀💰🎉</span>
     </div>
     <div class="container">
+        <div class="avatar" id="dashboardAvatar"></div>
         <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
+        <div class="upgrade-info" id="upgradeInfo"></div>
         <div class="mined-coins" id="minedCoins">Mined Coins: 0</div>
+        <div class="timer" id="timer">07:00:00</div>
         <button class="mine-btn" id="mineBtn">Start Mining</button>
+        <button class="upgrade-btn" id="upgradeBtn">⚡ Speed Upgrade: 10 coins/sec · 30 days ($9.5 in ETH)</button>
         <button class="reward-btn" id="rewardBtn">Claim Daily Reward</button>
         <button class="boost-btn" id="boostBtn">Buy 1hr Boost (50 coins)</button>
         <div class="ref-container">
@@ -57,28 +64,45 @@
     // ==== Appwrite Setup ====
     const client = new Appwrite.Client()
         .setEndpoint('https://YOUR_APPWRITE_ENDPOINT/v1') // CHANGE THIS
-        .setProject('YOUR_PROJECT_ID'); // CHANGE THIS
+        .setProject('6839d9640019316a160d'); // CHANGE THIS
 
     const account = new Appwrite.Account(client);
     const databases = new Appwrite.Databases(client);
 
-    const DB_ID = 'YOUR_DB_ID'; // CHANGE THIS
+    const DB_ID = '6839dcca000190bf99f6'; // CHANGE THIS
     const USERS_COLL = 'users';
     const REFERRALS_COLL = 'referrals';
     const DAILY_COLL = 'daily_rewards';
     const BOOSTS_COLL = 'boosts';
+    const UPGRADE_COLL = 'upgrades'; // new collection for upgrades
 
     // ==== Mining Parameters ====
     const NORMAL_SPEED = 0.07;
+    const UPGRADE_SPEED = 10;
     const BOOST_MULTIPLIER = 1.5;
     const BOOST_COST = 50;
     const BOOST_DURATION_MS = 3600 * 1000; // 1 hour
+    const UPGRADE_PRICE = 9.5; // $9.5 in ETH
+    const UPGRADE_DURATION_SEC = 30 * 24 * 3600; // 30 days
+    const NORMAL_TIME = 7 * 3600; // 7 hours in seconds
 
     // ==== State ====
     let userId = null;
-    let miningInterval = null;
+    let miningInterval = null, timerInterval = null;
     let miningActive = false;
     let minedCoins = 0;
+    let remainingTime = NORMAL_TIME;
+    let upgradeActive = false;
+    let upgradeEnd = 0;
+    let avatarEmoji = null;
+
+    // ==== Avatars ====
+    function randomAvatar(uid) {
+        const avatars = ["🦁","🐵","🐼","🐸","🐯","🐨","🦊","🐷","🐻","🐔","🐧","🐦","🦄","🐲","🐙","🐬","🐢","🐠","🐝","🦋"];
+        // Deterministic: always same for same user
+        let hash = 0; for (let c of uid) hash += c.charCodeAt(0);
+        return avatars[hash % avatars.length];
+    }
 
     // ==== Referral System ====
     function generateReferralLink(userId) {
@@ -94,10 +118,9 @@
                     referred_user_id: newUserId,
                     bonus_claimed: false
                 });
-            } catch (e) {/* Ignore if already exists */}
+            } catch (e) {}
         }
     }
-    // Called after first mining session
     async function claimReferralBonusIfNeeded() {
         const res = await databases.listDocuments(DB_ID, REFERRALS_COLL, [
             Appwrite.Query.equal('referred_user_id', [userId]),
@@ -172,6 +195,68 @@
         return res.documents.length > 0;
     }
 
+    // ==== Upgrades ====
+    async function buyUpgrade() {
+        // Only one upgrade at a time
+        if (upgradeActive && upgradeEnd > Date.now()/1000) {
+            alert("Upgrade already active!");
+            return;
+        }
+        // For demo, no payment integration -- just activate upgrade if user confirms
+        if (!confirm("Purchase speed upgrade for 30 days (10 coins/sec, $9.5 in ETH)?")) return;
+        const now = Math.floor(Date.now()/1000);
+        const end = now + UPGRADE_DURATION_SEC;
+        await databases.createDocument(DB_ID, UPGRADE_COLL, userId, {
+            user_id: userId,
+            upgrade_active: true,
+            upgrade_end: end
+        }).catch(async () => {
+            await databases.updateDocument(DB_ID, UPGRADE_COLL, userId, {
+                upgrade_active: true,
+                upgrade_end: end
+            });
+        });
+        upgradeActive = true;
+        upgradeEnd = end;
+        remainingTime = UPGRADE_DURATION_SEC;
+        updateUpgradeInfo();
+        updateTimerDisplay();
+        alert("Speed Upgrade active for 30 days!");
+    }
+    async function getUpgradeStatus() {
+        let upgradeDoc;
+        try {
+            upgradeDoc = await databases.getDocument(DB_ID, UPGRADE_COLL, userId);
+        } catch {}
+        if (upgradeDoc && upgradeDoc.upgrade_active && upgradeDoc.upgrade_end > Math.floor(Date.now()/1000)) {
+            upgradeActive = true;
+            upgradeEnd = upgradeDoc.upgrade_end;
+            // If first upgrade, set timer to full period
+            if (remainingTime < 100) remainingTime = UPGRADE_DURATION_SEC;
+        } else {
+            upgradeActive = false;
+            upgradeEnd = 0;
+        }
+    }
+    function updateUpgradeInfo() {
+        const info = document.getElementById('upgradeInfo');
+        const now = Math.floor(Date.now()/1000);
+        if (upgradeActive && upgradeEnd > now) {
+            const secondsLeft = upgradeEnd - now;
+            info.innerHTML = `🚀 <b>Speed Upgrade active!</b> Mining at <b>10 coins/sec</b>.<br>Time left: <b>${formatTime(secondsLeft)}</b>`;
+            document.getElementById('upgradeBtn').disabled = true;
+            document.getElementById('upgradeBtn').textContent = "Speed Upgrade Active";
+        } else {
+            if (upgradeActive) {
+                info.innerHTML = `<b>Speed Upgrade expired.</b> Mining will reset to normal speed after restart.`;
+            } else {
+                info.innerHTML = "Mine faster! Upgrade to 10 coins/sec for $9.5 in ETH.";
+            }
+            document.getElementById('upgradeBtn').disabled = false;
+            document.getElementById('upgradeBtn').textContent = "⚡ Speed Upgrade: 10 coins/sec · 30 days ($9.5 in ETH)";
+        }
+    }
+
     // ==== Leaderboard ====
     async function getLeaderboard() {
         const res = await databases.listDocuments(DB_ID, USERS_COLL, [
@@ -183,8 +268,12 @@
     async function showLeaderboard() {
         const data = await getLeaderboard();
         document.getElementById('leaderboard').innerHTML =
-            '<h3>Leaderboard</h3><ol>' +
-            data.map(u => `<li>${u.user_id?.slice(0, 6) || ''}... — <b>${u.mined_coins || 0}</b> coins</li>`).join('') +
+            '<h3>Leaderboard</h3><ol style="text-align:left;">' +
+            data.map(u =>
+                `<li>
+                    <span class="avatar">${randomAvatar(u.user_id || u.$id)}</span>
+                    ${u.user_id?.slice(0, 6) || ''}... — <b>${u.mined_coins || 0}</b> coins
+                </li>`).join('') +
             '</ol>';
     }
 
@@ -205,30 +294,69 @@
     }
 
     // ==== Mining Logic ====
+    function padZero(v) { return String(v).padStart(2, '0'); }
+    function formatTime(sec) {
+        const d = Math.floor(sec/86400);
+        const h = Math.floor((sec%86400) / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = Math.floor(sec % 60);
+        return d > 0
+          ? `${padZero(d)}d ${padZero(h)}:${padZero(m)}:${padZero(s)}`
+          : `${padZero(h)}:${padZero(m)}:${padZero(s)}`;
+    }
+    function updateTimerDisplay() {
+        document.getElementById('timer').textContent = formatTime(remainingTime);
+    }
     async function getMiningRate() {
         let speed = NORMAL_SPEED;
+        if (upgradeActive && upgradeEnd > Math.floor(Date.now()/1000)) speed = UPGRADE_SPEED;
         if (await getActiveBoost()) speed *= BOOST_MULTIPLIER;
         return speed;
     }
     async function startMining() {
         if (miningActive) return;
         miningActive = true;
+        // If upgrade expired, reset
+        const now = Math.floor(Date.now()/1000);
+        if (upgradeActive && upgradeEnd <= now) {
+            upgradeActive = false;
+            upgradeEnd = 0;
+            remainingTime = NORMAL_TIME;
+            updateUpgradeInfo();
+        }
         miningInterval = setInterval(async () => {
             const speed = await getMiningRate();
+            minedCoins += speed;
+            remainingTime = Math.max(remainingTime - 1, 0);
             await addCoins(userId, speed);
             updateCoinsDisplay();
+            updateTimerDisplay();
+            if (remainingTime <= 0) stopMining(true);
         }, 1000);
+        timerInterval = setInterval(updateTimerDisplay, 1000);
         claimReferralBonusIfNeeded();
     }
-    function stopMining() {
+    function stopMining(timeEnded = false) {
         miningActive = false;
         clearInterval(miningInterval);
+        clearInterval(timerInterval);
+        document.getElementById('mineBtn').textContent = 'Start Mining';
+        document.getElementById('mineBtn').disabled = false;
+        if (timeEnded) {
+            setTimeout(() => { alert('⏰ Mining session ended!\nPlease click Start Mining to begin a new session.'); }, 200);
+        }
     }
 
     // ==== UI Handlers ====
-    document.getElementById('mineBtn').onclick = startMining;
+    document.getElementById('mineBtn').onclick = function() {
+        if (remainingTime <= 0) remainingTime = upgradeActive ? UPGRADE_DURATION_SEC : NORMAL_TIME;
+        startMining();
+        document.getElementById('mineBtn').textContent = 'Mining...';
+        document.getElementById('mineBtn').disabled = true;
+    };
     document.getElementById('rewardBtn').onclick = claimDailyReward;
     document.getElementById('boostBtn').onclick = buyBoost;
+    document.getElementById('upgradeBtn').onclick = buyUpgrade;
 
     // ==== On Load: Auth, UI, Referrals ====
     (async () => {
@@ -249,10 +377,16 @@
                 mined_coins: 0
             });
         }
+        avatarEmoji = randomAvatar(userId);
+        document.getElementById('dashboardAvatar').textContent = avatarEmoji;
+
         await createReferralIfNeeded(userId);
         document.getElementById('refLink').value = generateReferralLink(userId);
 
+        await getUpgradeStatus();
+        updateUpgradeInfo();
         await updateCoinsDisplay();
+        updateTimerDisplay();
         await showLeaderboard();
     })();
 
