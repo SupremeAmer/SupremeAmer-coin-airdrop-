@@ -160,13 +160,76 @@
             font-size: 1em;
             color: #ffd700;
             margin-bottom: 12px;
+            .profile-btn {
+    background: #222;
+    color: #ffd700;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 22px;
+    font-size: 1em;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    box-shadow: 0 2px 8px #ff980022;
+    transition: background 0.15s, color 0.15s;
+}
+.profile-btn:hover, .profile-btn:focus {
+    background: #444;
+    color: #fff700;
+}
+.profile-dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: #222;
+    min-width: 210px;
+    border-radius: 10px;
+    box-shadow: 0 2px 16px #000a;
+    z-index: 1001;
+    color: #fff;
+    font-size: 1em;
+    margin-top: 6px;
+    animation: fadeIn 0.22s;
+}
+@keyframes fadeIn { from { opacity: 0;} to { opacity: 1; } }
+.profile-dropdown-content hr {
+    border: none;
+    border-top: 1px solid #333;
+    margin: 6px 0;
+}
+.profile-dropdown-content a {
+    color: #ff3333;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    display: block;
+    transition: background 0.1s;
+    border-radius: 5px;
+}
+.profile-dropdown-content a:hover {
+    background: #333;
+}
+@media (max-width:600px) {
+    .profile-dropdown-content { min-width: 150px; font-size:0.93em;}
+    .profile-btn { padding:7px 13px;}
+}
         }
     </style>
 </head>
 <body>
     <div class="header">
         SUPREMEAMER COIN AIRDROP 🚀💰
-        <div id="userInfo"></div>
+        <div class="profile-dropdown" id="profileDropdownContainer" style="position:absolute; top:18px; right:28px;">
+    <button id="profileDropdownBtn" class="profile-btn">
+        Profile &#x25BC;
+    </button>
+    <div id="profileDropdownMenu" class="profile-dropdown-content" style="display:none;">
+        <div id="dropdownUsername" style="padding:8px 18px; font-weight:bold;"></div>
+        <div id="dropdownEmail" style="padding:0 18px 8px 18px; color:#ffd700; font-size:0.96em;"></div>
+        <hr style="margin:8px 0; border:0; border-top:1px solid #333;">
+        <a href="#" id="logoutBtn" style="display:block; padding:8px 18px; color:#ff3333; text-decoration:none; font-weight:500;">Logout</a>
+    </div>
+</div>
     </div>
     <div class="marquee">
         <span class="marquee-text">Welcome to $SA - Mine SupremeAmer coins and join the revolution! 🚀💰🎉</span>
@@ -210,27 +273,31 @@
     const databases = new Databases(client);
 
     async function displayUser() {
-        try {
-            const user = await account.get();
-            const res = await databases.listDocuments(
-                APPWRITE_DB_ID,
-                APPWRITE_COLLECTION_ID,
-                [Query.equal("userId", user.$id)]
-            );
-            if (res.documents.length > 0) {
-                const profile = res.documents[0];
-                document.getElementById('userInfo').innerHTML =
-                    `<b>${profile.name}</b> <span style="font-size:0.9em;color:#fff;">(${profile.email})</span>`;
-            } else {
-                document.getElementById('userInfo').innerHTML =
-                    '<span style="color:#fff;">Profile not found.</span>';
-            }
-        } catch (err) {
-            document.getElementById('userInfo').innerHTML =
-                `<a href="register.html" style="color:#fff;text-decoration:underline;">Register / Login</a>`;
-        }
-    }
+    // Hide by default, show only if user is logged in
+    document.getElementById('profileDropdownContainer').style.display = 'none';
 
+    try {
+        const user = await account.get();
+        const res = await databases.listDocuments(
+            APPWRITE_DB_ID,
+            APPWRITE_COLLECTION_ID,
+            [Query.equal("userId", user.$id)]
+        );
+        if (res.documents.length > 0) {
+            const profile = res.documents[0];
+            document.getElementById('dropdownUsername').textContent = profile.name;
+            document.getElementById('dropdownEmail').textContent = profile.email;
+        } else {
+            document.getElementById('dropdownUsername').textContent = "No Profile";
+            document.getElementById('dropdownEmail').textContent = "";
+        }
+        document.getElementById('profileDropdownContainer').style.display = '';
+    } catch (err) {
+        // Not logged in
+        // Optionally, you can redirect to login.html or just not show the dropdown
+        document.getElementById('profileDropdownContainer').style.display = 'none';
+    }
+}
     // --- Mining logic with upgrade system and persistent state ---
     const UPGRADE_PRICE = 9.5; // USD in ETH (real deduction handled on wallet.html)
     const UPGRADE_SPEED = 10; // coins/sec
