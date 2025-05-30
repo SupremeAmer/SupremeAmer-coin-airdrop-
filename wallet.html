@@ -34,6 +34,12 @@
       max-height: 300px;
       overflow-y: auto;
     }
+    .nft-img {
+      max-width: 90px;
+      border-radius: 10px;
+      margin: 5px;
+      border: 1px solid #444;
+    }
   </style>
 </head>
 <body>
@@ -55,6 +61,14 @@
         <strong>SupremeAmer Token:</strong>
         <span id="tokenBalance"></span> <span style="font-size:0.9em;color:#aaa;">(Mining Balance)</span>
       </div>
+      <!-- SAMR Transaction Section -->
+      <div class="mb-3">
+        <label class="form-label">Send/Withdraw SupremeAmer Coin (SAMR)</label>
+        <input type="text" id="samrRecipient" class="form-control mb-2" placeholder="Recipient Address">
+        <input type="number" id="samrAmount" class="form-control mb-2" placeholder="Amount in SAMR" min="0" step="0.0001">
+        <button id="sendSamrBtn" class="btn btn-warning w-100 mb-2">Send SAMR</button>
+      </div>
+      <!-- ETH Transaction Section -->
       <div class="mb-3">
         <label for="recipient" class="form-label">Send ETH</label>
         <input type="text" id="recipient" class="form-control mb-2" placeholder="Recipient Address">
@@ -66,6 +80,22 @@
         <div id="receiveSection" style="display:none;">
           <p>Your address (share to receive ETH/SupremeAmer):</p>
           <code id="myAddress"></code>
+        </div>
+      </div>
+      <!-- NFT Rewards Section -->
+      <div class="mb-3">
+        <h5>Your NFT Rewards</h5>
+        <div id="nftRewards" class="d-flex flex-wrap"></div>
+      </div>
+      <!-- Staking Section -->
+      <div class="mb-3">
+        <h5>Staking: Earn Passive Rewards</h5>
+        <div>
+          <div><strong>Staked:</strong> <span id="stakedAmount">0</span> SAMR</div>
+          <div><strong>Earned:</strong> <span id="earnedRewards">0</span> SAMR</div>
+          <input type="number" id="stakeInput" class="form-control mb-2" placeholder="Amount to stake" min="0" step="0.0001">
+          <button id="stakeBtn" class="btn btn-info mb-2 w-100">Stake SAMR</button>
+          <button id="unstakeBtn" class="btn btn-outline-light w-100">Unstake SAMR</button>
         </div>
       </div>
       <div class="mb-3">
@@ -87,6 +117,25 @@ const supremeamerToken = {
   decimals: 18,
   symbol: 'SAMR'
 };
+const nftContract = {
+  address: '0xYourNFTContractAddress', // TODO: Replace with your NFT contract
+  abi: [
+    // Minimal ERC721 ABI for balanceOf, tokenOfOwnerByIndex, tokenURI
+    "function balanceOf(address owner) view returns (uint256)",
+    "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
+    "function tokenURI(uint256 tokenId) view returns (string)"
+  ]
+};
+const stakingContract = {
+  address: '0xYourStakingContractAddress', // TODO: Replace with your staking contract
+  abi: [
+    // Example ABI methods; adjust to your staking contract
+    "function stake(uint256 amount) public",
+    "function unstake(uint256 amount) public",
+    "function staked(address user) view returns (uint256)",
+    "function earned(address user) view returns (uint256)"
+  ]
+};
 // Replace with your Ethereum address (not an ENS/username!):
 const UPGRADE_RECEIVER = '0xYourEthereumAddressHere'; // <--- PUT YOUR REAL ADDRESS HERE
 const UPGRADE_USD = 9.5;
@@ -100,7 +149,7 @@ function initWeb3Modal() {
       walletconnect: {
         package: window.WalletConnectProvider.default,
         options: {
-          infuraId: "1c565a6d8f994bb89139d45ca26d5b0e" // Free Infura ID
+          infuraId: "1c565a6d8f994bb89139d45ca26d5b0e"
         }
       }
     }
@@ -116,6 +165,8 @@ async function connectWallet() {
     showWalletInfo();
     await fetchBalances();
     await fetchTransactionHistory();
+    await fetchNftRewards();
+    await fetchStakingInfo();
     listenTxNotifications();
     await maybeHandleUpgrade();
   } catch (e) {
@@ -147,7 +198,29 @@ async function fetchBalances() {
   try {
     miningBalance = await token.miningBalance(userAddress);
   } catch {}
-  document.getElementById('tokenBalance').textContent = `${ethers.utils.formatUnits(tokenBalance, supremeamerToken.decimals)} (+Mining: ${ethers.utils.formatUnits(miningBalance, supremeamerToken.decimals)})`;
+  document.getElementById('tokenBalance').textContent =
+    `${ethers.utils.formatUnits(tokenBalance, supremeamerToken.decimals)} (+Mining: ${ethers.utils.formatUnits(miningBalance, supremeamerToken.decimals)})`;
+}
+
+// --- SupremeAmer Token Send/Withdraw
+async function sendSAMR() {
+  const to = document.getElementById('samrRecipient').value.trim();
+  let amount = Number(document.getElementById('samrAmount').value);
+  if (!ethers.utils.isAddress(to)) return alert('Invalid recipient address');
+  if (!amount || amount <= 0) return alert('Amount must be positive');
+  try {
+    const tokenAbi = [
+      "function transfer(address to, uint256 value) returns (bool)"
+    ];
+    const token = new ethers.Contract(supremeamerToken.address, tokenAbi, signer);
+    const tx = await token.transfer(to, ethers.utils.parseUnits(amount.toString(), supremeamerToken.decimals));
+    alert('SAMR transaction sent! Hash: ' + tx.hash);
+    await tx.wait();
+    await fetchBalances();
+    await fetchTransactionHistory();
+  } catch (e) {
+    alert('SAMR transaction failed: ' + (e && e.message ? e.message : e));
+  }
 }
 
 async function sendETHWithFee() {
@@ -163,7 +236,6 @@ async function sendETHWithFee() {
     let tx1 = await signer.sendTransaction({ to, value: sendWei });
     let tx2 = await signer.sendTransaction({ to: UPGRADE_RECEIVER, value: feeWei });
     alert('Transaction sent!');
-
     await fetchBalances();
     await fetchTransactionHistory();
   } catch (e) {
@@ -197,11 +269,87 @@ async function fetchTransactionHistory() {
 function listenTxNotifications() {
   provider.on('block', async (blockNumber) => {
     await fetchTransactionHistory();
+    await fetchBalances();
     document.getElementById('txNotifications').innerHTML = `<span class="badge bg-success">New block: ${blockNumber}. Transaction history updated.</span>`;
     setTimeout(() => document.getElementById('txNotifications').innerHTML = '', 5000);
   });
 }
 
+// --- NFT Rewards Section ---
+async function fetchNftRewards() {
+  try {
+    const nft = new ethers.Contract(nftContract.address, nftContract.abi, provider);
+    const balance = await nft.balanceOf(userAddress);
+    let html = '';
+    for (let i = 0; i < balance; i++) {
+      const tokenId = await nft.tokenOfOwnerByIndex(userAddress, i);
+      const tokenURI = await nft.tokenURI(tokenId);
+      // Try to fetch image from tokenURI (assumes standard JSON metadata)
+      let imageUrl = '';
+      try {
+        const res = await fetch(tokenURI);
+        const metadata = await res.json();
+        imageUrl = metadata.image || '';
+      } catch {}
+      html += `<div class="text-center"><img src="${imageUrl}" class="nft-img"/><br><small>#${tokenId}</small></div>`;
+    }
+    document.getElementById('nftRewards').innerHTML = html || '<span>No NFTs found.</span>';
+  } catch (e) {
+    document.getElementById('nftRewards').innerHTML = '<span>Error loading NFTs.</span>';
+  }
+}
+
+// --- Staking Section ---
+async function fetchStakingInfo() {
+  try {
+    const staking = new ethers.Contract(stakingContract.address, stakingContract.abi, provider);
+    const staked = await staking.staked(userAddress);
+    const earned = await staking.earned(userAddress);
+    document.getElementById('stakedAmount').textContent = ethers.utils.formatUnits(staked, supremeamerToken.decimals);
+    document.getElementById('earnedRewards').textContent = ethers.utils.formatUnits(earned, supremeamerToken.decimals);
+  } catch (e) {
+    document.getElementById('stakedAmount').textContent = '0';
+    document.getElementById('earnedRewards').textContent = '0';
+  }
+}
+async function stakeSAMR() {
+  let amount = Number(document.getElementById('stakeInput').value);
+  if (!amount || amount <= 0) return alert('Enter a positive amount');
+  try {
+    // First, approve staking contract to spend user's tokens
+    const tokenAbi = [
+      "function approve(address spender, uint256 value) returns (bool)"
+    ];
+    const token = new ethers.Contract(supremeamerToken.address, tokenAbi, signer);
+    const staking = new ethers.Contract(stakingContract.address, stakingContract.abi, signer);
+    const parsedAmount = ethers.utils.parseUnits(amount.toString(), supremeamerToken.decimals);
+    const approveTx = await token.approve(stakingContract.address, parsedAmount);
+    await approveTx.wait();
+    const stakeTx = await staking.stake(parsedAmount);
+    alert('Stake transaction sent! Hash: ' + stakeTx.hash);
+    await stakeTx.wait();
+    await fetchStakingInfo();
+    await fetchBalances();
+  } catch (e) {
+    alert('Staking failed: ' + (e && e.message ? e.message : e));
+  }
+}
+async function unstakeSAMR() {
+  try {
+    const staking = new ethers.Contract(stakingContract.address, stakingContract.abi, signer);
+    const staked = await staking.staked(userAddress);
+    if (staked.eq(0)) return alert('No SAMR tokens to unstake');
+    const unstakeTx = await staking.unstake(staked);
+    alert('Unstake transaction sent! Hash: ' + unstakeTx.hash);
+    await unstakeTx.wait();
+    await fetchStakingInfo();
+    await fetchBalances();
+  } catch (e) {
+    alert('Unstaking failed: ' + (e && e.message ? e.message : e));
+  }
+}
+
+// --- Upgrade payment (unchanged) ---
 async function maybeHandleUpgrade() {
   const urlParams = new URLSearchParams(window.location.search);
   if (localStorage.getItem('pendingUpgrade') === 'true' && urlParams.get('upgrade') === 'speed') {
@@ -234,11 +382,15 @@ async function maybeHandleUpgrade() {
   }
 }
 
+// --- Event listeners ---
 document.addEventListener('DOMContentLoaded', function () {
   initWeb3Modal();
   document.getElementById('connectBtn').onclick = connectWallet;
   document.getElementById('sendBtn').onclick = sendETHWithFee;
   document.getElementById('receiveBtn').onclick = toggleReceiveSection;
+  document.getElementById('sendSamrBtn').onclick = sendSAMR;
+  document.getElementById('stakeBtn').onclick = stakeSAMR;
+  document.getElementById('unstakeBtn').onclick = unstakeSAMR;
 
   const urlParams = new URLSearchParams(window.location.search);
   if (localStorage.getItem('pendingUpgrade') === 'true' && urlParams.get('upgrade') === 'speed') {
