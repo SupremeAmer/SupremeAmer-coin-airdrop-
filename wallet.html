@@ -3,103 +3,180 @@
 <head>
   <meta charset="UTF-8">
   <title>SupremeAmer Web3 Wallet</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <!-- Bootstrap CSS for modern UI -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #222 60%, #1e90ff 100%);
+      background: linear-gradient(135deg, #212121 60%, #1e90ff 100%);
       color: #fff;
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
     }
     .wallet-card {
-      background: rgba(0,0,0,0.8);
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 8px 24px rgba(30,144,255,0.2);
+      background: rgba(0,0,0,0.85);
+      border-radius: 18px;
+      padding: 2rem 1.2rem;
+      box-shadow: 0 8px 32px rgba(30,144,255,0.19);
       margin-top: 2rem;
+      margin-bottom: 2rem;
+      max-width: 430px;
+    }
+    @media (max-width: 600px) {
+      .wallet-card {
+        padding: 1.2rem 0.5rem;
+        margin-top: 0.7rem;
+        margin-bottom: 0.7rem;
+        max-width: 98vw;
+      }
+      h2, h5 {
+        font-size: 1.25rem;
+      }
+      .form-label, strong {
+        font-size: 1.01rem;
+      }
+    }
+    .btn-primary, .btn-info, .btn-success, .btn-warning {
+      border-radius: 12px;
+      font-size: 1.08em;
     }
     .btn-primary {
       background: linear-gradient(90deg, #ff9800 10%, #1e90ff 100%);
       border: none;
     }
+    .btn-info {
+      background: linear-gradient(90deg, #00c6ff 20%, #0072ff 100%);
+      border: none;
+    }
+    .btn-warning {
+      background: linear-gradient(90deg, #f9d423 10%, #ff4e50 100%);
+      border: none;
+    }
     .token-logo {
-      width: 40px;
+      width: 38px;
       vertical-align: middle;
-      margin-right: 10px;
+      margin-right: 7px;
     }
     .tx-list {
-      background: #222;
+      background: #23272b;
       border-radius: 12px;
-      padding: 1rem;
-      max-height: 300px;
+      padding: 0.7rem;
+      max-height: 260px;
       overflow-y: auto;
+      font-size: 0.97em;
     }
-    .nft-img {
-      max-width: 90px;
-      border-radius: 10px;
-      margin: 5px;
+    .staking-box {
+      background: #1a2332;
+      border-radius: 13px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .staking-box input[type="number"] {
+      background: #23272b;
+      color: #fff;
       border: 1px solid #444;
+      margin-bottom: 0.6rem;
+    }
+    .staking-actions .btn {
+      margin-bottom: 0.4rem;
+    }
+    .fade-in {
+      animation: fadeIn 0.7s;
+    }
+    @keyframes fadeIn {
+      from {opacity:0;}
+      to {opacity:1;}
+    }
+    .address-code {
+      color: #1e90ff;
+      font-size:0.98em;
+      word-break: break-all;
+    }
+    .balance-label {
+      color: #ffc107;
+      font-weight: 600;
+      font-size: 1.09em;
+    }
+    .balance-value {
+      color: #fff;
+      font-weight: 500;
+      font-size: 1.11em;
+    }
+    .copy-btn {
+      cursor: pointer;
+      color: #00e3ff;
+      margin-left: 5px;
+      font-size: 0.95em;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="wallet-card mx-auto" style="max-width: 500px;">
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+  <div class="wallet-card w-100 fade-in">
     <h2 class="text-center mb-4">SupremeAmer Web3 Wallet</h2>
-    <div class="mb-3">
+    <div class="mb-3 text-center">
       <button id="connectBtn" class="btn btn-primary w-100 mb-2">Connect Wallet</button>
     </div>
     <div id="walletInfo" style="display:none;">
-      <div class="mb-3">
-        <strong>Address:</strong> <span id="userAddress"></span>
+      <div class="mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+        <span class="balance-label">Address:</span>
+        <span id="userAddress" class="address-code"></span>
+        <span class="copy-btn" id="copyAddressBtn" title="Copy address">Copy</span>
       </div>
-      <div class="mb-3">
-        <strong>ETH Balance:</strong> <span id="ethBalance"></span> ETH
+      <div class="mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+        <span class="balance-label">BNB Balance:</span>
+        <span id="ethBalance" class="balance-value"></span>
       </div>
-      <div class="mb-3">
-        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="token-logo"/>
-        <strong>SupremeAmer Token:</strong>
-        <span id="tokenBalance"></span> <span style="font-size:0.9em;color:#aaa;">(Mining Balance)</span>
+      <div class="mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+        <span>
+          <img src="https://cryptologos.cc/logos/bnb-bnb-logo.png" class="token-logo"/>
+          <span class="balance-label">SupremeAmer Token:</span>
+        </span>
+        <span id="tokenBalance" class="balance-value"></span>
       </div>
-      <!-- SAMR Transaction Section -->
-      <div class="mb-3">
-        <label class="form-label">Send/Withdraw SupremeAmer Coin (SAMR)</label>
-        <input type="text" id="samrRecipient" class="form-control mb-2" placeholder="Recipient Address">
-        <input type="number" id="samrAmount" class="form-control mb-2" placeholder="Amount in SAMR" min="0" step="0.0001">
-        <button id="sendSamrBtn" class="btn btn-warning w-100 mb-2">Send SAMR</button>
+      <!-- SA Transaction Section -->
+      <div class="mb-4">
+        <label class="form-label">Send/Withdraw SupremeAmer Coin (SA)</label>
+        <input type="text" id="saRecipient" class="form-control mb-2" placeholder="Recipient Address">
+        <input type="number" id="saAmount" class="form-control mb-2" placeholder="Amount in SA" min="0" step="0.0001">
+        <button id="sendSaBtn" class="btn btn-warning w-100 mb-2">Send SA</button>
       </div>
-      <!-- ETH Transaction Section -->
-      <div class="mb-3">
-        <label for="recipient" class="form-label">Send ETH</label>
+      <!-- BNB Transaction Section -->
+      <div class="mb-4">
+        <label for="recipient" class="form-label">Send BNB</label>
         <input type="text" id="recipient" class="form-control mb-2" placeholder="Recipient Address">
-        <input type="number" id="amount" class="form-control mb-2" placeholder="Amount in ETH" min="0" step="0.0001">
+        <input type="number" id="amount" class="form-control mb-2" placeholder="Amount in BNB" min="0" step="0.0001">
         <button id="sendBtn" class="btn btn-success w-100">Send (6% fee applied)</button>
       </div>
-      <div class="mb-3">
+      <div class="mb-4 text-center">
         <button id="receiveBtn" class="btn btn-outline-info w-100">Show My Address / Receive</button>
         <div id="receiveSection" style="display:none;">
-          <p>Your address (share to receive ETH/SupremeAmer):</p>
-          <code id="myAddress"></code>
+          <p class="mt-2 mb-1">Your address (share to receive BNB/SupremeAmer):</p>
+          <span id="myAddress" class="address-code"></span>
+          <span class="copy-btn" id="copyMyAddressBtn" title="Copy address">Copy</span>
         </div>
-      </div>
-      <!-- NFT Rewards Section -->
-      <div class="mb-3">
-        <h5>Your NFT Rewards</h5>
-        <div id="nftRewards" class="d-flex flex-wrap"></div>
       </div>
       <!-- Staking Section -->
-      <div class="mb-3">
-        <h5>Staking: Earn Passive Rewards</h5>
-        <div>
-          <div><strong>Staked:</strong> <span id="stakedAmount">0</span> SAMR</div>
-          <div><strong>Earned:</strong> <span id="earnedRewards">0</span> SAMR</div>
-          <input type="number" id="stakeInput" class="form-control mb-2" placeholder="Amount to stake" min="0" step="0.0001">
-          <button id="stakeBtn" class="btn btn-info mb-2 w-100">Stake SAMR</button>
-          <button id="unstakeBtn" class="btn btn-outline-light w-100">Unstake SAMR</button>
+      <div class="staking-box mb-4">
+        <h5 class="mb-3 text-center"><span style="color:#00e3ff;">Staking</span>: Earn Passive Rewards</h5>
+        <div class="mb-2 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+          <span>Staked:</span>
+          <span id="stakedAmount" class="balance-label">0</span> <span class="ms-1">SA</span>
         </div>
+        <div class="mb-2 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+          <span>Earned:</span>
+          <span id="earnedRewards" class="balance-label">0</span> <span class="ms-1">SA</span>
+        </div>
+        <input type="number" id="stakeInput" class="form-control mb-2" placeholder="Amount to stake" min="0" step="0.0001">
+        <div class="staking-actions d-flex flex-column flex-md-row gap-2">
+          <button id="stakeBtn" class="btn btn-info mb-2 w-100">Stake SA</button>
+          <button id="unstakeBtn" class="btn btn-outline-light w-100">Unstake All</button>
+        </div>
+        <div id="stakingNotification" class="mt-2" style="min-height:18px"></div>
       </div>
-      <div class="mb-3">
-        <h5>Transaction History</h5>
+      <div class="mb-4">
+        <h5 class="mb-2">Transaction History</h5>
         <div class="tx-list" id="txHistory"></div>
       </div>
       <div class="mb-3" id="txNotifications"></div>
@@ -114,30 +191,41 @@
 <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.14.9/dist/umd/index.min.js"></script>
 <script>
 const supremeamerToken = {
-  address: '0xd3B37EE3c6Ff8026e6497391ea5d89D7b32fD63c', // TODO: Replace with your token address
+  // Replace with your actual deployed token contract address:
+  address: '0xd3B37EE3c6Ff8026e6497391ea5d89D7b32fD63c',
   decimals: 18,
   symbol: 'SA'
 };
-const nftContract = {
-  address: '0xYourNFTContractAddress', // TODO: Replace with your NFT contract
-  abi: [
-    "function balanceOf(address owner) view returns (uint256)",
-    "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
-    "function tokenURI(uint256 tokenId) view returns (string)"
-  ]
-};
+// All staking logic is in the token contract, so no separate staking address
 const stakingContract = {
-  address: '0xd3B37EE3c6Ff8026e6497391ea5d89D7b32fD63c', // TODO: Replace with your staking contract
+  address: supremeamerToken.address,
   abi: [
-    "function stake(uint256 amount) public",
-    "function unstake(uint256 amount) public",
-    "function staked(address user) view returns (uint256)",
-    "function earned(address user) view returns (uint256)"
+    "function stake(uint256 amount) external",
+    "function unstake(uint256 amount) external",
+    "function stakes(address) view returns (uint256 amount, uint256 since, uint256 rewardDebt)",
+    "function pendingReward(address staker) view returns (uint256)"
   ]
 };
-// Replace with your Ethereum address (not an ENS/username!):
-const UPGRADE_RECEIVER = '0xYourEthereumAddressHere'; // <--- PUT YOUR REAL ADDRESS HERE
+// Replace with your BNB address:
+const UPGRADE_RECEIVER = '0xYourBnbAddressHere'; // <--- PUT YOUR REAL BNB ADDRESS HERE
 const UPGRADE_USD = 9.5;
+
+// BNB Chain params for MetaMask
+const BNB_CHAIN_PARAMS = {
+  chainId: '0x38', // 56 in hex
+  chainName: 'Binance Smart Chain Mainnet',
+  nativeCurrency: {
+    name: 'Binance Coin',
+    symbol: 'BNB',
+    decimals: 18
+  },
+  rpcUrls: [
+    'https://bsc-dataseed.binance.org/',
+    'https://bsc-dataseed1.defibit.io/',
+    'https://bsc-dataseed1.ninicoin.io/'
+  ],
+  blockExplorerUrls: ['https://bscscan.com']
+};
 
 let provider, signer, userAddress, web3Modal;
 
@@ -146,16 +234,38 @@ function initWeb3Modal() {
     cacheProvider: false,
     providerOptions: {
       walletconnect: {
-        // v2 provider class
         package: window.WalletConnectEthereumProvider,
         options: {
-          projectId: "a8cb161b925a692dca06ae9171fe9342", // <-- GET THIS FROM https://cloud.walletconnect.com
-          chains: [1], // Ethereum Mainnet; add others as needed
+          projectId: "a8cb161b925a692dca06ae9171fe9342",
+          chains: [56], // BNB Chain Mainnet
+          rpcMap: {
+            56: "https://bsc-dataseed.binance.org/"
+          },
           showQrModal: true
         }
       }
     }
   });
+}
+
+async function switchToBnbChain() {
+  if (window.ethereum) {
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: BNB_CHAIN_PARAMS.chainId }]
+      });
+    } catch (switchError) {
+      if (switchError.code === 4902) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [BNB_CHAIN_PARAMS]
+        });
+      } else {
+        throw switchError;
+      }
+    }
+  }
 }
 
 async function connectWallet() {
@@ -164,10 +274,10 @@ async function connectWallet() {
     provider = new ethers.providers.Web3Provider(instance);
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
+    await switchToBnbChain();
     showWalletInfo();
     await fetchBalances();
     await fetchTransactionHistory();
-    await fetchNftRewards();
     await fetchStakingInfo();
     listenTxNotifications();
     await maybeHandleUpgrade();
@@ -185,9 +295,9 @@ function showWalletInfo() {
 }
 
 async function fetchBalances() {
-  // ETH balance
+  // BNB balance
   const balance = await provider.getBalance(userAddress);
-  document.getElementById('ethBalance').textContent = ethers.utils.formatEther(balance);
+  document.getElementById('ethBalance').textContent = ethers.utils.formatEther(balance) + " BNB";
 
   // SupremeAmer Token balance
   const tokenAbi = [
@@ -205,9 +315,9 @@ async function fetchBalances() {
 }
 
 // --- SupremeAmer Token Send/Withdraw
-async function sendSAMR() {
-  const to = document.getElementById('samrRecipient').value.trim();
-  let amount = Number(document.getElementById('samrAmount').value);
+async function sendSA() {
+  const to = document.getElementById('saRecipient').value.trim();
+  let amount = Number(document.getElementById('saAmount').value);
   if (!ethers.utils.isAddress(to)) return alert('Invalid recipient address');
   if (!amount || amount <= 0) return alert('Amount must be positive');
   try {
@@ -216,12 +326,12 @@ async function sendSAMR() {
     ];
     const token = new ethers.Contract(supremeamerToken.address, tokenAbi, signer);
     const tx = await token.transfer(to, ethers.utils.parseUnits(amount.toString(), supremeamerToken.decimals));
-    alert('SAMR transaction sent! Hash: ' + tx.hash);
+    alert('SA transaction sent! Hash: ' + tx.hash);
     await tx.wait();
     await fetchBalances();
     await fetchTransactionHistory();
   } catch (e) {
-    alert('SAMR transaction failed: ' + (e && e.message ? e.message : e));
+    alert('SA transaction failed: ' + (e && e.message ? e.message : e));
   }
 }
 
@@ -250,22 +360,37 @@ function toggleReceiveSection() {
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
+// Copy address functionality
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+  } else {
+    const tempInput = document.createElement('input');
+    document.body.appendChild(tempInput);
+    tempInput.value = text;
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+  }
+}
+
 async function fetchTransactionHistory() {
-  const api = `https://api.etherscan.io/api?module=account&action=txlist&address=${userAddress}&sort=desc&apikey=YourApiKeyToken`;
+  // Use BscScan API for BNB Chain
+  const api = `https://api.bscscan.com/api?module=account&action=txlist&address=${userAddress}&sort=desc&apikey=YourApiKeyToken`;
   const res = await fetch(api);
   const data = await res.json();
   if (data.status !== "1") return;
-  const txs = data.result.slice(0, 10);
+  const txs = data.result.slice(0, 8);
   let html = txs.map(tx => `
     <div>
       <small>${new Date(tx.timeStamp * 1000).toLocaleString()}</small><br>
       <b>${tx.from.toLowerCase() === userAddress.toLowerCase() ? "Sent" : "Received"}:</b>
-      <span>${ethers.utils.formatEther(tx.value)} ETH</span>
+      <span>${ethers.utils.formatEther(tx.value)} BNB</span>
       <br>
-      <a href="https://etherscan.io/tx/${tx.hash}" target="_blank" style="color:#1e90ff">View</a>
+      <a href="https://bscscan.com/tx/${tx.hash}" target="_blank" style="color:#1e90ff">View</a>
     </div>
   `).join('<hr>');
-  document.getElementById('txHistory').innerHTML = html;
+  document.getElementById('txHistory').innerHTML = html || "<span style='color:#aaa;'>No recent transactions found.</span>";
 }
 
 function listenTxNotifications() {
@@ -273,40 +398,17 @@ function listenTxNotifications() {
     await fetchTransactionHistory();
     await fetchBalances();
     document.getElementById('txNotifications').innerHTML = `<span class="badge bg-success">New block: ${blockNumber}. Transaction history updated.</span>`;
-    setTimeout(() => document.getElementById('txNotifications').innerHTML = '', 5000);
+    setTimeout(() => document.getElementById('txNotifications').innerHTML = '', 4500);
   });
-}
-
-// --- NFT Rewards Section ---
-async function fetchNftRewards() {
-  try {
-    const nft = new ethers.Contract(nftContract.address, nftContract.abi, provider);
-    const balance = await nft.balanceOf(userAddress);
-    let html = '';
-    for (let i = 0; i < balance; i++) {
-      const tokenId = await nft.tokenOfOwnerByIndex(userAddress, i);
-      const tokenURI = await nft.tokenURI(tokenId);
-      // Try to fetch image from tokenURI (assumes standard JSON metadata)
-      let imageUrl = '';
-      try {
-        const res = await fetch(tokenURI);
-        const metadata = await res.json();
-        imageUrl = metadata.image || '';
-      } catch {}
-      html += `<div class="text-center"><img src="${imageUrl}" class="nft-img"/><br><small>#${tokenId}</small></div>`;
-    }
-    document.getElementById('nftRewards').innerHTML = html || '<span>No NFTs found.</span>';
-  } catch (e) {
-    document.getElementById('nftRewards').innerHTML = '<span>Error loading NFTs.</span>';
-  }
 }
 
 // --- Staking Section ---
 async function fetchStakingInfo() {
   try {
     const staking = new ethers.Contract(stakingContract.address, stakingContract.abi, provider);
-    const staked = await staking.staked(userAddress);
-    const earned = await staking.earned(userAddress);
+    const stake = await staking.stakes(userAddress);
+    const staked = stake[0];
+    const earned = await staking.pendingReward(userAddress);
     document.getElementById('stakedAmount').textContent = ethers.utils.formatUnits(staked, supremeamerToken.decimals);
     document.getElementById('earnedRewards').textContent = ethers.utils.formatUnits(earned, supremeamerToken.decimals);
   } catch (e) {
@@ -314,11 +416,14 @@ async function fetchStakingInfo() {
     document.getElementById('earnedRewards').textContent = '0';
   }
 }
-async function stakeSAMR() {
+
+async function stakeSA() {
   let amount = Number(document.getElementById('stakeInput').value);
-  if (!amount || amount <= 0) return alert('Enter a positive amount');
+  const notify = document.getElementById('stakingNotification');
+  notify.textContent = '';
+  if (!amount || amount <= 0) return notify.textContent = 'Enter a positive amount';
   try {
-    // First, approve staking contract to spend user's tokens
+    // First, approve token contract to spend user's tokens (if not already approved)
     const tokenAbi = [
       "function approve(address spender, uint256 value) returns (bool)"
     ];
@@ -326,49 +431,54 @@ async function stakeSAMR() {
     const staking = new ethers.Contract(stakingContract.address, stakingContract.abi, signer);
     const parsedAmount = ethers.utils.parseUnits(amount.toString(), supremeamerToken.decimals);
     const approveTx = await token.approve(stakingContract.address, parsedAmount);
+    notify.textContent = "Approving tokens for staking...";
     await approveTx.wait();
     const stakeTx = await staking.stake(parsedAmount);
-    alert('Stake transaction sent! Hash: ' + stakeTx.hash);
+    notify.textContent = 'Staking transaction sent! Waiting for confirmation...';
     await stakeTx.wait();
+    notify.textContent = "Stake successful!";
     await fetchStakingInfo();
     await fetchBalances();
   } catch (e) {
-    alert('Staking failed: ' + (e && e.message ? e.message : e));
+    notify.textContent = 'Staking failed: ' + (e && e.message ? e.message : e);
   }
 }
-async function unstakeSAMR() {
+async function unstakeSA() {
+  const notify = document.getElementById('stakingNotification');
+  notify.textContent = '';
   try {
     const staking = new ethers.Contract(stakingContract.address, stakingContract.abi, signer);
-    const staked = await staking.staked(userAddress);
-    if (staked.eq(0)) return alert('No SAMR tokens to unstake');
+    const stake = await staking.stakes(userAddress);
+    const staked = stake[0];
+    if (staked.eq(0)) return notify.textContent = 'No SA tokens to unstake';
     const unstakeTx = await staking.unstake(staked);
-    alert('Unstake transaction sent! Hash: ' + unstakeTx.hash);
+    notify.textContent = 'Unstaking transaction sent! Waiting for confirmation...';
     await unstakeTx.wait();
+    notify.textContent = "Unstake successful!";
     await fetchStakingInfo();
     await fetchBalances();
   } catch (e) {
-    alert('Unstaking failed: ' + (e && e.message ? e.message : e));
+    notify.textContent = 'Unstaking failed: ' + (e && e.message ? e.message : e);
   }
 }
 
-// --- Upgrade payment (unchanged) ---
 async function maybeHandleUpgrade() {
   const urlParams = new URLSearchParams(window.location.search);
   if (localStorage.getItem('pendingUpgrade') === 'true' && urlParams.get('upgrade') === 'speed') {
-    if (!confirm(`Do you want to pay $9.5 worth of ETH (current rate) for the mining speed upgrade?`)) {
+    if (!confirm(`Do you want to pay $9.5 worth of BNB (current rate) for the mining speed upgrade?`)) {
       localStorage.setItem('upgradeCancelled', 'true');
       localStorage.removeItem('pendingUpgrade');
       window.location.href = "index.html";
       return;
     }
     try {
-      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd');
       const data = await res.json();
-      const ethusd = data.ethereum.usd;
-      const ethAmount = (UPGRADE_USD / ethusd).toFixed(6);
+      const bnbusd = data.binancecoin.usd;
+      const bnbAmount = (UPGRADE_USD / bnbusd).toFixed(6);
       const tx = await signer.sendTransaction({
         to: UPGRADE_RECEIVER,
-        value: ethers.utils.parseEther(ethAmount)
+        value: ethers.utils.parseEther(bnbAmount)
       });
       alert(`Transaction sent!\nHash: ${tx.hash}\nWaiting for confirmation...`);
       await tx.wait();
@@ -384,15 +494,16 @@ async function maybeHandleUpgrade() {
   }
 }
 
-// --- Event listeners ---
 document.addEventListener('DOMContentLoaded', function () {
   initWeb3Modal();
   document.getElementById('connectBtn').onclick = connectWallet;
   document.getElementById('sendBtn').onclick = sendETHWithFee;
   document.getElementById('receiveBtn').onclick = toggleReceiveSection;
-  document.getElementById('sendSamrBtn').onclick = sendSAMR;
-  document.getElementById('stakeBtn').onclick = stakeSAMR;
-  document.getElementById('unstakeBtn').onclick = unstakeSAMR;
+  document.getElementById('sendSaBtn').onclick = sendSA;
+  document.getElementById('stakeBtn').onclick = stakeSA;
+  document.getElementById('unstakeBtn').onclick = unstakeSA;
+  document.getElementById('copyAddressBtn').onclick = () => copyToClipboard(userAddress);
+  document.getElementById('copyMyAddressBtn').onclick = () => copyToClipboard(userAddress);
 
   const urlParams = new URLSearchParams(window.location.search);
   if (localStorage.getItem('pendingUpgrade') === 'true' && urlParams.get('upgrade') === 'speed') {
@@ -402,6 +513,7 @@ document.addEventListener('DOMContentLoaded', function () {
           provider = new ethers.providers.Web3Provider(window.ethereum);
           signer = provider.getSigner();
           userAddress = await signer.getAddress();
+          await switchToBnbChain();
           await maybeHandleUpgrade();
         }
       } catch {}
