@@ -2,183 +2,320 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SupremeAmer Multi-chain Wallet</title>
+  <title>SupremeAmer Mobile Wallet</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Use Google Fonts for a modern look -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* Modern wallet styles */
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7f8fa; margin: 0; }
-    .container { max-width: 420px; margin: 32px auto; background: #fff; border-radius: 16px; box-shadow: 0 8px 24px #eee; padding: 24px; }
-    h2 { color: #222; font-weight: 700; }
-    .chain-list { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-    .chain { flex: 1 0 40%; background: #f1f1f1; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: box-shadow 0.2s; }
-    .chain.selected { box-shadow: 0 0 8px #1e90ff; background: #eaf6ff; }
-    .wallet-actions { display: flex; gap: 18px; margin-bottom: 22px; }
-    button { flex: 1; padding: 14px 0; border: none; background: #007afa; color: #fff; border-radius: 8px; font-size: 17px; cursor: pointer; }
-    button:disabled { background: #aaa; }
-    .info, .tx-status { margin: 14px 0; font-size: 15px; color: #333; }
-    .address { font-size: 13px; word-break: break-all; margin-bottom: 12px; }
-    .fee { font-weight: 600; color: #d35400; }
+    :root {
+      --primary: #007aff;
+      --bg: #f7fafc;
+      --card: #fff;
+      --danger: #e33a3a;
+      --success: #2ecc71;
+      --gray: #6c757d;
+      --border-radius: 18px;
+    }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: #222;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 430px;
+      margin: 0 auto;
+      padding-bottom: 90px;
+      position: relative;
+    }
+    .balance-card {
+      background: var(--card);
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 16px #e9ecef;
+      padding: 32px 24px;
+      margin-top: 24px;
+      text-align: center;
+    }
+    .balance-title { font-size: 1.1rem; color: var(--gray);}
+    .balance-value { font-size: 2.4rem; font-weight: bold; margin: 14px 0 7px;}
+    .balance-fiat { font-size: 1.1rem; color: var(--gray);}
+    .chain-switch {
+      display: flex;
+      gap: 8px;
+      margin: 24px 0 12px 0;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+    .chain-btn {
+      background: #eef2f6;
+      border: none;
+      border-radius: 12px;
+      padding: 8px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #333;
+      transition: background 0.2s;
+    }
+    .chain-btn.selected {
+      background: var(--primary);
+      color: #fff;
+      font-weight: bold;
+    }
+    .assets-list {
+      margin-bottom: 24px;
+    }
+    .asset-card {
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 2px 6px #ececec;
+      display: flex;
+      align-items: center;
+      padding: 14px 20px;
+      margin-bottom: 12px;
+      gap: 13px;
+      cursor: pointer;
+    }
+    .asset-icon {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #f3f4f7;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .asset-info { flex: 1; }
+    .asset-name { font-weight: 600; }
+    .asset-balance { color: var(--gray); font-size: 0.97rem;}
+    .asset-fiat { font-size: 0.93rem; color: var(--gray);}
+    .fab-actions {
+      position: fixed;
+      bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      background: var(--card);
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      padding: 14px 0;
+      z-index: 100;
+      border-radius: 24px 24px 0 0;
+    }
+    .fab-btn {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 14px;
+      border: none;
+      padding: 13px 22px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #007aff44;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .fab-btn:active { background: #0059b3;}
+    .tx-modal-bg {
+      position: fixed;
+      top:0; left:0; width:100vw; height:100vh;
+      background: rgba(0,0,0,0.34);
+      display: none;
+      z-index: 999;
+      align-items: center; justify-content: center;
+    }
+    .tx-modal {
+      background: var(--card);
+      border-radius: var(--border-radius);
+      padding: 28px 18px 18px 18px;
+      width: 94vw;
+      max-width: 390px;
+      box-shadow: 0 8px 32px #2225;
+      position: relative;
+    }
+    .close-btn {
+      position: absolute; top: 11px; right: 16px;
+      background: none; border: none; font-size: 1.2rem; color: var(--gray); cursor: pointer;
+    }
+    .form-label { font-weight: 500; font-size: 1.05rem; margin-top: 9px;}
+    .form-input {
+      width: 100%;
+      padding: 9px 11px;
+      margin-top: 5px; margin-bottom: 13px;
+      border-radius: 7px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+    }
+    .form-actions { margin-top: 8px; }
+    .fee-msg { color: var(--danger); font-size: 0.97rem;}
+    .tx-status { margin-top: 9px; font-size: 1.02rem;}
+    @media (max-width: 520px) {
+      .container { max-width: 100vw; padding-bottom: 90px;}
+      .fab-actions { max-width: 100vw; }
+      .tx-modal { width: 98vw; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>SupremeAmer Multi-chain Wallet</h2>
-    <div class="chain-list">
-      <div class="chain" data-chain="BNB">BNB</div>
-      <div class="chain" data-chain="ETH">ETH</div>
-      <div class="chain" data-chain="TON">TON</div>
-      <div class="chain" data-chain="DOGE">DOGE</div>
-      <div class="chain" data-chain="DOGS">DOGS</div>
-      <div class="chain" data-chain="Stellar">Stellar</div>
-      <div class="chain" data-chain="SupremeAmer">SupremeAmer</div>
+    <div class="balance-card">
+      <div class="balance-title">Total Balance</div>
+      <div class="balance-value" id="totalBalance">0.00</div>
+      <div class="balance-fiat" id="totalFiat">$0.00</div>
     </div>
-    <div class="address info"></div>
-    <div class="wallet-actions">
-      <button id="connect">Connect Wallet</button>
-      <button id="send" disabled>Send</button>
+
+    <div class="chain-switch" id="chainSwitch">
+      <!-- Dynamically filled -->
     </div>
-    <div>
-      <label>Recipient Address:</label>
-      <input type="text" id="recipient" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc; margin-bottom:10px;" />
-      <label>Amount:</label>
-      <input type="number" id="amount" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;" />
+
+    <div class="assets-list" id="assetsList">
+      <!-- Dynamically filled -->
     </div>
-    <div class="fee info"></div>
-    <div class="tx-status"></div>
   </div>
+
+  <!-- Floating Action Bar -->
+  <div class="fab-actions">
+    <button class="fab-btn" id="connectBtn">&#128274; Connect</button>
+    <button class="fab-btn" id="sendBtn">&#128640; Send</button>
+    <button class="fab-btn" id="receiveBtn">&#128179; Receive</button>
+  </div>
+
+  <!-- Transaction Modal -->
+  <div class="tx-modal-bg" id="txModalBg">
+    <div class="tx-modal" id="txModal">
+      <button class="close-btn" id="closeModal">&times;</button>
+      <h3 id="txTitle">Send</h3>
+      <div>
+        <label class="form-label">Recipient Address</label>
+        <input class="form-input" id="recipientInput" type="text" placeholder="Wallet address or QR scan">
+        <label class="form-label">Amount</label>
+        <input class="form-input" id="amountInput" type="number" min="0" step="any" placeholder="Amount to send">
+        <div class="fee-msg" id="feeMsg"></div>
+        <div class="form-actions">
+          <button class="fab-btn" id="confirmTxBtn">Confirm & Send</button>
+        </div>
+        <div class="tx-status" id="txStatus"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Libraries: Add only those you need for your chains -->
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@latest/dist/umd/index.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/10.2.0/stellar-sdk.min.js"></script>
+  <!-- Add TON, DOGE, DOGS SDKs as needed -->
+
   <script>
-    // Basic wallet logic for BNB, ETH, SupremeAmer Token (EVM chains)
-    const chainConfig = {
-      'BNB': { chainId: 56, fee: 0.02 },
-      'ETH': { chainId: 1, fee: 0.02 },
-      'SupremeAmer': { chainId: 56, fee: 0.01 }, // Assuming SupremeAmer is BEP-20
-      // TON, DOGE, DOGS, Stellar will need more integration (see notes)
-      'TON': { fee: 0.02 },
-      'DOGE': { fee: 0.02 },
-      'DOGS': { fee: 0.02 },
-      'Stellar': { fee: 0.02 }
+    // --- Demo Assets, Chains ---
+    const chains = [
+      { key: 'BNB', name: 'BNB', icon: '🟡', fee: 0.02 },
+      { key: 'ETH', name: 'Ethereum', icon: '🟣', fee: 0.02 },
+      { key: 'TON', name: 'TON', icon: '🔵', fee: 0.02 },
+      { key: 'DOGE', name: 'Dogecoin', icon: '🟠', fee: 0.02 },
+      { key: 'DOGS', name: 'DOGS', icon: '🐶', fee: 0.02 },
+      { key: 'Stellar', name: 'Stellar', icon: '⭐', fee: 0.02 },
+      { key: 'SupremeAmer', name: 'SupremeAmer', icon: '💎', fee: 0.01 },
+    ];
+    const assets = {
+      BNB: { balance: 1.234, fiat: 430 },
+      ETH: { balance: 0.564, fiat: 1800 },
+      TON: { balance: 320, fiat: 750 },
+      DOGE: { balance: 2300, fiat: 400 },
+      DOGS: { balance: 100000, fiat: 50 },
+      Stellar: { balance: 95, fiat: 12 },
+      SupremeAmer: { balance: 10000, fiat: 0 },
+    };
+    let selectedChain = chains[0].key;
+
+    // --- UI Setup ---
+    function renderChains() {
+      const el = document.getElementById('chainSwitch');
+      el.innerHTML = '';
+      chains.forEach(chain => {
+        const btn = document.createElement('button');
+        btn.textContent = chain.icon + ' ' + chain.name;
+        btn.className = 'chain-btn' + (selectedChain === chain.key ? ' selected' : '');
+        btn.onclick = () => {
+          selectedChain = chain.key;
+          renderChains();
+          renderAssets();
+        };
+        el.appendChild(btn);
+      });
+    }
+    function renderAssets() {
+      const el = document.getElementById('assetsList');
+      el.innerHTML = '';
+      const asset = assets[selectedChain];
+      if (!asset) return;
+      const card = document.createElement('div');
+      card.className = 'asset-card';
+      card.innerHTML = `
+        <div class="asset-icon">${chains.find(c=>c.key===selectedChain).icon}</div>
+        <div class="asset-info">
+          <div class="asset-name">${chains.find(c=>c.key===selectedChain).name}</div>
+          <div class="asset-balance">Balance: ${asset.balance}</div>
+          <div class="asset-fiat">≈ $${asset.fiat}</div>
+        </div>
+      `;
+      el.appendChild(card);
+
+      // Update total balance
+      document.getElementById('totalBalance').textContent = asset.balance;
+      document.getElementById('totalFiat').textContent = `≈ $${asset.fiat}`;
+    }
+    renderChains();
+    renderAssets();
+
+    // --- Modal Logic ---
+    const txModalBg = document.getElementById('txModalBg');
+    const txTitle = document.getElementById('txTitle');
+    const feeMsg = document.getElementById('feeMsg');
+    const txStatus = document.getElementById('txStatus');
+    document.getElementById('sendBtn').onclick = () => {
+      txModalBg.style.display = 'flex';
+      txTitle.textContent = `Send ${chains.find(c=>c.key===selectedChain).name}`;
+      feeMsg.textContent = `Fee: ${chains.find(c=>c.key===selectedChain).fee*100}%`;
+      txStatus.textContent = '';
+    };
+    document.getElementById('closeModal').onclick = () => {
+      txModalBg.style.display = 'none';
+      document.getElementById('recipientInput').value = '';
+      document.getElementById('amountInput').value = '';
+      txStatus.textContent = '';
+    };
+    // --- Connect/Wallet Logic ---
+    document.getElementById('connectBtn').onclick = async () => {
+      // For demonstration, just show a status.
+      alert('Wallet Connect functionality goes here (MetaMask, WalletConnect, etc.)');
+    };
+    // --- Receive Logic ---
+    document.getElementById('receiveBtn').onclick = async () => {
+      alert('Show QR code and wallet address for receiving on chain: ' + selectedChain);
     };
 
-    let selectedChain = 'BNB';
-    let userAddress = null;
-    let web3Provider = null;
-
-    // Highlight selected chain
-    document.querySelectorAll('.chain').forEach((el) => {
-      el.onclick = () => {
-        document.querySelectorAll('.chain').forEach(e=>e.classList.remove('selected'));
-        el.classList.add('selected');
-        selectedChain = el.dataset.chain;
-        document.querySelector('.fee').textContent = `Fee: ${chainConfig[selectedChain].fee*100}% per transaction`;
-        document.querySelector('.tx-status').textContent = '';
-        document.querySelector('.address').textContent = '';
-        document.getElementById('send').disabled = true;
-      };
-    });
-    document.querySelector('.chain[data-chain="BNB"]').classList.add('selected');
-    document.querySelector('.fee').textContent = `Fee: 2% per transaction`;
-
-    // Connect Wallet
-    document.getElementById('connect').onclick = async () => {
-      if(["BNB","ETH","SupremeAmer"].includes(selectedChain)){
-        if (window.ethereum) {
-          web3Provider = window.ethereum;
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
-          const web3 = new Web3(window.ethereum);
-          const accounts = await web3.eth.getAccounts();
-          userAddress = accounts[0];
-          document.querySelector('.address').textContent = `Connected: ${userAddress}`;
-          document.getElementById('send').disabled = false;
-        } else {
-          alert('Please install MetaMask!');
-        }
-      } else if(selectedChain==="Stellar") {
-        // For Stellar, use private key (not recommended for prod)
-        let pk = prompt("Enter your Stellar secret key:");
-        if(pk){
-          const keypair = StellarSdk.Keypair.fromSecret(pk);
-          userAddress = keypair.publicKey();
-          document.querySelector('.address').textContent = `Connected: ${userAddress}`;
-          document.getElementById('send').disabled = false;
-        }
-      } else {
-        alert('For TON, DOGE, DOGS: Please use supported mobile wallet and integrate with WalletConnect or relevant APIs.');
-        // You can add integration for TON, DOGE, DOGS using third-party bridges or custom APIs.
-      }
-    };
-
-    // Send Transaction
-    document.getElementById('send').onclick = async () => {
-      const recipient = document.getElementById('recipient').value.trim();
-      const amountRaw = parseFloat(document.getElementById('amount').value);
-      const feePercent = chainConfig[selectedChain].fee;
+    // --- Send Transaction (Demo Only) ---
+    document.getElementById('confirmTxBtn').onclick = async () => {
+      const recipient = document.getElementById('recipientInput').value.trim();
+      const amountRaw = parseFloat(document.getElementById('amountInput').value);
+      const feePercent = chains.find(c=>c.key===selectedChain).fee;
       if (!recipient || !amountRaw || amountRaw <= 0) {
-        document.querySelector('.tx-status').textContent = 'Enter valid recipient and amount.';
+        txStatus.textContent = 'Enter valid recipient and amount.';
+        txStatus.style.color = 'var(--danger)';
         return;
       }
       const feeAmount = amountRaw * feePercent;
       const amountNet = amountRaw - feeAmount;
       if (amountNet <= 0) {
-        document.querySelector('.tx-status').textContent = 'Amount after fee is zero!';
+        txStatus.textContent = 'Amount after fee is zero!';
+        txStatus.style.color = 'var(--danger)';
         return;
       }
-
-      if(["BNB","ETH"].includes(selectedChain)){
-        const web3 = new Web3(web3Provider);
-        try {
-          await web3.eth.sendTransaction({
-            from: userAddress,
-            to: recipient,
-            value: web3.utils.toWei(amountNet.toString(), "ether")
-          });
-          document.querySelector('.tx-status').textContent = `Sent ${amountNet} ${selectedChain}. Fee: ${feeAmount} ${selectedChain}`;
-        } catch(e){
-          document.querySelector('.tx-status').textContent = 'Transaction failed: ' + e.message;
-        }
-      } else if(selectedChain==="SupremeAmer"){
-        // Assume SupremeAmer token is BEP-20 (on BNB chain)
-        // You need the token contract address and ABI
-        const tokenAddress = "YOUR_SUPREMEAMER_TOKEN_ADDRESS";
-        const tokenABI = [ /* Token ABI here */ ];
-        const web3 = new Web3(web3Provider);
-        const contract = new web3.eth.Contract(tokenABI, tokenAddress);
-        try {
-          await contract.methods.transfer(recipient, web3.utils.toWei(amountNet.toString(), "ether"))
-            .send({from: userAddress});
-          document.querySelector('.tx-status').textContent = `Sent ${amountNet} SupremeAmer Token. Fee: ${feeAmount}`;
-        } catch(e){
-          document.querySelector('.tx-status').textContent = 'Token transfer failed: ' + e.message;
-        }
-      } else if(selectedChain==="Stellar"){
-        // Stellar transaction
-        const server = new StellarSdk.Server('https://horizon.stellar.org');
-        const sourceKeys = StellarSdk.Keypair.fromSecret(prompt("Enter your Stellar secret key again:"));
-        try {
-          const account = await server.loadAccount(sourceKeys.publicKey());
-          const transaction = new StellarSdk.TransactionBuilder(account, {
-            fee: StellarSdk.BASE_FEE,
-            networkPassphrase: StellarSdk.Networks.PUBLIC
-          })
-          .addOperation(StellarSdk.Operation.payment({
-            destination: recipient,
-            asset: StellarSdk.Asset.native(),
-            amount: amountNet.toString()
-          }))
-          .setTimeout(30)
-          .build();
-          transaction.sign(sourceKeys);
-          await server.submitTransaction(transaction);
-          document.querySelector('.tx-status').textContent = `Sent ${amountNet} XLM. Fee: ${feeAmount} XLM`;
-        } catch(e){
-          document.querySelector('.tx-status').textContent = 'Stellar tx failed: ' + e.message;
-        }
-      } else {
-        document.querySelector('.tx-status').textContent = `Integration for ${selectedChain} coming soon!`;
-      }
-      // In production, send feeAmount to your project address as well!
+      // Here you would integrate with Web3, Stellar, TON, DOGE, etc.
+      // For demonstration, just display successful status.
+      txStatus.textContent = `Success! Sent ${amountNet} ${selectedChain}. Fee: ${feeAmount} ${selectedChain}`;
+      txStatus.style.color = 'var(--success)';
+      // Hide modal after short delay
+      setTimeout(()=>{txModalBg.style.display='none';}, 1600);
     };
   </script>
 </body>
