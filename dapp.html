@@ -3,20 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>SupremeAmer Word Connect Game</title>
-  <meta name="viewport" content="width=370, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #ff9800;
+      --secondary: #fdc500;
+      --success: #2ecc71;
+      --error: #e74c3c;
+      --bg: #111;
+      --panel: rgba(30, 30, 40, 0.95);
+      --text: #fff;
+      --cell-bg: #333;
+      --cell-border: #fdc500;
+      --letter-bg: #fdc500;
+      --letter-border: #ff9800;
+      --letter-text: #222;
+      --history-bg: #232323;
+      --history-text: #fdc500;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.38);
+      --pulse: 0 0 15px rgba(255, 152, 0, 0.7);
+    }
+    
     body {
       font-family: 'Montserrat', Arial, sans-serif;
       margin: 0;
       min-height: 100vh;
-      background: linear-gradient(135deg, #111 70%, #ff9800 100%);
-      color: #fff;
+      background: linear-gradient(135deg, var(--bg) 70%, var(--primary) 100%);
+      color: var(--text);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
     }
+    
     .header {
       width: 100%;
       padding: 25px 0 10px 0;
@@ -25,13 +46,15 @@
       font-size: 2.4em;
       font-weight: bold;
       letter-spacing: 2px;
-      box-shadow: 0 2px 16px #ffeb3b33;
+      box-shadow: 0 2px 16px rgba(255, 235, 59, 0.2);
+      position: relative;
     }
+    
     .container {
-      background: rgba(30, 30, 40, 0.95);
+      background: var(--panel);
       padding: 36px 22px 28px 22px;
       border-radius: 20px;
-      box-shadow: 0 8px 32px #0006;
+      box-shadow: var(--shadow);
       text-align: center;
       max-width: 400px;
       width: 96%;
@@ -39,95 +62,195 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
+      overflow: hidden;
     }
+    
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 184, 0, 0.1) 0%, transparent 70%);
+      z-index: -1;
+      animation: rotate 60s linear infinite;
+    }
+    
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
     #game-title {
       font-size: 1.5em;
-      color: #fdc500;
+      color: var(--secondary);
       margin-bottom: 6px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
+    
     #mining-balance {
       background: #222;
-      color: #ffb900;
+      color: var(--secondary);
       font-size: 1.3em;
       border-radius: 8px;
       padding: 8px 18px;
       font-weight: bold;
       margin-bottom: 12px;
       letter-spacing: 1px;
-      box-shadow: 0 1px 6px #ffb90044;
+      box-shadow: 0 1px 6px rgba(255, 185, 0, 0.27);
+      transition: all 0.3s;
     }
+    
+    #mining-balance:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 185, 0, 0.4);
+    }
+    
     #level {
-      color: #fdc500;
+      color: var(--secondary);
       font-weight: 700;
       font-size: 1.1em;
       margin-bottom: 10px;
       letter-spacing: 1px;
     }
+    
     #reward-msg {
       min-height: 24px;
       font-size: 1.1em;
-      color: #2ecc71;
+      color: var(--success);
       font-weight: bold;
       margin-bottom: 8px;
-      transition: color .2s;
+      transition: all 0.3s;
     }
+    
     #grid {
       display: flex;
       justify-content: center;
       gap: 6px;
       margin: 18px 0 14px 0;
+      flex-wrap: wrap;
     }
+    
     .cell {
-      width: 38px; height: 38px;
-      display: flex; align-items: center; justify-content: center;
-      background: #333;
-      border: 2px solid #fdc500;
+      width: 38px; 
+      height: 38px;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      background: var(--cell-bg);
+      border: 2px solid var(--cell-border);
       border-radius: 8px;
       margin: 2px;
       font-size: 26px;
       font-weight: bold;
-      color: #fff;
-      transition: background .2s, border .2s;
+      color: var(--text);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
     }
+    
+    .cell::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 50%,
+        rgba(255, 255, 255, 0.1) 70%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(30deg);
+      transition: all 0.7s;
+      opacity: 0;
+    }
+    
+    .cell:hover::after {
+      opacity: 1;
+      top: -30%;
+      left: -30%;
+    }
+    
     #selector {
-      display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+      display: flex; 
+      justify-content: center; 
+      gap: 10px; 
+      flex-wrap: wrap;
       margin: 0 0 14px 0;
       min-height: 54px;
     }
+    
     .letter {
-      width: 48px; height: 48px;
-      background: #fdc500;
-      border: 2px solid #ff9800;
+      width: 48px; 
+      height: 48px;
+      background: var(--letter-bg);
+      border: 2px solid var(--letter-border);
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; font-weight: 700;
-      margin: 2px; cursor: pointer;
-      transition: background .12s, transform .12s;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      font-size: 22px; 
+      font-weight: 700;
+      margin: 2px; 
+      cursor: pointer;
+      transition: all 0.3s;
       user-select: none;
-      box-shadow: 0 1px 6px #fdc50033;
-      color: #222;
+      box-shadow: 0 1px 6px rgba(253, 197, 0, 0.2);
+      color: var(--letter-text);
+      position: relative;
     }
+    
+    .letter::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(45deg);
+      transition: all 0.5s;
+      pointer-events: none;
+    }
+    
+    .letter:hover::after {
+      left: 100%;
+    }
+    
     .letter.selected {
-      background: #ff9800;
+      background: var(--primary);
       transform: scale(0.94);
       opacity: 0.7;
-      color: #fff;
+      color: var(--text);
     }
+    
     #input-word {
       font-size: 26px;
       letter-spacing: 3px;
       margin-bottom: 8px;
       min-height: 30px;
       font-weight: bold;
-      color: #fff;
+      color: var(--text);
       text-align: center;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
+    
     #footer-buttons {
-      display: flex; justify-content: center; flex-wrap: wrap;
-      width: 100%; margin: 0 0 10px 0; gap: 10px;
+      display: flex; 
+      justify-content: center; 
+      flex-wrap: wrap;
+      width: 100%; 
+      margin: 0 0 10px 0; 
+      gap: 10px;
     }
+    
     .main-btn {
-      background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%);
+      background: linear-gradient(90deg, var(--secondary) 40%, var(--primary) 100%);
       color: #111;
       border: none;
       border-radius: 8px;
@@ -135,16 +258,55 @@
       padding: 13px 20px;
       cursor: pointer;
       font-weight: bold;
-      transition: box-shadow 0.2s, background 0.18s;
-      box-shadow: 0 2px 8px #ff980066;
+      transition: all 0.3s;
+      box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
       margin: 0 2px;
       min-width: 102px;
+      position: relative;
+      overflow: hidden;
     }
+    
+    .main-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(45deg);
+      transition: all 0.5s;
+      pointer-events: none;
+    }
+    
+    .main-btn:hover::after {
+      left: 100%;
+    }
+    
     .main-btn:hover {
-      background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%);
-      color: #fff;
-      box-shadow: 0 4px 16px #ff980099;
+      background: linear-gradient(90deg, var(--primary) 40%, var(--secondary) 100%);
+      color: var(--text);
+      box-shadow: 0 4px 16px rgba(255, 152, 0, 0.6);
+      transform: translateY(-2px);
     }
+    
+    .main-btn:disabled {
+      background: #444;
+      color: #bbb;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    
+    .main-btn.pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
+    }
+    
     #history-list {
       margin-top: 18px;
       width: 100%;
@@ -152,287 +314,642 @@
       min-height: 30px;
       text-align: left;
       font-size: 15px;
-      color: #fff;
+      color: var(--text);
+      display: none;
     }
+    
     .history-item {
-      background: #232323;
+      background: var(--history-bg);
       border-radius: 7px;
       margin-bottom: 8px;
       padding: 8px 12px;
-      color: #fdc500;
+      color: var(--history-text);
       font-weight: bold;
+      transition: all 0.3s;
     }
+    
+    .history-item:hover {
+      transform: translateX(5px);
+    }
+    
     .footer {
       width: 100%;
       display: flex;
-      justify-content: center;
-      gap: 28px;
+      justify-content: space-evenly;
+      gap: 0;
       padding: 18px 0;
       background: rgba(255, 184, 0, 0.09);
       position: fixed;
-      bottom: 0; left: 0;
+      bottom: 0;
+      left: 0;
       border-radius: 18px 18px 0 0;
-      box-shadow: 0 -4px 24px #ff980022;
+      box-shadow: 0 -4px 24px rgba(255, 152, 0, 0.13);
       z-index: 999;
+      backdrop-filter: blur(5px);
     }
+    
     .footer button {
       background: #fff;
-      color: #ff9800;
+      color: var(--primary);
       border: none;
       border-radius: 50%;
       width: 52px;
       height: 52px;
-      font-size: 2em;
+      font-size: 1.5em;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px #2222;
-      transition: background 0.2s, color 0.2s;
+      box-shadow: 0 2px 8px rgba(34, 34, 34, 0.13);
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
     }
+    
     .footer button:hover {
-      background: #ff9800;
+      background: var(--primary);
+      color: #fff;
+      transform: translateY(-5px);
+    }
+    
+    .footer button.active {
+      background: var(--primary);
       color: #fff;
     }
+    
+    .footer button .tooltip {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.8em;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s;
+    }
+    
+    .footer button:hover .tooltip {
+      opacity: 1;
+      bottom: 65px;
+    }
+    
+    /* Confetti */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: #f00;
+      opacity: 0;
+      z-index: 2001;
+      animation: confetti-fall 3s linear forwards;
+    }
+    
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    
+    /* Responsive */
     @media (max-width: 600px) {
-      .container { padding: 18px 3px;}
-      .header { font-size: 1.3em; }
-      .footer button { width: 44px; height: 44px; font-size: 1.3em;}
-      .main-btn { padding: 12px 12px; font-size: 1em; min-width: 88px;}
+      .container { 
+        padding: 24px 12px;
+        margin: 15px 0 80px 0;
+      }
+      
+      .header { 
+        font-size: 1.8em;
+        padding: 20px 0 8px 0;
+      }
+      
+      .footer button { 
+        width: 44px; 
+        height: 44px; 
+        font-size: 1.3em;
+      }
+      
+      .main-btn { 
+        padding: 12px 15px; 
+        font-size: 1em; 
+        min-width: 88px;
+      }
+      
+      .cell {
+        width: 32px;
+        height: 32px;
+        font-size: 22px;
+      }
+      
+      .letter {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+      }
+    }
+    
+    /* Animations */
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .bounce {
+      animation: bounce 1s;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+    
+    .shake {
+      animation: shake 0.5s;
     }
   </style>
 </head>
 <body>
   <div class="header">SUPREMEAMER GAME 🎮</div>
+  
   <div class="container">
-    <div id="game-title">Word Connect Game</div>
-    <div id="mining-balance">Mined Coins: <span id="mining-balance-value">0</span></div>
+    <div id="game-title">Word Connect Challenge</div>
+    <div id="mining-balance">
+      <i class="fas fa-coins"></i> 
+      <span id="mining-balance-value">0</span> SA
+    </div>
     <div id="level"></div>
     <div id="reward-msg"></div>
     <div id="grid"></div>
     <div id="input-word"></div>
     <div id="selector"></div>
+    
     <div id="footer-buttons">
-      <button class="main-btn" id="submit-btn">SUBMIT</button>
-      <button class="main-btn" id="history-btn">History</button>
-      <button class="main-btn" id="restart-btn">Restart</button>
+      <button class="main-btn" id="submit-btn">
+        <i class="fas fa-check"></i> SUBMIT
+      </button>
+      <button class="main-btn" id="history-btn">
+        <i class="fas fa-history"></i> History
+      </button>
+      <button class="main-btn" id="restart-btn">
+        <i class="fas fa-redo"></i> Restart
+      </button>
     </div>
+    
     <div id="history-list" style="display:none;"></div>
   </div>
+  
   <div class="footer">
-    <button onclick="window.location.href='index.html'" title="Home">🏠</button>
-    <button onclick="window.location.href='Task.html'" title="Tasks">📜</button>
-    <button onclick="window.location.href='wallet.html'" title="Wallet">💸</button>
-    <button onclick="window.location.href='dapp.html'" title="DApp">🎮</button>
+    <button onclick="window.location.href='index.html'" title="Home">
+      <i class="fas fa-home"></i>
+      <span class="tooltip">Home</span>
+    </button>
+    <button onclick="window.location.href='Task.html'" title="Tasks">
+      <i class="fas fa-tasks"></i>
+      <span class="tooltip">Tasks</span>
+    </button>
+    <button onclick="window.location.href='wallet.html'" title="Wallet">
+      <i class="fas fa-wallet"></i>
+      <span class="tooltip">Wallet</span>
+    </button>
+    <button onclick="window.location.href='dapp.html'" title="DApp" class="active">
+      <i class="fas fa-gamepad"></i>
+      <span class="tooltip">Games</span>
+    </button>
   </div>
-<script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
-<script>
-// --- CONFIGURATION ---
-const OWNER_ETH_ADDRESS = '0xYourEthereumAddressHere'; // <<<<--- PUT YOUR ETH ADDRESS HERE
-
-// --- WORD DATA ---
-const WORDS = [
-  "nft","hide","defi","veil","skin","skrill","stock","mining","website","bitcoin",
-  "secret","furtive","covert","latent","conceal","hideout","forex","stocks","secrete","stash",
-  "hider","hideling","hidden","exposed","anonymous","pseudonym","incognito","mask","pokerface","cloak",
-  "services","products","software","research","comments","national","internetshipping",
-  "reserved","security","american","computer","download","pictures","personal","location",
-  "children","students","shopping","previous","property","customer","december","training",
-  "advanced","category","register","november","features","industry","provided","required",
-  "articles","feedback","complete","standard","programs","language","password","question",
-  "building","february","analysis","possible","problems","interest","learning","delivery",
-  "original","includes","messages","provides","specific","director","planning","database",
-  "official","district","calendar","resource","document","material","together","function",
-  "economic","projects","included","received","archives","magazine","policies","position",
-  "listings","wireless","purchase","response","practice","hardware","designed","discount",
-  "remember","increase","european","activity","although","contents","regional","supplies",
-  "exchange","continue","benefits","anything","mortgage","solution","addition","clothing",
-  "military","decision","division"
-];
-
-// --- GAME STATE ---
-let gameState = {
-  level: 0,
-  mining: 0,
-  foundLevels: [],
-  history: []
-};
-const LS_KEY = "supremeamer_wordgame";
-
-// --- UTILITIES FOR COIN CREDIT TO INDEX.HTML ---
-function getMainMinedCoins() {
-  let coins = parseFloat(localStorage.getItem('minedCoins'));
-  return isNaN(coins) ? 0 : coins;
-}
-function setMainMinedCoins(amount) {
-  localStorage.setItem('minedCoins', amount);
-  window.dispatchEvent(new Event('minedCoins_update'));
-}
-
-// --- SAVE/LOAD GAME ---
-function saveGame() {
-  localStorage.setItem(LS_KEY, JSON.stringify(gameState));
-  // Sync mining balance to global minedCoins (index.html)
-  let totalMined = getMainMinedCoins();
-  // Only add newly mined coins
-  let newBalance = Math.max(totalMined, 0) + gameState.mining;
-  setMainMinedCoins(newBalance);
-  // For display in game
-  document.getElementById("mining-balance-value").textContent = newBalance.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4});
-}
-function loadGame() {
-  const data = localStorage.getItem(LS_KEY);
-  if (data) {
-    try {
-      const obj = JSON.parse(data);
-      if (typeof obj === "object") {
-        gameState = {...gameState, ...obj};
+  
+  <div id="confetti-container"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
+  <script>
+    // --- CONFIGURATION ---
+    const OWNER_ETH_ADDRESS = '0xYourEthereumAddressHere'; // <<<<--- PUT YOUR ETH ADDRESS HERE
+    const BALANCE_KEY = 'minedCoins'; // Match mining game's key
+    const GAME_STATE_KEY = "supremeamer_wordgame";
+    const DAILY_BONUS_KEY = "supremeamer_daily_bonus";
+    
+    // --- WORD DATA ---
+    const WORDS = [
+      // Crypto & Tech Terms
+      "nft","defi","coin","token","blockchain","mining","bitcoin","ethereum","wallet","exchange",
+      "smartcontract","altcoin","stablecoin","gasfee","hashrate","nodes","whitepaper","airdrops","staking","yieldfarming",
+      
+      // General Words
+      "hide","veil","skin","stock","secret","furtive","covert","latent","conceal","hideout",
+      "secrete","stash","hider","hidden","exposed","anonymous","pseudonym","incognito","mask","pokerface",
+      "cloak","services","products","software","research","comments","national","internet","shipping","reserved",
+      "security","american","computer","download","pictures","personal","location","children","students","shopping",
+      
+      // Longer Challenge Words
+      "cryptocurrency","decentralized","authentication","confidentiality","infrastructure","biometrics","surveillance",
+      "encryption","firewall","malware","phishing","ransomware","vulnerability","cybersecurity","authentication",
+      "authorization","blockchain","confidential","cryptography","cyberattack","cybercrime","cyberwarfare",
+      "databreach","digitalfootprint","digitalidentity","endtoendencryption","ethicalhacking","fingerprintscanner",
+      "identitytheft","intrusiondetection","multi-factor-authentication","passwordmanager","privacypolicy",
+      "securityaudit","securityprotocol","socialengineering","twofactorauthentication","virtualprivatenetwork"
+    ];
+    
+    // Difficulty tiers (group words by length)
+    const WORD_TIERS = {
+      easy: WORDS.filter(word => word.length <= 5),
+      medium: WORDS.filter(word => word.length > 5 && word.length <= 8),
+      hard: WORDS.filter(word => word.length > 8)
+    };
+    
+    // --- GAME STATE ---
+    let gameState = {
+      level: 0,
+      mining: 0,
+      foundLevels: [],
+      history: [],
+      difficulty: 'easy', // easy, medium, hard
+      streak: 0,
+      lastPlayed: null
+    };
+    
+    // --- UTILITIES FOR COIN CREDIT ---
+    function getMainMinedCoins() {
+      let coins = parseFloat(localStorage.getItem(BALANCE_KEY));
+      return isNaN(coins) ? 0 : coins;
+    }
+    
+    function setMainMinedCoins(amount) {
+      localStorage.setItem(BALANCE_KEY, amount);
+      window.dispatchEvent(new Event('minedCoins_update'));
+      updateBalanceDisplay();
+    }
+    
+    function updateBalanceDisplay() {
+      const balance = getMainMinedCoins();
+      document.getElementById("mining-balance-value").textContent = 
+        balance.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4});
+    }
+    
+    // --- SAVE/LOAD GAME ---
+    function saveGame() {
+      localStorage.setItem(GAME_STATE_KEY, JSON.stringify(gameState));
+      
+      // Sync mining balance to global minedCoins
+      let totalMined = getMainMinedCoins();
+      let newBalance = Math.max(totalMined, 0) + gameState.mining;
+      setMainMinedCoins(newBalance);
+    }
+    
+    function loadGame() {
+      const data = localStorage.getItem(GAME_STATE_KEY);
+      if (data) {
+        try {
+          const obj = JSON.parse(data);
+          if (typeof obj === "object") {
+            gameState = {...gameState, ...obj};
+            
+            // Check for daily reset
+            checkDailyReset();
+          }
+        } catch {}
       }
-    } catch {}
-  }
-}
-function resetGame() {
-  gameState = {
-    level: 0,
-    mining: 0,
-    foundLevels: [],
-    history: []
-  };
-  saveGame();
-  renderGame();
-}
-
-// --- REWARD RULES ---
-function getLevelReward(level) {
-  // Level is zero-based index; level+1 is user-facing level
-  return 30 * (level + 1);
-}
-
-// --- GAME LOGIC + UI ---
-function renderGame() {
-  document.getElementById("history-list").style.display = "none";
-  // Display minedCoins global balance
-  let mainCoins = getMainMinedCoins();
-  document.getElementById("mining-balance-value").textContent = mainCoins.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4});
-  const word = WORDS[gameState.level];
-  if (!word) {
-    document.getElementById("level").innerHTML = `<span style="color:#fdc500;font-size:1.3em;">Congratulations!<br/>You finished all levels!</span>`;
-    document.getElementById("reward-msg").textContent = "";
-    document.getElementById("grid").innerHTML = "";
-    document.getElementById("selector").innerHTML = "";
-    document.getElementById("input-word").innerText = "";
-    document.getElementById("submit-btn").disabled = true;
-    return;
-  }
-  document.getElementById("submit-btn").disabled = false;
-  document.getElementById("level").innerHTML = `LEVEL ${gameState.level + 1}`;
-  document.getElementById("reward-msg").textContent = "";
-  // Render grid
-  const gridDiv = document.getElementById("grid");
-  gridDiv.innerHTML = "";
-  const grid = Array.from(word.replace(/ /g, '').toUpperCase());
-  for (let i = 0; i < grid.length; i++) {
-    const cell = document.createElement("div");
-    cell.className = "cell";
-    cell.innerText = "";
-    gridDiv.appendChild(cell);
-  }
-  // Render selector
-  const selectorDiv = document.getElementById("selector");
-  selectorDiv.innerHTML = "";
-  const letters = shuffle(Array.from(word.replace(/ /g, '').toUpperCase()));
-  let input = "";
-  letters.forEach((letter, idx) => {
-    const div = document.createElement("div");
-    div.className = "letter";
-    div.innerText = letter;
-    div.onclick = () => {
-      if (!div.classList.contains("selected")) {
-        div.classList.add("selected");
-        input += letter;
-        document.getElementById("input-word").innerText = input;
+    }
+    
+    function checkDailyReset() {
+      const today = new Date().toDateString();
+      if (gameState.lastPlayed !== today) {
+        // Reset streak if not played today
+        gameState.streak = 0;
+        gameState.lastPlayed = today;
+        saveGame();
+      }
+    }
+    
+    function resetGame() {
+      if (confirm("Restart the game? All progress will be lost!")) {
+        gameState = {
+          level: 0,
+          mining: 0,
+          foundLevels: [],
+          history: [],
+          difficulty: 'easy',
+          streak: 0,
+          lastPlayed: new Date().toDateString()
+        };
+        saveGame();
+        renderGame();
+      }
+    }
+    
+    // --- REWARD RULES ---
+    function getLevelReward(level) {
+      // Base reward increases with level
+      const baseReward = 30 * (level + 1);
+      
+      // Difficulty multiplier
+      let multiplier = 1;
+      if (gameState.difficulty === 'medium') multiplier = 1.5;
+      if (gameState.difficulty === 'hard') multiplier = 2;
+      
+      // Streak bonus (up to 50% bonus for 5+ streak)
+      const streakBonus = Math.min(gameState.streak, 5) * 0.1;
+      
+      return Math.floor(baseReward * multiplier * (1 + streakBonus));
+    }
+    
+    function getCurrentWord() {
+      const tier = WORD_TIERS[gameState.difficulty];
+      return tier[gameState.level % tier.length];
+    }
+    
+    // --- GAME LOGIC + UI ---
+    function renderGame() {
+      document.getElementById("history-list").style.display = "none";
+      updateBalanceDisplay();
+      
+      const word = getCurrentWord();
+      if (!word) {
+        document.getElementById("level").innerHTML = `
+          <span style="color:#fdc500;font-size:1.3em;">
+            Congratulations!<br/>You finished all ${gameState.difficulty} levels!
+          </span>`;
+        document.getElementById("reward-msg").textContent = "";
+        document.getElementById("grid").innerHTML = "";
+        document.getElementById("selector").innerHTML = "";
+        document.getElementById("input-word").innerText = "";
+        document.getElementById("submit-btn").disabled = true;
+        return;
+      }
+      
+      document.getElementById("submit-btn").disabled = false;
+      document.getElementById("level").innerHTML = `
+        LEVEL ${gameState.level + 1} 
+        <span style="font-size:0.8em;color:#bbb;">(${gameState.difficulty})</span>
+        ${gameState.streak > 0 ? `<span style="color:#2ecc71;">Streak: ${gameState.streak}</span>` : ''}
+      `;
+      
+      document.getElementById("reward-msg").textContent = "";
+      
+      // Render grid
+      const gridDiv = document.getElementById("grid");
+      gridDiv.innerHTML = "";
+      const grid = Array.from(word.replace(/ /g, '').toUpperCase());
+      
+      for (let i = 0; i < grid.length; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.innerText = "";
+        gridDiv.appendChild(cell);
+      }
+      
+      // Render selector
+      const selectorDiv = document.getElementById("selector");
+      selectorDiv.innerHTML = "";
+      const letters = shuffle(Array.from(word.replace(/ /g, '').toUpperCase()));
+      let input = "";
+      
+      letters.forEach((letter, idx) => {
+        const div = document.createElement("div");
+        div.className = "letter";
+        div.innerText = letter;
+        div.onclick = () => {
+          if (!div.classList.contains("selected")) {
+            div.classList.add("selected");
+            input += letter;
+            document.getElementById("input-word").innerText = input;
+          }
+        };
+        selectorDiv.appendChild(div);
+      });
+      
+      document.getElementById("input-word").innerText = "";
+      
+      // Submit logic
+      document.getElementById("submit-btn").onclick = () => {
+        const currentWord = getCurrentWord().replace(/ /g, '').toLowerCase();
+        const userWord = input.replace(/ /g, '').toLowerCase();
+        
+        if (userWord === currentWord) {
+          // Correct answer
+          const reward = getLevelReward(gameState.level);
+          gameState.mining += reward;
+          gameState.foundLevels.push(gameState.level);
+          gameState.level += 1;
+          gameState.streak += 1;
+          gameState.lastPlayed = new Date().toDateString();
+          
+          gameState.history.push({
+            type: "level-up",
+            level: gameState.level,
+            amount: reward,
+            difficulty: gameState.difficulty,
+            streak: gameState.streak,
+            timestamp: Date.now()
+          });
+          
+          saveGame();
+          
+          // Visual feedback
+          document.getElementById("reward-msg").style.color = "var(--success)";
+          document.getElementById("reward-msg").innerHTML = `
+            <i class="fas fa-check"></i> Correct! +${reward} SA coins
+          `;
+          document.getElementById("reward-msg").classList.add("bounce");
+          
+          // Celebrate!
+          createConfetti();
+          
+          // Check difficulty progression
+          checkDifficultyProgression();
+          
+          setTimeout(() => {
+            document.getElementById("reward-msg").classList.remove("bounce");
+            renderGame();
+          }, 1500);
+        } else {
+          // Incorrect answer
+          gameState.streak = 0;
+          saveGame();
+          
+          document.getElementById("reward-msg").style.color = "var(--error)";
+          document.getElementById("reward-msg").innerHTML = `
+            <i class="fas fa-times"></i> Try again!
+          `;
+          document.getElementById("reward-msg").classList.add("shake");
+          
+          document.getElementById("input-word").innerText = "";
+          input = "";
+          
+          document.querySelectorAll(".letter").forEach(x => x.classList.remove("selected"));
+          
+          setTimeout(() => {
+            document.getElementById("reward-msg").classList.remove("shake");
+          }, 500);
+        }
+      };
+    }
+    
+    function checkDifficultyProgression() {
+      // Automatically increase difficulty after completing easy levels
+      const easyLevels = WORD_TIERS.easy.length;
+      const mediumLevels = WORD_TIERS.medium.length;
+      
+      if (gameState.difficulty === 'easy' && gameState.level >= easyLevels) {
+        gameState.difficulty = 'medium';
+        showPopup("Difficulty increased to Medium!", "success");
+      } else if (gameState.difficulty === 'medium' && gameState.level >= easyLevels + mediumLevels) {
+        gameState.difficulty = 'hard';
+        showPopup("Difficulty increased to Hard!", "success");
+      }
+    }
+    
+    // --- HISTORY ---
+    function showHistory() {
+      const list = document.getElementById("history-list");
+      list.innerHTML = "";
+      
+      if (!gameState.history.length) {
+        list.innerHTML = "<div style='text-align:center;color:#bbb;'>No transactions yet.</div>";
+      } else {
+        gameState.history.slice().reverse().forEach(tx => {
+          const date = new Date(tx.timestamp).toLocaleString();
+          if (tx.type === "level-up") {
+            list.innerHTML += `
+              <div class="history-item">
+                <i class="fas fa-level-up-alt"></i> 
+                [${date}] Level ${tx.level} (${tx.difficulty})<br>
+                <span style="color:#2ecc71;">
+                  +${tx.amount} SA (Streak: ${tx.streak})
+                </span>
+              </div>`;
+          }
+        });
+      }
+      
+      list.style.display = "block";
+    }
+    
+    // --- BUTTON EVENTS ---
+    document.getElementById("history-btn").onclick = function() {
+      showHistory();
+    };
+    
+    document.getElementById("restart-btn").onclick = function() {
+      resetGame();
+    };
+    
+    // --- UTILITY ---
+    function shuffle(array) {
+      let a = array.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    
+    function showPopup(msg, type) {
+      const popup = document.createElement("div");
+      popup.className = `popup ${type}`;
+      popup.innerHTML = msg;
+      document.body.appendChild(popup);
+      
+      setTimeout(() => {
+        popup.remove();
+      }, 3000);
+    }
+    
+    // --- Confetti Effect ---
+    function createConfetti() {
+      const container = document.getElementById("confetti-container");
+      const colors = ['#ff9800', '#fdc500', '#ff3333', '#4CAF50', '#2196F3'];
+      
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = 'confetti';
+        
+        // Random position
+        confetti.style.left = `${Math.random() * 100}vw`;
+        
+        // Random size
+        const size = Math.random() * 10 + 5;
+        confetti.style.width = `${size}px`;
+        confetti.style.height = `${size}px`;
+        
+        // Random shape
+        if (Math.random() > 0.5) {
+          confetti.style.borderRadius = '50%';
+        }
+        
+        // Random color
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        
+        // Random animation duration
+        const duration = Math.random() * 3 + 2;
+        confetti.style.animationDuration = `${duration}s`;
+        
+        container.appendChild(confetti);
+        
+        // Remove after animation
+        setTimeout(() => {
+          confetti.remove();
+        }, duration * 1000);
+      }
+    }
+    
+    // --- INIT ---
+    window.onload = function() {
+      loadGame();
+      renderGame();
+      
+      // Listen for mining balance updates
+      window.addEventListener("minedCoins_update", function() {
+        updateBalanceDisplay();
+      });
+      
+      // Check for daily bonus
+      checkDailyBonus();
+    };
+    
+    function checkDailyBonus() {
+      const today = new Date().toDateString();
+      const lastBonus = localStorage.getItem(DAILY_BONUS_KEY);
+      
+      if (lastBonus !== today) {
+        const bonusAmount = 100; // Daily bonus amount
+        let balance = getMainMinedCoins();
+        setMainMinedCoins(balance + bonusAmount);
+        
+        localStorage.setItem(DAILY_BONUS_KEY, today);
+        
+        gameState.history.push({
+          type: "daily-bonus",
+          amount: bonusAmount,
+          timestamp: Date.now()
+        });
+        
+        showPopup(`Daily bonus: +${bonusAmount} SA!`, "success");
+      }
+    }
+    
+    // --- DEBUG HELPERS ---
+    window.debugAddCoins = function(amount) {
+      let balance = getMainMinedCoins();
+      setMainMinedCoins(balance + amount);
+      showPopup(`Added ${amount} SA!`, "success");
+    };
+    
+    window.debugSetDifficulty = function(difficulty) {
+      if (['easy', 'medium', 'hard'].includes(difficulty)) {
+        gameState.difficulty = difficulty;
+        saveGame();
+        renderGame();
+        showPopup(`Difficulty set to ${difficulty}`, "success");
       }
     };
-    selectorDiv.appendChild(div);
-  });
-  document.getElementById("input-word").innerText = "";
-  // Submit logic
-  document.getElementById("submit-btn").onclick = () => {
-    if (input.replace(/ /g, '').toLowerCase() === word.replace(/ /g, '').toLowerCase()) {
-      const reward = getLevelReward(gameState.level);
-      gameState.mining += reward;
-      gameState.foundLevels.push(gameState.level);
-      gameState.level += 1;
-      gameState.history.push({
-        type: "level-up",
-        level: gameState.level,
-        amount: reward,
-        timestamp: Date.now()
-      });
-      saveGame();
-      document.getElementById("reward-msg").style.color = "#2ecc71";
-      document.getElementById("reward-msg").innerText = `Correct! +${reward} coins`;
-      setTimeout(renderGame, 1100);
-    } else {
-      document.getElementById("reward-msg").style.color = "#e74c3c";
-      document.getElementById("reward-msg").innerText = "Try again!";
-      document.getElementById("input-word").innerText = "";
-      input = "";
-      document.querySelectorAll(".letter").forEach(x => x.classList.remove("selected"));
-    }
-  };
-}
-
-// --- HISTORY ---
-function showHistory() {
-  const list = document.getElementById("history-list");
-  list.innerHTML = "";
-  if (!gameState.history.length) {
-    list.innerHTML = "<div>No transactions yet.</div>";
-  } else {
-    gameState.history.slice().reverse().forEach(tx => {
-      const date = new Date(tx.timestamp).toLocaleString();
-      if (tx.type === "level-up") {
-        list.innerHTML += `<div class="history-item">[${date}] Level ${tx.level} cleared - Rewarded <b>${tx.amount} coins</b></div>`;
-      }
-    });
-  }
-  list.style.display = "block";
-}
-
-// --- BUTTON EVENTS ---
-document.getElementById("history-btn").onclick = function() {
-  showHistory();
-};
-document.getElementById("restart-btn").onclick = function() {
-  if (confirm("Restart the game? All progress will be lost!")) {
-    resetGame();
-  }
-};
-
-// --- UTILITY ---
-function shuffle(array) {
-  let a = array.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-function showMsg(msg, color) {
-  document.getElementById("reward-msg").style.color = color;
-  document.getElementById("reward-msg").innerText = msg;
-}
-
-// --- INIT ---
-window.onload = function() {
-  loadGame();
-  renderGame();
-  // Listen for mining balance updates (if index.html changes it)
-  window.addEventListener("minedCoins_update", function() {
-    document.getElementById("mining-balance-value").textContent = getMainMinedCoins().toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4});
-  });
-};
-
-</script>
+  </script>
 </body>
 </html>
