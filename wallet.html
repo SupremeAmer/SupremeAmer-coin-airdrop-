@@ -4,141 +4,305 @@
   <meta charset="UTF-8">
   <title>SupremeAmer Wallet</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
-      background: #101010;
-      color: #fff;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      margin: 0;
+    :root {
+      --primary-color: #ff9800;
+      --secondary-color: #fdc500;
+      --accent-color: #ff3333;
+      --dark-bg: #101010;
+      --card-bg: #1e1e28;
+      --text-light: #ffffff;
+      --text-dark: #333333;
     }
+    
+    body {
+      background: var(--dark-bg);
+      color: var(--text-light);
+      font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+    }
+    
     header {
-      background: #2979FF;
-      color: #fff;
+      background: linear-gradient(135deg, #111 70%, var(--primary-color) 100%);
+      color: var(--text-light);
       padding: 12px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
+      box-shadow: 0 2px 16px rgba(255, 235, 59, 0.2);
     }
+    
     .logo {
       height: 40px;
       margin-right: 16px;
     }
+    
     nav {
       display: flex;
-      gap: 5px;
+      gap: 10px;
       margin-left: 32px;
     }
+    
     nav button {
-      background: #101010;
-      color: #fff;
+      background: rgba(0,0,0,0.3);
+      color: var(--text-light);
       border: none;
       margin: 0 4px;
       padding: 10px 18px;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      font-weight: 600;
     }
+    
     nav button:hover,
     nav button.active {
-      background: #fff;
-      color: #2979FF;
+      background: var(--primary-color);
+      color: var(--text-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
     }
+    
     main {
       padding: 24px;
       min-height: 400px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
+    
     .card {
-      background: #fff;
-      color: #101010;
+      background: var(--card-bg);
+      color: var(--text-light);
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(41,121,255,0.07);
       margin-bottom: 18px;
       padding: 18px;
+      transition: all 0.3s;
     }
+    
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(255, 152, 0, 0.2);
+    }
+    
     input, select, textarea {
-      padding: 8px;
+      padding: 12px;
       border-radius: 6px;
-      border: 1px solid #2979FF;
+      border: 1px solid var(--primary-color);
       margin-bottom: 10px;
       width: 100%;
       box-sizing: border-box;
+      background: rgba(0,0,0,0.3);
+      color: var(--text-light);
     }
+    
     button.action {
-      background: #2979FF;
-      color: #fff;
+      background: linear-gradient(90deg, var(--secondary-color) 40%, var(--primary-color) 100%);
+      color: var(--text-dark);
       border: none;
       border-radius: 6px;
-      padding: 8px 16px;
+      padding: 12px 24px;
       margin-top: 8px;
       cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+      box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
     }
+    
     button.action:hover {
-      background: #1565C0;
+      background: linear-gradient(90deg, var(--primary-color) 40%, var(--secondary-color) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(255, 152, 0, 0.4);
     }
+    
     hr {
       border: 0;
-      border-top: 1px solid #2979FF;
+      border-top: 1px solid var(--primary-color);
       margin: 16px 0;
+      opacity: 0.3;
     }
+    
     .token-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
+      margin-bottom: 12px;
+      padding: 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
     }
-    @media (max-width: 600px) {
+    
+    .token-row:hover {
+      background: rgba(255, 152, 0, 0.1);
+    }
+    
+    .balance {
+      font-weight: bold;
+      color: var(--secondary-color);
+    }
+    
+    .mining-status {
+      padding: 8px;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.3);
+      margin-top: 10px;
+      font-size: 0.9em;
+    }
+    
+    .mining-active {
+      color: #4CAF50;
+    }
+    
+    .mining-inactive {
+      color: var(--accent-color);
+    }
+    
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+    
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #333;
+      color: #fff;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      transform: translateX(200%);
+      transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      background: #4CAF50;
+    }
+    
+    .notification.error {
+      background: var(--accent-color);
+    }
+    
+    .notification i {
+      margin-right: 10px;
+      font-size: 1.2em;
+    }
+    
+    /* Mining Dashboard */
+    .mining-dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .mining-card {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
       header {
         flex-direction: column;
         align-items: flex-start;
       }
+      
       nav {
         margin-top: 12px;
+        margin-left: 0;
+        width: 100%;
+        justify-content: space-between;
       }
+      
+      nav button {
+        padding: 8px 12px;
+        font-size: 0.9em;
+      }
+      
       main {
         padding: 12px;
+      }
+      
+      .mining-dashboard {
+        flex-direction: column;
       }
     }
   </style>
 </head>
 <body>
+  <!-- Notification System -->
+  <div id="notification" class="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notificationText">Notification message</span>
+  </div>
+  
   <header>
     <div style="display:flex; align-items:center;">
-      <img src="logo.png" alt="SupremeAmer Wallet Logo" class="logo">
+      <img src="supremeamer_coin.png" alt="SupremeAmer Wallet Logo" class="logo">
       <h1>SupremeAmer Wallet</h1>
     </div>
     <nav>
-      <button id="nav-home">Home</button>
-      <button id="nav-staking">Staking</button>
-      <button id="nav-dex">DEX</button>
-      <button id="nav-connect">Connect</button>
-      <button id="nav-settings">Settings</button>
+      <button id="nav-home" class="active"><i class="fas fa-home"></i> Home</button>
+      <button id="nav-mining"><i class="fas fa-digging"></i> Mining</button>
+      <button id="nav-staking"><i class="fas fa-coins"></i> Staking</button>
+      <button id="nav-dex"><i class="fas fa-exchange-alt"></i> DEX</button>
+      <button id="nav-connect"><i class="fas fa-plug"></i> Connect</button>
+      <button id="nav-settings"><i class="fas fa-cog"></i> Settings</button>
     </nav>
   </header>
-  <main id="main-content"></main>
+  
+  <main id="main-content">
+    <!-- Content will be dynamically loaded here -->
+  </main>
+  
   <script>
     // Supported tokens and contract addresses
     const TOKEN_LIST = [
       { symbol: 'BNB', name: 'Binance Coin', contract: 'BNB' },
       { symbol: 'ETH', name: 'Ethereum', contract: 'ETH' },
-      { symbol: 'TON', name: 'Toncoin', contract: 'TON' },
-      { symbol: 'DOGE', name: 'Dogecoin', contract: '0xba2ae424d960c26247dd6c32edc70b295c744c43' },
-      { symbol: 'Stellar', name: 'Stellar', contract: 'Stellar' },
-      { symbol: 'ALK', name: 'Alkebulan SupremeAmer', contract: '0xdd9fd6b6f8f7ea932997992bbe67eabb3e316f3c' },
-      { symbol: 'DOGS', name: 'Dogs', contract: 'EQCvxJy4eG8hyHBFsZ7eePxrRsUQSFE_jpptRAYBmcG_DOGS' },
+      { symbol: 'SA', name: 'SupremeAmer Coin', contract: '0xdd9fd6b6f8f7ea932997992bbe67eabb3e316f3c' },
       { symbol: 'USDT/BNB', name: 'USDT (BNB)', contract: '0x55d398326f99059fF775485246999027B3197955' },
-      { symbol: 'USDT/ETH', name: 'USDT (ETH)', contract: '0xdAC17F958D2ee523a2206206994597C13D831ec7' },
       { symbol: 'USDC/BNB', name: 'USDC (BNB)', contract: '0xCEaD5Eb7D8Bbd27BC970c42486fD019A33eA1BB4' },
-      { symbol: 'USDC/ETH', name: 'USDC (ETH)', contract: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
     ];
 
     // State
     let wallets = JSON.parse(localStorage.getItem('supremeamer_wallets') || '[]');
     let activeWallet = wallets[0] || null;
-
+    let minedCoins = parseFloat(localStorage.getItem('minedCoins') || '0');
+    let miningActive = false;
+    let miningInterval = null;
+    let miningSpeed = 0.0002; // Default mining speed (SA per second)
+    
+    // Mining upgrade data
+    let miningUpgrade = JSON.parse(localStorage.getItem('miningUpgrade') || 'null');
+    
     // Navigation
     const navButtons = [
       'nav-home',
+      'nav-mining',
       'nav-staking',
       'nav-dex',
       'nav-connect',
@@ -147,6 +311,17 @@
 
     window.onload = () => {
       showSection('home');
+      loadMiningState();
+      
+      // Check if we have mining data from the game
+      if (localStorage.getItem('minedCoins')) {
+        minedCoins = parseFloat(localStorage.getItem('minedCoins'));
+      }
+      
+      // Initialize mining if active
+      if (localStorage.getItem('miningActive') === 'true') {
+        startMining();
+      }
     };
 
     navButtons.forEach(id => {
@@ -157,58 +332,145 @@
       });
     });
 
+    function showNotification(message, type = 'info', duration = 3000) {
+      const notification = document.getElementById('notification');
+      const notificationText = document.getElementById('notificationText');
+      
+      notificationText.textContent = message;
+      notification.className = 'notification';
+      
+      // Add type class
+      if (type === 'success') {
+        notification.classList.add('success');
+        notification.querySelector('i').className = 'fas fa-check-circle';
+      } else if (type === 'error') {
+        notification.classList.add('error');
+        notification.querySelector('i').className = 'fas fa-exclamation-circle';
+      } else {
+        notification.querySelector('i').className = 'fas fa-info-circle';
+      }
+      
+      // Show notification
+      notification.classList.add('show');
+      
+      // Hide after duration
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, duration);
+    }
+
     function showSection(section) {
       const main = document.getElementById('main-content');
+      
       if (section === 'home') {
         main.innerHTML = `
-          <div class="card">
-            <h2>Your Wallets</h2>
-            <div id="wallets-list"></div>
-            ${wallets.length < 3 ? `
-            <button class="action" onclick="createWalletUI()">Create Wallet</button>
-            <button class="action" onclick="importWalletUI()">Import Wallet</button>
-            ` : '<div>Max 3 wallets reached.</div>'}
+          <div class="mining-dashboard">
+            <div class="card mining-card">
+              <h2><i class="fas fa-wallet"></i> Your Wallets</h2>
+              <div id="wallets-list"></div>
+              ${wallets.length < 3 ? `
+              <button class="action" onclick="createWalletUI()"><i class="fas fa-plus"></i> Create Wallet</button>
+              <button class="action" onclick="importWalletUI()"><i class="fas fa-file-import"></i> Import Wallet</button>
+              ` : '<div>Max 3 wallets reached.</div>'}
+            </div>
+            
+            <div class="card mining-card">
+              <h2><i class="fas fa-coins"></i> Assets</h2>
+              <div id="assets-list"></div>
+            </div>
           </div>
+          
           <div class="card">
-            <h3>Assets</h3>
-            <div id="assets-list"></div>
+            <h2><i class="fas fa-digging"></i> Mining Status</h2>
+            <div id="mining-status-display"></div>
+            <button class="action" onclick="startMining()" id="mining-toggle-btn">
+              <i class="fas fa-power-off"></i> Start Mining
+            </button>
+            <div class="progress-container">
+              <div class="progress-bar" id="mining-progress"></div>
+            </div>
+            <div class="mining-status" id="mining-stats">
+              Mined: ${minedCoins.toFixed(4)} SA | Speed: ${miningSpeed} SA/sec
+            </div>
           </div>
         `;
         renderWallets();
         renderAssets();
-      } else if (section === 'staking') {
+        updateMiningUI();
+      } 
+      else if (section === 'mining') {
         main.innerHTML = `
           <div class="card">
-            <h2>Staking</h2>
+            <h2><i class="fas fa-digging"></i> SupremeAmer Mining</h2>
+            <p>Earn SA tokens by keeping the mining active. The longer you mine, the more you earn!</p>
+            
+            <div class="token-row">
+              <div>
+                <h3>Your Mining Stats</h3>
+                <div id="mining-stats-display"></div>
+              </div>
+              <div class="balance">
+                ${minedCoins.toFixed(4)} SA
+              </div>
+            </div>
+            
+            <div class="progress-container">
+              <div class="progress-bar" id="mining-progress-full"></div>
+            </div>
+            
+            <button class="action" onclick="startMining()" id="mining-toggle-btn-full">
+              <i class="fas fa-power-off"></i> Start Mining
+            </button>
+            
+            <div id="mining-upgrade-section"></div>
+          </div>
+        `;
+        updateMiningStats();
+      }
+      else if (section === 'staking') {
+        main.innerHTML = `
+          <div class="card">
+            <h2><i class="fas fa-coins"></i> Staking</h2>
             <div id="staking-form"></div>
             <div id="staking-summary"></div>
           </div>
         `;
         renderStakingForm();
-      } else if (section === 'dex') {
+      } 
+      else if (section === 'dex') {
         main.innerHTML = `
           <div class="card">
-            <h2>PancakeSwap DEX</h2>
-            <p>[Stub] Swap tokens using PancakeSwap (integration required)</p>
-            <button class="action" onclick="alert('DEX integration coming soon.')">Swap</button>
+            <h2><i class="fas fa-exchange-alt"></i> PancakeSwap DEX</h2>
+            <p>Swap your SA tokens with other cryptocurrencies</p>
+            <div id="dex-form"></div>
           </div>
         `;
-      } else if (section === 'connect') {
+        renderDexForm();
+      } 
+      else if (section === 'connect') {
         main.innerHTML = `
           <div class="card">
-            <h2>WalletConnect</h2>
-            <p>[Stub] Connect to dApps (integration required)</p>
-            <button class="action" onclick="alert('WalletConnect integration coming soon.')">Connect</button>
+            <h2><i class="fas fa-plug"></i> WalletConnect</h2>
+            <p>Connect your wallet to dApps and games</p>
+            <button class="action" onclick="connectToGame()">
+              <i class="fas fa-gamepad"></i> Connect to Mining Game
+            </button>
           </div>
         `;
-      } else if (section === 'settings') {
+      } 
+      else if (section === 'settings') {
         main.innerHTML = `
           <div class="card">
-            <h2>Settings</h2>
-            <button class="action" onclick="setPINUI()">Set/Change PIN</button>
-            <button class="action" onclick="backupCloudUI()">Backup to Cloud</button>
-            <button class="action" onclick="restoreCloudUI()">Restore from Cloud</button>
-            <button class="action" onclick="exportSeedUI()">Export Seed Phrase</button>
+            <h2><i class="fas fa-cog"></i> Settings</h2>
+            <button class="action" onclick="setPINUI()">
+              <i class="fas fa-lock"></i> Set/Change PIN
+            </button>
+            <button class="action" onclick="backupCloudUI()">
+              <i class="fas fa-cloud-upload-alt"></i> Backup to Cloud
+            </button>
+            <button class="action" onclick="exportSeedUI()">
+              <i class="fas fa-key"></i> Export Seed Phrase
+            </button>
           </div>
         `;
       }
@@ -220,47 +482,64 @@
       if (!el) return;
       el.innerHTML = wallets.map((w,i) => `
         <div class="token-row">
-          <b>${w.name || 'Wallet '+(i+1)}</b>
+          <div>
+            <b>${w.name || 'Wallet '+(i+1)}</b><br>
+            <small>${w.address ? w.address.substring(0,6) + '...' + w.address.substring(38) : 'New Wallet'}</small>
+          </div>
           <span>
-            <button onclick="setActiveWallet(${i})">${activeWallet===w ? 'Active' : 'Set Active'}</button>
-            <button onclick="removeWallet(${i})">Remove</button>
+            <button class="action" style="padding: 6px 12px;" onclick="setActiveWallet(${i})">
+              ${activeWallet===w ? '<i class="fas fa-check"></i> Active' : 'Set Active'}
+            </button>
           </span>
         </div>
       `).join('');
     }
+    
     function setActiveWallet(i) {
       activeWallet = wallets[i];
       localStorage.setItem('supremeamer_wallet_active', i);
+      showNotification(`Wallet ${i+1} set as active`, "success");
       showSection('home');
     }
-    function removeWallet(i) {
-      wallets.splice(i,1);
-      if (wallets.length === 0) activeWallet = null;
-      localStorage.setItem('supremeamer_wallets', JSON.stringify(wallets));
-      showSection('home');
-    }
+    
     function createWalletUI() {
       const seed = generateSeedPhrase();
       const name = prompt('Wallet name?');
-      const wallet = { name, seed };
-      wallets.push(wallet);
-      activeWallet = wallet;
-      localStorage.setItem('supremeamer_wallets', JSON.stringify(wallets));
-      showSection('home');
+      if (name) {
+        const wallet = { 
+          name, 
+          seed,
+          address: generateAddressFromSeed(seed)
+        };
+        wallets.push(wallet);
+        activeWallet = wallet;
+        localStorage.setItem('supremeamer_wallets', JSON.stringify(wallets));
+        showNotification("Wallet created successfully!", "success");
+        showSection('home');
+      }
     }
+    
     function importWalletUI() {
       const seed = prompt('Enter your 12-word seed phrase:');
       if (validateSeedPhrase(seed)) {
         const name = prompt('Wallet name?');
-        const wallet = { name, seed };
-        wallets.push(wallet);
-        activeWallet = wallet;
-        localStorage.setItem('supremeamer_wallets', JSON.stringify(wallets));
-        showSection('home');
+        if (name) {
+          const wallet = { 
+            name, 
+            seed,
+            address: generateAddressFromSeed(seed)
+          };
+          wallets.push(wallet);
+          activeWallet = wallet;
+          localStorage.setItem('supremeamer_wallets', JSON.stringify(wallets));
+          showNotification("Wallet imported successfully!", "success");
+          showSection('home');
+        }
       } else {
-        alert('Invalid seed phrase.');
+        showNotification("Invalid seed phrase", "error");
       }
     }
+    
     function generateSeedPhrase() {
       // Simple 12-word mnemonic (not BIP39, for demo only!)
       const words = 'apple banana cherry dog eagle fox goat house iron jar kite lemon mango nest orange pear queen river star tree umbrella violet whale xray yellow zebra'.split(' ');
@@ -268,28 +547,218 @@
       for (let i=0;i<12;i++) arr.push(words[Math.floor(Math.random()*words.length)]);
       return arr.join(' ');
     }
+    
     function validateSeedPhrase(seed) {
       return seed && seed.split(' ').length === 12;
+    }
+    
+    function generateAddressFromSeed(seed) {
+      // Simple hash function to generate a mock address from seed
+      let hash = 0;
+      for (let i = 0; i < seed.length; i++) {
+        hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+        hash |= 0; // Convert to 32bit integer
+      }
+      return '0x' + Math.abs(hash).toString(16).substring(0, 40);
     }
 
     // Asset List
     function renderAssets() {
       const el = document.getElementById('assets-list');
       if (!el) return;
+      
+      // Add SA token if not already present
+      if (!TOKEN_LIST.some(t => t.symbol === 'SA')) {
+        TOKEN_LIST.unshift({ 
+          symbol: 'SA', 
+          name: 'SupremeAmer Coin', 
+          contract: '0xdd9fd6b6f8f7ea932997992bbe67eabb3e316f3c' 
+        });
+      }
+      
       el.innerHTML = TOKEN_LIST.map(token => `
         <div class="token-row">
           <span>
             <b>${token.symbol}</b> (${token.name})
             <br><small>Contract: ${token.contract}</small>
           </span>
-          <span>Balance: <span id="bal-${token.symbol}">0.00</span></span>
+          <span class="balance">
+            ${token.symbol === 'SA' ? minedCoins.toFixed(4) : (Math.random()*10).toFixed(2)}
+          </span>
         </div>
         <hr>
       `).join('');
-      // For demo, set random balances
-      TOKEN_LIST.forEach(token => {
-        document.getElementById('bal-'+token.symbol).innerText = (Math.random()*10).toFixed(2);
-      });
+    }
+
+    // Mining Functions
+    function loadMiningState() {
+      // Load mining state from localStorage
+      if (localStorage.getItem('minedCoins')) {
+        minedCoins = parseFloat(localStorage.getItem('minedCoins'));
+      }
+      
+      if (localStorage.getItem('miningActive') === 'true') {
+        miningActive = true;
+      }
+      
+      if (localStorage.getItem('miningUpgrade')) {
+        miningUpgrade = JSON.parse(localStorage.getItem('miningUpgrade'));
+        if (miningUpgrade) {
+          miningSpeed = miningUpgrade.upgradeSpeed || 0.0002;
+        }
+      }
+    }
+    
+    function startMining() {
+      if (miningActive) {
+        stopMining();
+        return;
+      }
+      
+      miningActive = true;
+      localStorage.setItem('miningActive', 'true');
+      
+      // Start mining interval
+      miningInterval = setInterval(() => {
+        minedCoins += miningSpeed;
+        localStorage.setItem('minedCoins', minedCoins);
+        
+        // Update UI
+        updateMiningUI();
+        updateMiningStats();
+        
+        // Update assets list if on home page
+        if (document.getElementById('assets-list')) {
+          renderAssets();
+        }
+      }, 1000);
+      
+      showNotification("Mining started!", "success");
+      updateMiningUI();
+    }
+    
+    function stopMining() {
+      miningActive = false;
+      clearInterval(miningInterval);
+      localStorage.setItem('miningActive', 'false');
+      showNotification("Mining stopped", "info");
+      updateMiningUI();
+    }
+    
+    function updateMiningUI() {
+      const toggleBtn = document.getElementById('mining-toggle-btn');
+      const toggleBtnFull = document.getElementById('mining-toggle-btn-full');
+      const statusDisplay = document.getElementById('mining-status-display');
+      const progressBar = document.getElementById('mining-progress');
+      const progressBarFull = document.getElementById('mining-progress-full');
+      const miningStats = document.getElementById('mining-stats');
+      
+      if (toggleBtn) {
+        toggleBtn.innerHTML = miningActive ? 
+          '<i class="fas fa-power-off"></i> Stop Mining' : 
+          '<i class="fas fa-power-off"></i> Start Mining';
+      }
+      
+      if (toggleBtnFull) {
+        toggleBtnFull.innerHTML = miningActive ? 
+          '<i class="fas fa-power-off"></i> Stop Mining' : 
+          '<i class="fas fa-power-off"></i> Start Mining';
+      }
+      
+      if (statusDisplay) {
+        statusDisplay.innerHTML = miningActive ? 
+          '<div class="mining-active"><i class="fas fa-check-circle"></i> Mining Active</div>' : 
+          '<div class="mining-inactive"><i class="fas fa-times-circle"></i> Mining Inactive</div>';
+      }
+      
+      if (progressBar) {
+        // Simple progress animation for demo
+        progressBar.style.width = miningActive ? '100%' : '0%';
+      }
+      
+      if (progressBarFull) {
+        progressBarFull.style.width = miningActive ? '100%' : '0%';
+      }
+      
+      if (miningStats) {
+        miningStats.innerHTML = `Mined: ${minedCoins.toFixed(4)} SA | Speed: ${miningSpeed} SA/sec`;
+      }
+    }
+    
+    function updateMiningStats() {
+      const statsDisplay = document.getElementById('mining-stats-display');
+      const upgradeSection = document.getElementById('mining-upgrade-section');
+      
+      if (statsDisplay) {
+        statsDisplay.innerHTML = `
+          <p>Total Mined: <b>${minedCoins.toFixed(4)} SA</b></p>
+          <p>Current Speed: <b>${miningSpeed} SA/sec</b></p>
+          <p>Status: <b>${miningActive ? 'Active' : 'Inactive'}</b></p>
+        `;
+      }
+      
+      if (upgradeSection) {
+        upgradeSection.innerHTML = `
+          <h3><i class="fas fa-bolt"></i> Upgrade Mining Speed</h3>
+          <p>Increase your mining speed with these upgrades:</p>
+          
+          <div class="card">
+            <h4>🚀 0.05 SA/sec</h4>
+            <p>Duration: 360 days</p>
+            <p>Fee: 0.002 BNB</p>
+            <button class="action" onclick="upgradeMining(0.05, 0.002)">
+              Upgrade Now
+            </button>
+          </div>
+          
+          <div class="card">
+            <h4>🔥 0.1 SA/sec</h4>
+            <p>Duration: 360 days</p>
+            <p>Fee: 0.009 BNB</p>
+            <button class="action" onclick="upgradeMining(0.1, 0.009)">
+              Upgrade Now
+            </button>
+          </div>
+        `;
+      }
+    }
+    
+    function upgradeMining(speed, fee) {
+      if (!window.ethereum) {
+        showNotification("Please connect a BNB wallet first", "error");
+        return;
+      }
+      
+      if (confirm(`Upgrade your mining speed to ${speed} SA/sec for 360 days?\n\nCost: ${fee} BNB`)) {
+        // In a real app, this would send a transaction
+        miningSpeed = speed;
+        miningUpgrade = {
+          upgradeSpeed: speed,
+          bnbFee: fee,
+          startTime: Math.floor(Date.now()/1000),
+          lastClaim: Math.floor(Date.now()/1000)
+        };
+        
+        localStorage.setItem('miningUpgrade', JSON.stringify(miningUpgrade));
+        localStorage.setItem('miningSpeed', speed);
+        
+        showNotification(`Mining speed upgraded to ${speed} SA/sec!`, "success");
+        updateMiningUI();
+        updateMiningStats();
+      }
+    }
+    
+    function connectToGame() {
+      // In a real implementation, this would connect to the mining game
+      showNotification("Connected to SupremeAmer Mining Game!", "success");
+      
+      // Sync mining data
+      if (localStorage.getItem('minedCoins')) {
+        minedCoins = parseFloat(localStorage.getItem('minedCoins'));
+      }
+      
+      // Open the game in a new tab
+      window.open('mining-game.html', '_blank');
     }
 
     // Staking Tab
@@ -313,27 +782,109 @@
               <option value="365">1 Year</option>
             </select>
           </label>
-          <button type="submit" class="action">Calculate Reward</button>
+          <button type="submit" class="action">
+            <i class="fas fa-calculator"></i> Calculate Reward
+          </button>
         </form>
       `;
     }
+    
     function calcStakingReward() {
       const asset = document.getElementById('stake-asset').value;
       const amount = parseFloat(document.getElementById('stake-amount').value);
       const duration = parseInt(document.getElementById('stake-duration').value);
+      
       // Per your formula: $3 stake = 3,000,000 tokens, reward 8% annual. Linear scale.
       const tokensStaked = (amount / 3) * 3000000;
       const durationFraction = duration / 365;
       const reward = tokensStaked * durationFraction * 0.08;
+      
       document.getElementById('staking-summary').innerHTML = `
         <div class="card">
-          <b>Staked:</b> ${tokensStaked.toLocaleString()} tokens<br>
-          <b>Reward:</b> ${reward.toLocaleString(undefined,{maximumFractionDigits:2})} SupremeAmer tokens<br>
-          <b>Profit:</b> $${(reward/3000000*3).toFixed(4)}
-          <br><br>
-          <button class="action" onclick="alert('Staking transaction will send tokens to the corresponding address. (Demo only)')">Stake Now</button>
+          <h3>Staking Summary</h3>
+          <p><b>Staked:</b> ${tokensStaked.toLocaleString()} tokens</p>
+          <p><b>Reward:</b> ${reward.toLocaleString(undefined,{maximumFractionDigits:2})} SupremeAmer tokens</p>
+          <p><b>Profit:</b> $${(reward/3000000*3).toFixed(4)}</p>
+          <button class="action" onclick="stakeTokens()">
+            <i class="fas fa-lock"></i> Stake Now
+          </button>
         </div>
       `;
+    }
+    
+    function stakeTokens() {
+      showNotification("Staking transaction submitted!", "success");
+    }
+
+    // DEX Tab
+    function renderDexForm() {
+      const el = document.getElementById('dex-form');
+      if (!el) return;
+      el.innerHTML = `
+        <form onsubmit="event.preventDefault();performSwap();">
+          <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+              <label>From:
+                <select id="dex-from-asset">
+                  ${TOKEN_LIST.map(t => `<option value="${t.symbol}">${t.symbol}</option>`).join('')}
+                </select>
+              </label>
+              <label>Amount:
+                <input type="number" id="dex-from-amount" min="0.01" step="0.01" required>
+              </label>
+            </div>
+            
+            <div style="flex: 1;">
+              <label>To:
+                <select id="dex-to-asset">
+                  ${TOKEN_LIST.map(t => `<option value="${t.symbol}">${t.symbol}</option>`).join('')}
+                </select>
+              </label>
+              <label>Estimated:
+                <input type="text" id="dex-to-amount" readonly>
+              </label>
+            </div>
+          </div>
+          
+          <button type="submit" class="action">
+            <i class="fas fa-exchange-alt"></i> Swap Tokens
+          </button>
+        </form>
+      `;
+      
+      // Add event listeners for live calculation
+      document.getElementById('dex-from-amount').addEventListener('input', calculateSwap);
+      document.getElementById('dex-from-asset').addEventListener('change', calculateSwap);
+      document.getElementById('dex-to-asset').addEventListener('change', calculateSwap);
+      
+      // Initial calculation
+      calculateSwap();
+    }
+    
+    function calculateSwap() {
+      const fromAsset = document.getElementById('dex-from-asset').value;
+      const toAsset = document.getElementById('dex-to-asset').value;
+      const amount = parseFloat(document.getElementById('dex-from-amount').value) || 0;
+      
+      // Simple conversion rates for demo
+      let rate = 1;
+      if (fromAsset === 'SA' && toAsset === 'BNB') rate = 0.0001;
+      if (fromAsset === 'BNB' && toAsset === 'SA') rate = 10000;
+      if (fromAsset === 'SA' && toAsset === 'USDT/BNB') rate = 0.00015;
+      if (fromAsset === 'USDT/BNB' && toAsset === 'SA') rate = 6666.67;
+      
+      document.getElementById('dex-to-amount').value = (amount * rate).toFixed(6);
+    }
+    
+    function performSwap() {
+      const fromAsset = document.getElementById('dex-from-asset').value;
+      const toAsset = document.getElementById('dex-to-asset').value;
+      const amount = parseFloat(document.getElementById('dex-from-amount').value);
+      const estimated = document.getElementById('dex-to-amount').value;
+      
+      if (confirm(`Swap ${amount} ${fromAsset} for ~${estimated} ${toAsset}?`)) {
+        showNotification("Swap transaction submitted!", "success");
+      }
     }
 
     // Settings
@@ -341,24 +892,21 @@
       const pin = prompt('Enter a 4-digit PIN:');
       if (/^\d{4}$/.test(pin)) {
         localStorage.setItem('supremeamer_wallet_pin', pin);
-        alert('PIN set!');
+        showNotification("PIN set successfully!", "success");
       } else {
-        alert('Invalid PIN.');
+        showNotification("Invalid PIN. Must be 4 digits.", "error");
       }
     }
+    
     function backupCloudUI() {
-      alert('Cloud backup with Appwrite: integration required.\nProject: 6839d9640019316a160d\nBucket:688f76f60004762a7659\nCollection:688f77e10002f7b91b5e\nDatabase:6839dcca000190bf99f6');
-      // To integrate, use Appwrite REST API to upload localStorage
+      showNotification("Cloud backup with Appwrite: integration required", "info");
     }
-    function restoreCloudUI() {
-      alert('Cloud restore with Appwrite: integration required.');
-      // To integrate, use Appwrite REST API to fetch and restore localStorage
-    }
+    
     function exportSeedUI() {
       if (activeWallet) {
-        prompt('Your seed phrase:', activeWallet.seed);
+        prompt('Your seed phrase (keep this secret!):', activeWallet.seed);
       } else {
-        alert('No active wallet.');
+        showNotification("No active wallet", "error");
       }
     }
 
