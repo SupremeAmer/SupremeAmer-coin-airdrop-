@@ -1,1370 +1,969 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SupremeAmer Wallet</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <style>
-    :root {
-      --primary-color: #ff9800;
-      --secondary-color: #fdc500;
-      --accent-color: #ff3333;
-      --dark-bg: #101010;
-      --card-bg: #1e1e28;
-      --text-light: #ffffff;
-      --text-dark: #333333;
-    }
-    
-    body {
-      background: var(--dark-bg);
-      color: var(--text-light);
-      font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-    }
-    
-    header {
-      background: linear-gradient(135deg, #111 70%, var(--primary-color) 100%);
-      color: var(--text-light);
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      box-shadow: 0 2px 16px rgba(255, 235, 59, 0.2);
-    }
-    
-    .logo {
-      height: 40px;
-      margin-right: 16px;
-    }
-    
-    nav {
-      display: flex;
-      gap: 10px;
-      margin-left: 32px;
-    }
-    
-    nav button {
-      background: rgba(0,0,0,0.3);
-      color: var(--text-light);
-      border: none;
-      margin: 0 4px;
-      padding: 10px 18px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-weight: 600;
-    }
-    
-    nav button:hover,
-    nav button.active {
-      background: var(--primary-color);
-      color: var(--text-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
-    }
-    
-    main {
-      padding: 24px;
-      min-height: 400px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    .card {
-      background: var(--card-bg);
-      color: var(--text-light);
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(41,121,255,0.07);
-      margin-bottom: 18px;
-      padding: 18px;
-      transition: all 0.3s;
-    }
-    
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 16px rgba(255, 152, 0, 0.2);
-    }
-    
-    input, select, textarea {
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid var(--primary-color);
-      margin-bottom: 10px;
-      width: 100%;
-      box-sizing: border-box;
-      background: rgba(0,0,0,0.3);
-      color: var(--text-light);
-    }
-    
-    button.action {
-      background: linear-gradient(90deg, var(--secondary-color) 40%, var(--primary-color) 100%);
-      color: var(--text-dark);
-      border: none;
-      border-radius: 6px;
-      padding: 12px 24px;
-      margin-top: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.2s;
-      box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
-    }
-    
-    button.action:hover {
-      background: linear-gradient(90deg, var(--primary-color) 40%, var(--secondary-color) 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(255, 152, 0, 0.4);
-    }
-    
-    hr {
-      border: 0;
-      border-top: 1px solid var(--primary-color);
-      margin: 16px 0;
-      opacity: 0.3;
-    }
-    
-    .token-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      padding: 8px;
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
-    
-    .token-row:hover {
-      background: rgba(255, 152, 0, 0.1);
-    }
-    
-    .balance {
-      font-weight: bold;
-      color: var(--secondary-color);
-    }
-    
-    .mining-status {
-      padding: 8px;
-      border-radius: 6px;
-      background: rgba(0,0,0,0.3);
-      margin-top: 10px;
-      font-size: 0.9em;
-    }
-    
-    .mining-active {
-      color: #4CAF50;
-    }
-    
-    .mining-inactive {
-      color: var(--accent-color);
-    }
-    
-    .progress-container {
-      width: 100%;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      margin: 10px 0;
-      overflow: hidden;
-    }
-    
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-      border-radius: 4px;
-      transition: width 0.3s;
-    }
-    
-    /* Notification */
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #333;
-      color: #fff;
-      padding: 15px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      z-index: 2000;
-      transform: translateX(200%);
-      transition: transform 0.3s;
-      display: flex;
-      align-items: center;
-    }
-    
-    .notification.show {
-      transform: translateX(0);
-    }
-    
-    .notification.success {
-      background: #4CAF50;
-    }
-    
-    .notification.error {
-      background: var(--accent-color);
-    }
-    
-    .notification i {
-      margin-right: 10px;
-      font-size: 1.2em;
-    }
-    
-    /* Mining Dashboard */
-    .mining-dashboard {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-    
-    .mining-card {
-      flex: 1;
-      min-width: 300px;
-    }
-    
-    /* QR Code */
-    .qr-container {
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
-    
-    /* Wallet Connection Status */
-    .connection-status {
-      display: flex;
-      align-items: center;
-      padding: 8px 12px;
-      border-radius: 20px;
-      background: rgba(0,0,0,0.3);
-      margin-left: auto;
-    }
-    
-    .connection-status.connected {
-      background: rgba(76, 175, 80, 0.2);
-      color: #4CAF50;
-    }
-    
-    .connection-status.disconnected {
-      background: rgba(244, 67, 54, 0.2);
-      color: var(--accent-color);
-    }
-    
-    .connection-status i {
-      margin-right: 6px;
-    }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      
-      nav {
-        margin-top: 12px;
-        margin-left: 0;
-        width: 100%;
-        justify-content: space-between;
-      }
-      
-      nav button {
-        padding: 8px 12px;
-        font-size: 0.9em;
-      }
-      
-      main {
-        padding: 12px;
-      }
-      
-      .mining-dashboard {
-        flex-direction: column;
-      }
-      
-      .connection-status {
-        margin-top: 10px;
-        margin-left: 0;
-        width: 100%;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupremeAmer Wallet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff9800;
+            --secondary-color: #fdc500;
+            --accent-color: #ff3333;
+            --dark-bg: #111;
+            --light-bg: #fffde4;
+            --text-dark: #fff;
+            --text-light: #333;
+            --card-bg-dark: rgba(30, 30, 40, 0.95);
+            --card-bg-light: rgba(255,255,255,0.90);
+        }
+        
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, var(--dark-bg) 70%, var(--primary-color) 100%);
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+        body.light {
+            background: linear-gradient(135deg, var(--light-bg) 60%, #f7b733 100%);
+            color: var(--text-light);
+        }
+        
+        /* Header Styles */
+        .header {
+            width: 100%;
+            padding: 25px 0 10px 0;
+            text-align: center;
+            background: rgba(0,0,0,0.7);
+            font-size: 2.4em;
+            font-weight: bold;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 16px rgba(255, 235, 59, 0.2);
+            position: relative;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        body.light .header {
+            background: rgba(255,255,255,0.75);
+        }
+        
+        /* Profile Dropdown */
+        .emoji-avatar {
+            font-size: 2.1em;
+            vertical-align: middle;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            transition: transform 0.2s;
+        }
+        .emoji-avatar:hover {
+            transform: scale(1.1);
+        }
+        .profile-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 5vw;
+            top: 60px;
+            background: #222;
+            min-width: 210px;
+            border-radius: 10px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.67);
+            z-index: 1001;
+            color: #fff;
+            font-size: 1em;
+            margin-top: 6px;
+            animation: fadeIn 0.22s;
+            text-align: left;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body.light .profile-dropdown-content {
+            background: rgba(255, 255, 255, 0.85);
+            color: #222;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .profile-dropdown-content hr {
+            border: none;
+            border-top: 1px solid #333;
+            margin: 6px 0;
+        }
+        .profile-dropdown-content a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            transition: all 0.2s;
+            border-radius: 5px;
+            padding: 8px 18px;
+        }
+        .profile-dropdown-content a:hover {
+            background: #333;
+            color: #fff;
+        }
+        body.light .profile-dropdown-content a:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Marquee */
+        .marquee {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--primary-color));
+            color: #222;
+            font-size: 1.2em;
+            padding: 8px 0;
+            margin-bottom: 18px;
+            border-radius: 0 0 16px 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            position: relative;
+            height: 1.5em;
+            width: 100%;
+            z-index: 999;
+        }
+        .marquee-text {
+            display: inline-block;
+            position: absolute;
+            left: 100%;
+            animation: marquee 15s linear infinite;
+            white-space: nowrap;
+            will-change: transform;
+            padding-right: 20px;
+        }
+        @keyframes marquee {
+            0%   { transform: translateX(0%); }
+            100% { transform: translateX(-100vw); }
+        }
+        
+        /* Main Container */
+        .container {
+            background: var(--card-bg-dark);
+            padding: 36px 32px 28px 32px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            margin: 20px auto;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 184, 0, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            animation: rotate 60s linear infinite;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        body.light .container {
+            background: var(--card-bg-light);
+            color: var(--text-light);
+        }
+        
+        /* Wallet Info */
+        .wallet-info {
+            background: rgba(255, 184, 0, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            border: 1px solid rgba(255, 184, 0, 0.2);
+        }
+        .wallet-info h3 {
+            margin-top: 0;
+            color: var(--secondary-color);
+            border-bottom: 1px solid rgba(255, 184, 0, 0.3);
+            padding-bottom: 8px;
+        }
+        .wallet-address {
+            font-family: monospace;
+            word-break: break-all;
+            background: rgba(0,0,0,0.2);
+            padding: 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        .balance {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 10px 0;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 184, 0, 0.3);
+            background: rgba(0,0,0,0.2);
+            color: var(--text-dark);
+            font-family: 'Montserrat', sans-serif;
+        }
+        body.light .form-group input, 
+        body.light .form-group select, 
+        body.light .form-group textarea {
+            background: rgba(255,255,255,0.8);
+            color: var(--text-light);
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 184, 0, 0.2);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(90deg, var(--secondary-color) 40%, var(--primary-color) 100%);
+            color: #111;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(255, 152, 0, 0.4);
+            margin: 10px 5px;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: linear-gradient(90deg, var(--primary-color) 40%, var(--secondary-color) 100%);
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.6);
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn[disabled] {
+            opacity: 0.65;
+            cursor: not-allowed;
+            background: #ccc;
+            box-shadow: none;
+        }
+        .btn[disabled]:hover {
+            transform: none;
+        }
+        .btn-secondary {
+            background: linear-gradient(90deg, #666, #999);
+        }
+        .btn-secondary:hover {
+            background: linear-gradient(90deg, #777, #aaa);
+        }
+        
+        /* Status Messages */
+        .status-message {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+        .error {
+            background: rgba(255, 51, 51, 0.2);
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+        }
+        .info {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+            border: 1px solid #2196F3;
+        }
+        
+        /* Transaction History */
+        .transactions {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .transaction {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .transaction-amount {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        .transaction-date {
+            font-size: 0.8em;
+            color: #aaa;
+        }
+        .transaction-status {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .status-pending {
+            background: rgba(255, 235, 59, 0.2);
+            color: #FFEB3B;
+        }
+        .status-completed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        .status-failed {
+            background: rgba(255, 51, 51, 0.2);
+            color: var(--accent-color);
+        }
+        
+        /* Footer */
+        .footer {
+            width: 100%;
+            display: flex;
+            justify-content: space-evenly;
+            gap: 0;
+            padding: 18px 0;
+            background: rgba(255, 184, 0, 0.09);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            border-radius: 18px 18px 0 0;
+            box-shadow: 0 -4px 24px rgba(255, 152, 0, 0.13);
+            z-index: 999;
+            backdrop-filter: blur(5px);
+        }
+        .footer button {
+            background: #fff;
+            color: var(--primary-color);
+            border: none;
+            border-radius: 50%;
+            width: 52px;
+            height: 52px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(34, 34, 34, 0.13);
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .footer button:hover {
+            background: var(--primary-color);
+            color: #fff;
+            transform: translateY(-5px);
+        }
+        .footer button.active {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        .footer button .tooltip {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s;
+        }
+        .footer button:hover .tooltip {
+            opacity: 1;
+            bottom: 65px;
+        }
+        
+        /* Light/Dark Toggle */
+        .light-toggle {
+            position: absolute;
+            left: 28px;
+            top: 24px;
+            font-size: 1.7em;
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            z-index: 101;
+            transition: all 0.3s;
+        }
+        .light-toggle:hover {
+            transform: rotate(30deg);
+        }
+        body.light .light-toggle {
+            color: var(--primary-color);
+        }
+        
+        /* Responsive */
+        @media (max-width:600px) {
+            .profile-dropdown-content { 
+                min-width: 140px; 
+                font-size:0.95em;
+                right: 3vw;
+            }
+            .header { font-size: 1.8em; padding-top: 15px; }
+            .light-toggle { left: 15px; top: 15px; font-size: 1.4em; }
+            #profileDropdownBtn { right: 15px; top: 10px; font-size: 1.8em; }
+            .container { padding: 20px 15px; }
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 184, 0, 0.3);
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        .tab:hover:not(.active) {
+            border-bottom: 3px solid rgba(255, 184, 0, 0.5);
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-  <!-- Notification System -->
-  <div id="notification" class="notification">
-    <i class="fas fa-check-circle"></i>
-    <span id="notificationText">Notification message</span>
-  </div>
-  
-  <header>
-    <div style="display:flex; align-items:center;">
-      <img src="supremeamer_coin.png" alt="SupremeAmer Wallet Logo" class="logo">
-      <h1>SupremeAmer Wallet</h1>
+    <!-- Header -->
+    <div class="header">
+        <button class="light-toggle" id="lightToggleBtn" aria-label="Toggle light/dark mode">🌙</button>
+        SUPREMEAMER WALLET
+        <button id="profileDropdownBtn" class="emoji-avatar" style="position:absolute; top:18px; right:28px;">👤</button>
+        <div id="profileDropdownMenu" class="profile-dropdown-content">
+            <div id="dropdownUsername" style="padding:8px 18px; font-weight:bold;"><span class="emoji-avatar">🧑</span> </div>
+            <div id="dropdownEmail" style="padding:0 18px 8px 18px; color:var(--secondary-color); font-size:0.96em;"><span class="emoji-avatar">✉️</span></div>
+            <hr style="margin:8px 0; border:0; border-top:1px solid #333;">
+            <a href="#" id="logoutBtn" style="display:block; color:var(--accent-color); text-decoration:none; font-weight:500;">Logout</a>
+        </div>
     </div>
-    <div id="connection-status" class="connection-status disconnected">
-      <i class="fas fa-plug"></i>
-      <span>Disconnected</span>
+    
+    <div class="marquee">
+        <span class="marquee-text">🚀 SupremeAmer Wallet - Connect your wallet to manage your SA tokens and withdraw your earnings! 💰</span>
     </div>
-    <nav>
-      <button id="nav-home" class="active"><i class="fas fa-home"></i> Home</button>
-      <button id="nav-mining"><i class="fas fa-digging"></i> Mining</button>
-      <button id="nav-staking"><i class="fas fa-coins"></i> Staking</button>
-      <button id="nav-dex"><i class="fas fa-exchange-alt"></i> DEX</button>
-      <button id="nav-connect"><i class="fas fa-plug"></i> Connect</button>
-      <button id="nav-settings"><i class="fas fa-cog"></i> Settings</button>
-    </nav>
-  </header>
-  
-  <main id="main-content">
-    <!-- Content will be dynamically loaded here -->
-  </main>
-  
-  <script>
-    // Supported tokens and contract addresses (BSC Mainnet)
-    const TOKEN_LIST = [
-      { 
-        symbol: 'BNB', 
-        name: 'Binance Coin', 
-        contract: 'BNB',
-        decimals: 18,
-        logo: 'https://cryptologos.cc/logos/bnb-bnb-logo.png'
-      },
-      { 
-        symbol: 'SA', 
-        name: 'SupremeAmer Coin', 
-        contract: '0xdd9fd6b6f8f7ea932997992bbe67eabb3e316f3c',
-        decimals: 18,
-        logo: 'https://supremeamer.com/logo.png'
-      },
-      { 
-        symbol: 'USDT', 
-        name: 'Tether USD (BEP-20)', 
-        contract: '0x55d398326f99059fF775485246999027B3197955',
-        decimals: 18,
-        logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png'
-      },
-      { 
-        symbol: 'USDC', 
-        name: 'USD Coin (BEP-20)', 
-        contract: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
-        decimals: 18,
-        logo: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png'
-      },
-      { 
-        symbol: 'BUSD', 
-        name: 'Binance USD', 
-        contract: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
-        decimals: 18,
-        logo: 'https://cryptologos.cc/logos/binance-usd-busd-logo.png'
-      }
-    ];
-
-    // State
-    let wallets = JSON.parse(localStorage.getItem('supremeamer_wallets') || '[]');
-    let activeWallet = wallets[0] || null;
-    let minedCoins = parseFloat(localStorage.getItem('minedCoins') || '0');
-    let miningActive = false;
-    let miningInterval = null;
-    let miningSpeed = 0.0002; // Default mining speed (SA per second)
-    let tokenPrices = {};
-    let tokenBalances = {};
-    let web3;
-    let provider;
-    let walletConnectProvider;
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" data-tab="wallet">Wallet</div>
+            <div class="tab" data-tab="withdraw">Withdraw</div>
+            <div class="tab" data-tab="transactions">Transactions</div>
+        </div>
+        
+        <!-- Wallet Tab -->
+        <div id="wallet-tab" class="tab-content active">
+            <div class="wallet-info">
+                <h3>Wallet Information</h3>
+                <div id="walletStatus">Please connect your wallet</div>
+                <div id="walletAddress" class="wallet-address" style="display:none;"></div>
+                <div class="balance" id="walletBalance">0 SA</div>
+                <div id="networkInfo"></div>
+            </div>
+            
+            <button id="connectWalletBtn" class="btn">
+                <i class="fas fa-wallet" style="margin-right: 8px;"></i>Connect Wallet
+            </button>
+            
+            <div id="walletMessage" class="status-message" style="display:none;"></div>
+        </div>
+        
+        <!-- Withdraw Tab -->
+        <div id="withdraw-tab" class="tab-content">
+            <div class="wallet-info">
+                <h3>Withdraw SupremeAmer Tokens</h3>
+                <p>Withdraw your SA tokens to your wallet address. Processing takes 2-5 working days.</p>
+                <p><strong>Withdrawal Fee:</strong> 0.5$ worth of BNB</p>
+            </div>
+            
+            <form id="withdrawForm">
+                <div class="form-group">
+                    <label for="withdrawAmount">Amount to Withdraw (SA)</label>
+                    <input type="number" id="withdrawAmount" placeholder="Enter amount" min="50000" step="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipientAddress">Your SA Token Address</label>
+                    <input type="text" id="recipientAddress" placeholder="Enter your SA token address" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userEmail">Email Address</label>
+                    <input type="email" id="userEmail" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="additionalNotes">Additional Notes (Optional)</label>
+                    <textarea id="additionalNotes" rows="3" placeholder="Any additional information"></textarea>
+                </div>
+                
+                <button type="submit" id="submitWithdrawBtn" class="btn" disabled>
+                    <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Submit Withdrawal Request
+                </button>
+            </form>
+            
+            <div id="withdrawMessage" class="status-message" style="display:none;"></div>
+        </div>
+        
+        <!-- Transactions Tab -->
+        <div id="transactions-tab" class="tab-content">
+            <div class="wallet-info">
+                <h3>Transaction History</h3>
+                <p>Your recent withdrawal requests and transactions</p>
+            </div>
+            
+            <div class="transactions" id="transactionsList">
+                <div class="transaction">
+                    <div>
+                        <div class="transaction-amount">50,000 SA</div>
+                        <div class="transaction-date">2023-11-09</div>
+                    </div>
+                    <div class="transaction-status status-pending">Pending</div>
+                </div>
+                <div class="transaction">
+                    <div>
+                        <div class="transaction-amount">75,000 SA</div>
+                        <div class="transaction-date">2023-10-13</div>
+                    </div>
+                    <div class="transaction-status status-completed">Completed</div>
+                </div>
+            </div>
+            
+            <button id="refreshTransactionsBtn" class="btn btn-secondary">
+                <i class="fas fa-sync-alt" style="margin-right: 8px;"></i>Refresh
+            </button>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <button onclick="window.location.href='index.html'" title="Home">
+            <i class="fas fa-home"></i>
+            <span class="tooltip">Home</span>
+        </button>
+        <button onclick="window.location.href='Task.html'" title="Tasks">
+            <i class="fas fa-tasks"></i>
+            <span class="tooltip">Tasks</span>
+        </button>
+        <button onclick="window.location.href='wallet.html'" title="Wallet" class="active">
+            <i class="fas fa-wallet"></i>
+            <span class="tooltip">Wallet</span>
+        </button>
+        <button onclick="window.location.href='dapp.html'" title="DApp">
+            <i class="fas fa-gamepad"></i>
+            <span class="tooltip">DApp</span>
+        </button>
+    </div>
+    
+    <!-- Appwrite SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
+    <script>
+    // ---- CONFIGURATION ----
+    const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
+    const APPWRITE_PROJECT = '6839d9640019316a160d';
+    const APPWRITE_DB_ID = '6839dcca000190bf99f6';
+    const APPWRITE_COLLECTION_ID = 'users';
+    const WITHDRAW_FEE_BNB = "0.0017"; // ~0.5$ worth of BNB
+    const WITHDRAW_MIN_SA = 50000;
+    
+    // Appwrite
+    const { Client, Account, Databases, Query } = Appwrite;
+    const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT);
+    const account = new Account(client);
+    const databases = new Databases(client);
+    
+    // Wallet state
+    let walletConnected = false;
     let currentAccount = null;
-    let currentNetwork = null;
+    let provider = null;
+    let signer = null;
     
-    // Initialize Web3 and check connection on load
-    window.onload = async () => {
-      showSection('home');
-      loadMiningState();
-      
-      // Check if we have mining data from the game
-      if (localStorage.getItem('minedCoins')) {
-        minedCoins = parseFloat(localStorage.getItem('minedCoins'));
-      }
-      
-      // Initialize mining if active
-      if (localStorage.getItem('miningActive') === 'true') {
-        startMining();
-      }
-      
-      // Initialize Web3
-      initWeb3();
-      
-      // Load token prices
-      await fetchTokenPrices();
-      
-      // If we have a connected wallet in localStorage, try to reconnect
-      const savedWallet = localStorage.getItem('connectedWallet');
-      if (savedWallet) {
-        if (savedWallet === 'metamask') {
-          await connectMetaMask();
-        } else if (savedWallet === 'walletconnect') {
-          await initWalletConnect();
+    // ---- UI Functions ----
+    function showMessage(elementId, message, type = 'info') {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = 'status-message ' + type;
+        element.style.display = 'block';
+        
+        if (type !== 'error') {
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
         }
-      }
-    };
-
-    // Navigation
-    const navButtons = [
-      'nav-home',
-      'nav-mining',
-      'nav-staking',
-      'nav-dex',
-      'nav-connect',
-      'nav-settings'
-    ];
-
-    navButtons.forEach(id => {
-      document.getElementById(id).addEventListener('click', () => {
-        navButtons.forEach(btn => document.getElementById(btn).classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        showSection(id.replace('nav-', ''));
-      });
-    });
-
-    function showNotification(message, type = 'info', duration = 3000) {
-      const notification = document.getElementById('notification');
-      const notificationText = document.getElementById('notificationText');
-      
-      notificationText.textContent = message;
-      notification.className = 'notification';
-      
-      // Add type class
-      if (type === 'success') {
-        notification.classList.add('success');
-        notification.querySelector('i').className = 'fas fa-check-circle';
-      } else if (type === 'error') {
-        notification.classList.add('error');
-        notification.querySelector('i').className = 'fas fa-exclamation-circle';
-      } else {
-        notification.querySelector('i').className = 'fas fa-info-circle';
-      }
-      
-      // Show notification
-      notification.classList.add('show');
-      
-      // Hide after duration
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, duration);
     }
-
-    function showSection(section) {
-      const main = document.getElementById('main-content');
-      
-      if (section === 'home') {
-        main.innerHTML = `
-          <div class="mining-dashboard">
-            <div class="card mining-card">
-              <h2><i class="fas fa-wallet"></i> Your Wallets</h2>
-              <div id="wallets-list"></div>
-              ${wallets.length < 3 ? `
-              <button class="action" onclick="createWalletUI()"><i class="fas fa-plus"></i> Create Wallet</button>
-              <button class="action" onclick="importWalletUI()"><i class="fas fa-file-import"></i> Import Wallet</button>
-              ` : '<div>Max 3 wallets reached.</div>'}
-            </div>
-            
-            <div class="card mining-card">
-              <h2><i class="fas fa-coins"></i> Assets</h2>
-              <div id="assets-list"></div>
-            </div>
-          </div>
-          
-          <div class="card">
-            <h2><i class="fas fa-digging"></i> Mining Status</h2>
-            <div id="mining-status-display"></div>
-            <button class="action" onclick="startMining()" id="mining-toggle-btn">
-              <i class="fas fa-power-off"></i> Start Mining
-            </button>
-            <div class="progress-container">
-              <div class="progress-bar" id="mining-progress"></div>
-            </div>
-            <div class="mining-status" id="mining-stats">
-              Mined: ${minedCoins.toFixed(4)} SA | Speed: ${miningSpeed} SA/sec
-            </div>
-            ${currentAccount ? `
-            <button class="action" onclick="withdrawMinedTokens()">
-              <i class="fas fa-hand-holding-usd"></i> Withdraw to ${currentAccount.substring(0,6)}...${currentAccount.substring(38)}
-            </button>
-            ` : ''}
-          </div>
-        `;
-        renderWallets();
-        renderAssets();
-        updateMiningUI();
-      } 
-      else if (section === 'mining') {
-        main.innerHTML = `
-          <div class="card">
-            <h2><i class="fas fa-digging"></i> SupremeAmer Mining</h2>
-            <p>Earn SA tokens by keeping the mining active. The longer you mine, the more you earn!</p>
-            
-            <div class="token-row">
-              <div>
-                <h3>Your Mining Stats</h3>
-                <div id="mining-stats-display"></div>
-              </div>
-              <div class="balance">
-                ${minedCoins.toFixed(4)} SA
-              </div>
-            </div>
-            
-            <div class="progress-container">
-              <div class="progress-bar" id="mining-progress-full"></div>
-            </div>
-            
-            <button class="action" onclick="startMining()" id="mining-toggle-btn-full">
-              <i class="fas fa-power-off"></i> Start Mining
-            </button>
-            
-            ${currentAccount ? `
-            <button class="action" onclick="withdrawMinedTokens()">
-              <i class="fas fa-hand-holding-usd"></i> Withdraw to ${currentAccount.substring(0,6)}...${currentAccount.substring(38)}
-            </button>
-            ` : ''}
-            
-            <div id="mining-upgrade-section"></div>
-          </div>
-        `;
-        updateMiningStats();
-      }
-      else if (section === 'staking') {
-        main.innerHTML = `
-          <div class="card">
-            <h2><i class="fas fa-coins"></i> Staking</h2>
-            <div id="staking-form"></div>
-            <div id="staking-summary"></div>
-          </div>
-        `;
-        renderStakingForm();
-      } 
-      else if (section === 'dex') {
-        main.innerHTML = `
-          <div class="card">
-            <h2><i class="fas fa-exchange-alt"></i> PancakeSwap DEX</h2>
-            <p>Swap your SA tokens with other cryptocurrencies</p>
-            <div id="dex-form"></div>
-          </div>
-        `;
-        renderDexForm();
-      } 
-      else if (section === 'connect') {
-        main.innerHTML = `
-          <div class="card">
-            <h2><i class="fas fa-plug"></i> Wallet Connection</h2>
-            <p>Connect your wallet to manage assets and withdraw mined tokens</p>
-            
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-              <button class="action" onclick="connectMetaMask()" style="display: flex; align-items: center; justify-content: center;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width: 24px; margin-right: 10px;">
-                Connect MetaMask
-              </button>
-              
-              <button class="action" onclick="initWalletConnect()" style="display: flex; align-items: center; justify-content: center;">
-                <img src="https://registry.walletconnect.com/api/v1/logo/md/7a33d7f1-3d12-4b5c-f3ee-5cd83cb1b500" style="width: 24px; margin-right: 10px;">
-                WalletConnect
-              </button>
-              
-              <button class="action" onclick="disconnectWallet()" style="background: var(--accent-color);">
-                <i class="fas fa-plug"></i> Disconnect Wallet
-              </button>
-            </div>
-            
-            ${currentAccount ? `
-            <div class="card" style="margin-top: 20px;">
-              <h3>Connected Wallet</h3>
-              <p><strong>Address:</strong> ${currentAccount}</p>
-              <p><strong>Network:</strong> ${currentNetwork || 'Not connected'}</p>
-              
-              <div class="qr-container">
-                <canvas id="address-qr-code"></canvas>
-              </div>
-              
-              <button class="action" onclick="copyToClipboard(currentAccount)">
-                <i class="fas fa-copy"></i> Copy Address
-              </button>
-            </div>
-            ` : ''}
-          </div>
-        `;
-        
-        if (currentAccount) {
-          // Generate QR code for the connected address
-          setTimeout(() => {
-            new QRCode(document.getElementById('address-qr-code'), {
-              text: currentAccount,
-              width: 150,
-              height: 150,
-              colorDark: "#000000",
-              colorLight: "#ffffff",
-              correctLevel: QRCode.CorrectLevel.H
-            });
-          }, 100);
-        }
-      } 
-      else if (section === 'settings') {
-        main.innerHTML = `
-          <div class="card">
-            <h2><i class="fas fa-cog"></i> Settings</h2>
-            <button class="action" onclick="setPINUI()">
-              <i class="fas fa-lock"></i> Set/Change PIN
-            </button>
-            <button class="action" onclick="backupCloudUI()">
-              <i class="fas fa-cloud-upload-alt"></i> Backup to Cloud
-            </button>
-            <button class="action" onclick="exportSeedUI()">
-              <i class="fas fa-key"></i> Export Seed Phrase
-            </button>
-          </div>
-        `;
-      }
+    
+    function formatAddress(address) {
+        if (!address) return '';
+        return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
     }
-
-    // Initialize Web3
-    function initWeb3() {
-      if (window.ethereum) {
-        provider = window.ethereum;
-        web3 = new Web3(provider);
-        
-        // Listen for account changes
-        window.ethereum.on('accountsChanged', (accounts) => {
-          if (accounts.length === 0) {
-            // Wallet disconnected
-            disconnectWallet();
-          } else {
-            currentAccount = accounts[0];
-            updateConnectionStatus();
-            fetchBalances();
-            showSection('home');
-          }
-        });
-        
-        // Listen for chain changes
-        window.ethereum.on('chainChanged', (chainId) => {
-          currentNetwork = getNetworkName(chainId);
-          updateConnectionStatus();
-          fetchBalances();
-          showNotification(`Switched to ${currentNetwork}`, 'info');
-        });
-      } else {
-        console.log('No Ethereum provider detected');
-      }
-    }
-
-    // Initialize WalletConnect
-    async function initWalletConnect() {
-      try {
-        // Initialize WalletConnect provider
-        walletConnectProvider = new WalletConnectProvider.default({
-          rpc: {
-            56: "https://bsc-dataseed.binance.org/", // BSC Mainnet
-            97: "https://data-seed-prebsc-1-s1.binance.org:8545/" // BSC Testnet
-          },
-          chainId: 56 // Default to BSC Mainnet
-        });
-        
-        // Enable session (triggers QR Code modal)
-        await walletConnectProvider.enable();
-        
-        // Create Web3 instance
-        web3 = new Web3(walletConnectProvider);
-        
-        // Get accounts
-        const accounts = await web3.eth.getAccounts();
-        currentAccount = accounts[0];
-        
-        // Get chain ID
-        const chainId = await web3.eth.getChainId();
-        currentNetwork = getNetworkName(chainId);
-        
-        // Save connection
-        localStorage.setItem('connectedWallet', 'walletconnect');
-        updateConnectionStatus();
-        fetchBalances();
-        showNotification("WalletConnect connected successfully!", "success");
-        showSection('home');
-        
-        // Subscribe to events
-        walletConnectProvider.on("accountsChanged", (accounts) => {
-          if (accounts.length === 0) {
-            disconnectWallet();
-          } else {
-            currentAccount = accounts[0];
-            updateConnectionStatus();
-            fetchBalances();
-          }
-        });
-        
-        walletConnectProvider.on("chainChanged", (chainId) => {
-          currentNetwork = getNetworkName(chainId);
-          updateConnectionStatus();
-          fetchBalances();
-        });
-        
-        walletConnectProvider.on("disconnect", () => {
-          disconnectWallet();
-        });
-        
-      } catch (error) {
-        console.error("WalletConnect error:", error);
-        showNotification("Failed to connect with WalletConnect", "error");
-      }
-    }
-
-    // Connect MetaMask
-    async function connectMetaMask() {
-      try {
-        if (!window.ethereum) {
-          showNotification("MetaMask not installed", "error");
-          return;
-        }
-        
-        // Request account access
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        currentAccount = accounts[0];
-        
-        // Get chain ID
-        const chainId = await web3.eth.getChainId();
-        currentNetwork = getNetworkName(chainId);
-        
-        // Save connection
-        localStorage.setItem('connectedWallet', 'metamask');
-        updateConnectionStatus();
-        fetchBalances();
-        showNotification("MetaMask connected successfully!", "success");
-        showSection('home');
-        
-      } catch (error) {
-        console.error("MetaMask connection error:", error);
-        showNotification("Failed to connect MetaMask", "error");
-      }
-    }
-
-    // Disconnect wallet
-    function disconnectWallet() {
-      if (walletConnectProvider) {
-        walletConnectProvider.disconnect();
-        walletConnectProvider = null;
-      }
-      
-      currentAccount = null;
-      currentNetwork = null;
-      web3 = null;
-      provider = null;
-      
-      localStorage.removeItem('connectedWallet');
-      updateConnectionStatus();
-      showNotification("Wallet disconnected", "info");
-      showSection('connect');
-    }
-
-    // Update connection status UI
-    function updateConnectionStatus() {
-      const statusEl = document.getElementById('connection-status');
-      
-      if (currentAccount) {
-        statusEl.className = 'connection-status connected';
-        statusEl.innerHTML = `
-          <i class="fas fa-link"></i>
-          <span>Connected to ${currentNetwork} (${currentAccount.substring(0,6)}...${currentAccount.substring(38)})</span>
-        `;
-      } else {
-        statusEl.className = 'connection-status disconnected';
-        statusEl.innerHTML = `
-          <i class="fas fa-unlink"></i>
-          <span>Disconnected</span>
-        `;
-      }
-    }
-
-    // Get network name from chain ID
-    function getNetworkName(chainId) {
-      const id = typeof chainId === 'string' ? parseInt(chainId, 16) : chainId;
-      
-      switch(id) {
-        case 1: return 'Ethereum Mainnet';
-        case 56: return 'Binance Smart Chain';
-        case 97: return 'BSC Testnet';
-        case 137: return 'Polygon Mainnet';
-        default: return `Chain ID ${id}`;
-      }
-    }
-
-    // Fetch token prices from CoinGecko API
-    async function fetchTokenPrices() {
-      try {
-        // For demo purposes, we'll use mock prices
-        tokenPrices = {
-          'bnb': 300.50,
-          'ethereum': 1800.25,
-          'supremeamer': 0.00015,
-          'tether': 1.00,
-          'usd-coin': 1.00,
-          'binance-usd': 1.00
-        };
-        
-        // In a real implementation, you would use:
-        // const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin,ethereum,tether,usd-coin,binance-usd&vs_currencies=usd');
-        // tokenPrices = response.data;
-        
-        showNotification("Token prices updated", "success");
-        
-        // Update UI if on home page
-        if (document.getElementById('assets-list')) {
-          renderAssets();
-        }
-        
-      } catch (error) {
-        console.error("Error fetching token prices:", error);
-        showNotification("Failed to fetch token prices", "error");
-      }
-    }
-
-    // Fetch token balances for connected wallet
-    async function fetchBalances() {
-      if (!currentAccount || !web3) return;
-      
-      try {
-        // Clear previous balances
-        tokenBalances = {};
-        
-        // Get native balance (BNB)
-        const nativeBalance = await web3.eth.getBalance(currentAccount);
-        tokenBalances['BNB'] = web3.utils.fromWei(nativeBalance, 'ether');
-        
-        // Get token balances
-        for (const token of TOKEN_LIST) {
-          if (token.contract === 'BNB') continue; // Skip native token
-          
-          try {
-            // Create token contract instance
-            const tokenContract = new web3.eth.Contract(
-              [
-                {
-                  "constant": true,
-                  "inputs": [{"name": "_owner", "type": "address"}],
-                  "name": "balanceOf",
-                  "outputs": [{"name": "balance", "type": "uint256"}],
-                  "type": "function"
-                },
-                {
-                  "constant": true,
-                  "inputs": [],
-                  "name": "decimals",
-                  "outputs": [{"name": "", "type": "uint8"}],
-                  "type": "function"
+    
+    // ---- Wallet Connection ----
+    async function connectWallet() {
+        if (window.ethereum) {
+            try {
+                // Request account access
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                currentAccount = accounts[0];
+                
+                // Set up ethers provider
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                
+                // Get network
+                const network = await provider.getNetwork();
+                
+                // Update UI
+                document.getElementById('walletStatus').textContent = 'Wallet Connected';
+                document.getElementById('walletAddress').textContent = currentAccount;
+                document.getElementById('walletAddress').style.display = 'block';
+                document.getElementById('networkInfo').textContent = `Network: ${network.name} (Chain ID: ${network.chainId})`;
+                document.getElementById('connectWalletBtn').textContent = 'Connected';
+                document.getElementById('connectWalletBtn').disabled = true;
+                document.getElementById('submitWithdrawBtn').disabled = false;
+                
+                // Auto-fill wallet address in withdraw form
+                document.getElementById('recipientAddress').value = currentAccount;
+                
+                // Check if user is logged in and get email
+                try {
+                    const user = await account.get();
+                    const res = await databases.listDocuments(APPWRITE_DB_ID, APPWRITE_COLLECTION_ID, [Query.equal("userId", user.$id)]);
+                    if (res.documents.length > 0) {
+                        const profile = res.documents[0];
+                        document.getElementById('userEmail').value = profile.email;
+                    }
+                } catch (err) {
+                    console.log("Not logged in or error fetching user:", err);
                 }
-              ],
-              token.contract
-            );
-            
-            // Get balance
-            const balance = await tokenContract.methods.balanceOf(currentAccount).call();
-            const decimals = await tokenContract.methods.decimals().call();
-            
-            // Convert to human-readable amount
-            tokenBalances[token.symbol] = balance / (10 ** decimals);
-          } catch (err) {
-            console.error(`Error fetching balance for ${token.symbol}:`, err);
-            tokenBalances[token.symbol] = '0';
-          }
+                
+                walletConnected = true;
+                showMessage('walletMessage', 'Wallet connected successfully!', 'success');
+                
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts.length === 0) {
+                        // Wallet disconnected
+                        disconnectWallet();
+                    } else {
+                        // Account changed
+                        currentAccount = accounts[0];
+                        document.getElementById('walletAddress').textContent = currentAccount;
+                        document.getElementById('recipientAddress').value = currentAccount;
+                        showMessage('walletMessage', 'Account changed', 'info');
+                    }
+                });
+                
+                // Listen for chain changes
+                window.ethereum.on('chainChanged', () => {
+                    window.location.reload();
+                });
+                
+            } catch (error) {
+                console.error("Error connecting wallet:", error);
+                showMessage('walletMessage', 'Error connecting wallet: ' + error.message, 'error');
+            }
+        } else {
+            showMessage('walletMessage', 'Please install MetaMask or another Ethereum wallet', 'error');
         }
-        
-        showNotification("Balances updated", "success");
-        
-        // Update UI if on home page
-        if (document.getElementById('assets-list')) {
-          renderAssets();
-        }
-        
-      } catch (error) {
-        console.error("Error fetching balances:", error);
-        showNotification("Failed to fetch balances", "error");
-      }
-    }
-
-    // Withdraw mined tokens to connected wallet
-    async function withdrawMinedTokens() {
-      if (!currentAccount) {
-        showNotification("Please connect a wallet first", "error");
-        return;
-      }
-      
-      if (minedCoins <= 0) {
-        showNotification("No tokens to withdraw", "error");
-        return;
-      }
-      
-      try {
-        // In a real implementation, this would call your smart contract
-        // For now, we'll simulate the withdrawal
-        showNotification(`Withdrawing ${minedCoins.toFixed(4)} SA to ${currentAccount.substring(0,6)}...${currentAccount.substring(38)}`, "info");
-        
-        // Simulate transaction hash
-        const txHash = '0x' + Math.random().toString(16).substr(2, 64);
-        
-        // Reset mined coins
-        minedCoins = 0;
-        localStorage.setItem('minedCoins', '0');
-        
-        // Update UI
-        updateMiningUI();
-        updateMiningStats();
-        if (document.getElementById('assets-list')) {
-          renderAssets();
-        }
-        
-        showNotification(`Success! Transaction: ${txHash.substring(0,10)}...`, "success");
-        
-      } catch (error) {
-        console.error("Withdrawal error:", error);
-        showNotification("Withdrawal failed", "error");
-      }
-    }
-
-    // Wallet Management UI
-    function renderWallets() {
-      const el = document.getElementById('wallets-list');
-      if (!el) return;
-      el.innerHTML = wallets.map((w,i) => `
-        <div class="token-row">
-          <div>
-            <b>${w.name || 'Wallet '+(i+1)}</b><br>
-            <small>${w.address ? w.address.substring(0,6) + '...' + w.address.substring(38) : 'New Wallet'}</small>
-          </div>
-          <span>
-            <button class="action" style="padding: 6px 12px;" onclick="setActiveWallet(${i})">
-              ${activeWallet===w ? '<i class="fas fa-check"></i> Active' : 'Set Active'}
-            </button>
-          </span>
-        </div>
-      `).join('');
     }
     
-    function setActiveWallet(i) {
-      activeWallet = wallets[i];
-      localStorage.setItem('supremeamer_wallet_active', i);
-      showNotification(`Wallet ${i+1} set as active`, "success");
-      showSection('home');
+    function disconnectWallet() {
+        currentAccount = null;
+        provider = null;
+        signer = null;
+        
+        document.getElementById('walletStatus').textContent = 'Please connect your wallet';
+        document.getElementById('walletAddress').style.display = 'none';
+        document.getElementById('networkInfo').textContent = '';
+        document.getElementById('connectWalletBtn').textContent = 'Connect Wallet';
+        document.getElementById('connectWalletBtn').disabled = false;
+        document.getElementById('submitWithdrawBtn').disabled = true;
+        
+        walletConnected = false;
+        showMessage('walletMessage', 'Wallet disconnected', 'info');
     }
     
-    function createWalletUI() {
-      const seed = generateSeedPhrase();
-      const name = prompt('Wallet name?');
-      if (name) {
-        const wallet = { 
-          name, 
-          seed,
-          address: generateAddressFromSeed(seed)
+    // ---- Withdraw Functionality ----
+    async function submitWithdrawal(e) {
+        e.preventDefault();
+        
+        if (!walletConnected) {
+            showMessage('withdrawMessage', 'Please connect your wallet first', 'error');
+            return;
+        }
+        
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        const recipientAddress = document.getElementById('recipientAddress').value;
+        const userEmail = document.getElementById('userEmail').value;
+        const notes = document.getElementById('additionalNotes').value;
+        
+        if (amount < WITHDRAW_MIN_SA) {
+            showMessage('withdrawMessage', `Minimum withdrawal amount is ${WITHDRAW_MIN_SA} SA`, 'error');
+            return;
+        }
+        
+        if (!ethers.utils.isAddress(recipientAddress)) {
+            showMessage('withdrawMessage', 'Please enter a valid wallet address', 'error');
+            return;
+        }
+        
+        // Validate email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(userEmail)) {
+            showMessage('withdrawMessage', 'Please enter a valid email address', 'error');
+            return;
+        }
+        
+        try {
+            // Show confirmation
+            const confirmed = confirm(`Confirm withdrawal request for ${amount} SA to ${formatAddress(recipientAddress)}?\n\nA fee of ${WITHDRAW_FEE_BNB} BNB will be charged.`);
+            if (!confirmed) return;
+            
+            document.getElementById('submitWithdrawBtn').disabled = true;
+            document.getElementById('submitWithdrawBtn').innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Processing...';
+            
+            showMessage('withdrawMessage', 'Processing withdrawal request...', 'info');
+            
+            // Send transaction for fee payment
+            const tx = await signer.sendTransaction({
+                to: '0xYourBnbFeeReceiverAddressHere', // Replace with your BNB fee receiver address
+                value: ethers.utils.parseEther(WITHDRAW_FEE_BNB)
+            });
+            
+            showMessage('withdrawMessage', 'Transaction sent. Waiting for confirmation...', 'info');
+            
+            // Wait for transaction to be mined
+            await tx.wait();
+            
+            // Here you would typically send the withdrawal request to your backend
+            // For this example, we'll simulate it
+            
+            // Simulate sending email (in a real app, this would be a backend API call)
+            const withdrawalData = {
+                amount: amount,
+                recipientAddress: recipientAddress,
+                userEmail: userEmail,
+                notes: notes,
+                txHash: tx.hash,
+                status: 'pending',
+                date: new Date().toISOString()
+            };
+            
+            // Save to localStorage (simulating database storage)
+            let withdrawals = JSON.parse(localStorage.getItem('withdrawals') || '[]');
+            withdrawals.push(withdrawalData);
+            localStorage.setItem('withdrawals', JSON.stringify(withdrawals));
+            
+            // Update transactions list
+            updateTransactionsList();
+            
+            // Reset form
+            document.getElementById('withdrawForm').reset();
+            document.getElementById('recipientAddress').value = currentAccount; // Keep wallet address
+            
+            showMessage('withdrawMessage', `Withdrawal request submitted successfully! You'll receive an email confirmation. Processing takes 2-5 working days.`, 'success');
+            
+            document.getElementById('submitWithdrawBtn').disabled = false;
+            document.getElementById('submitWithdrawBtn').innerHTML = '<i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Submit Withdrawal Request';
+            
+        } catch (error) {
+            console.error("Withdrawal error:", error);
+            showMessage('withdrawMessage', 'Withdrawal failed: ' + (error.message || 'Unknown error'), 'error');
+            document.getElementById('submitWithdrawBtn').disabled = false;
+            document.getElementById('submitWithdrawBtn').innerHTML = '<i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Submit Withdrawal Request';
+        }
+    }
+    
+    // ---- Transactions List ----
+    function updateTransactionsList() {
+        const transactionsList = document.getElementById('transactionsList');
+        transactionsList.innerHTML = '';
+        
+        const withdrawals = JSON.parse(localStorage.getItem('withdrawals') || [];
+        
+        if (withdrawals.length === 0) {
+            transactionsList.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">No transactions yet</div>';
+            return;
+        }
+        
+        withdrawals.forEach(tx => {
+            const txElement = document.createElement('div');
+            txElement.className = 'transaction';
+            
+            const date = new Date(tx.date);
+            const formattedDate = date.toLocaleDateString();
+            
+            let statusClass = 'status-pending';
+            if (tx.status === 'completed') statusClass = 'status-completed';
+            if (tx.status === 'failed') statusClass = 'status-failed';
+            
+            txElement.innerHTML = `
+                <div>
+                    <div class="transaction-amount">${tx.amount} SA</div>
+                    <div class="transaction-date">${formattedDate}</div>
+                </div>
+                <div class="transaction-status ${statusClass}">${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}</div>
+            `;
+            
+            transactionsList.appendChild(txElement);
+        });
+    }
+    
+    // ---- Tab Switching ----
+    function setupTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Refresh transactions list if that tab is selected
+                if (tabId === 'transactions') {
+                    updateTransactionsList();
+                }
+            });
+        });
+    }
+    
+    // ---- Light/Dark Toggle ----
+    function setTheme(light) {
+        if(light) {
+            document.body.classList.add('light');
+            localStorage.setItem('theme','light');
+            document.getElementById('lightToggleBtn').textContent='🌞';
+        } else {
+            document.body.classList.remove('light');
+            localStorage.setItem('theme','dark');
+            document.getElementById('lightToggleBtn').textContent='🌙';
+        }
+    }
+    
+    // ---- Profile Dropdown ----
+    async function displayUser() {
+        try {
+            const user = await account.get();
+            const res = await databases.listDocuments(APPWRITE_DB_ID, APPWRITE_COLLECTION_ID, [Query.equal("userId", user.$id)]);
+            if (res.documents.length > 0) {
+                const profile = res.documents[0];
+                document.getElementById('dropdownUsername').innerHTML = `<span class="emoji-avatar">🧑</span> ${profile.name}`;
+                document.getElementById('dropdownEmail').innerHTML = `<span class="emoji-avatar">✉️</span> ${profile.email}`;
+            }
+        } catch (err) {
+            console.error("Error fetching user:", err);
+        }
+    }
+    
+    // ---- Event Listeners ----
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set up tabs
+        setupTabs();
+        
+        // Initialize transactions list
+        updateTransactionsList();
+        
+        // Connect wallet button
+        document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
+        
+        // Withdraw form submission
+        document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
+        
+        // Refresh transactions button
+        document.getElementById('refreshTransactionsBtn').addEventListener('click', updateTransactionsList);
+        
+        // Light/dark toggle
+        document.getElementById('lightToggleBtn').addEventListener('click', () => {
+            setTheme(!document.body.classList.contains('light'));
+        });
+        
+        // Profile dropdown
+        document.getElementById('profileDropdownBtn').onclick = function(e) {
+            e.stopPropagation();
+            let menu = document.getElementById('profileDropdownMenu');
+            menu.style.display = (menu.style.display === "block") ? "none" : "block";
         };
-        wallets.push(wallet);
-        activeWallet = wallet;
-        localStorage.setItem('supremeamer_wallets', JSON.stringify(wallets));
-        showNotification("Wallet created successfully!", "success");
-        showSection('home');
-      }
-    }
-    
-    function importWalletUI() {
-      const seed = prompt('Enter your 12-word seed phrase:');
-      if (validateSeedPhrase(seed)) {
-        const name = prompt('Wallet name?');
-        if (name) {
-          const wallet = { 
-            name, 
-            seed,
-            address: generateAddressFromSeed(seed)
-          };
-          wallets.push(wallet);
-          activeWallet = wallet;
-          localStorage.setItem('supremeamer_wallets', JSON.stringify(wallets));
-          showNotification("Wallet imported successfully!", "success");
-          showSection('home');
+        document.addEventListener('click', function() {
+            let menu = document.getElementById('profileDropdownMenu');
+            if (menu.style.display === "block") menu.style.display = "none";
+        });
+        document.getElementById('profileDropdownMenu').onclick = function(e) { e.stopPropagation(); };
+        
+        // Logout
+        document.getElementById('logoutBtn').onclick = async function(e) {
+            e.preventDefault();
+            try { 
+                await account.deleteSession('current'); 
+                window.location.href = "login.html";
+            } catch (err) {
+                console.error("Error logging out:", err);
+            }
+        };
+        
+        // On load, restore theme
+        if(localStorage.getItem('theme')==='light') setTheme(true);
+        
+        // Display user info if logged in
+        displayUser();
+        
+        // Check if wallet is already connected (e.g., page refresh)
+        if (window.ethereum && window.ethereum.selectedAddress) {
+            connectWallet();
         }
-      } else {
-        showNotification("Invalid seed phrase", "error");
-      }
-    }
-    
-    function generateSeedPhrase() {
-      // Simple 12-word mnemonic (not BIP39, for demo only!)
-      const words = 'apple banana cherry dog eagle fox goat house iron jar kite lemon mango nest orange pear queen river star tree umbrella violet whale xray yellow zebra'.split(' ');
-      let arr = [];
-      for (let i=0;i<12;i++) arr.push(words[Math.floor(Math.random()*words.length)]);
-      return arr.join(' ');
-    }
-    
-    function validateSeedPhrase(seed) {
-      return seed && seed.split(' ').length === 12;
-    }
-    
-    function generateAddressFromSeed(seed) {
-      // Simple hash function to generate a mock address from seed
-      let hash = 0;
-      for (let i = 0; i < seed.length; i++) {
-        hash = ((hash << 5) - hash) + seed.charCodeAt(i);
-        hash |= 0; // Convert to 32bit integer
-      }
-      return '0x' + Math.abs(hash).toString(16).substring(0, 40);
-    }
-
-    // Asset List
-    function renderAssets() {
-      const el = document.getElementById('assets-list');
-      if (!el) return;
-      
-      el.innerHTML = TOKEN_LIST.map(token => {
-        const balance = tokenBalances[token.symbol] || (token.symbol === 'SA' ? minedCoins.toFixed(4) : '0');
-        const price = tokenPrices[token.symbol.toLowerCase()] || 0;
-        const value = (parseFloat(balance) * price).toFixed(2);
-        
-        return `
-          <div class="token-row">
-            <span style="display: flex; align-items: center;">
-              <img src="${token.logo}" style="width: 24px; height: 24px; margin-right: 10px; border-radius: 50%;">
-              <div>
-                <b>${token.symbol}</b> (${token.name})
-                <br><small>$${price} per ${token.symbol}</small>
-              </div>
-            </span>
-            <span style="text-align: right;">
-              <div class="balance">${parseFloat(balance).toFixed(4)}</div>
-              <small>$${value}</small>
-            </span>
-          </div>
-          <hr>
-        `;
-      }).join('');
-    }
-
-    // Mining Functions
-    function loadMiningState() {
-      // Load mining state from localStorage
-      if (localStorage.getItem('minedCoins')) {
-        minedCoins = parseFloat(localStorage.getItem('minedCoins'));
-      }
-      
-      if (localStorage.getItem('miningActive') === 'true') {
-        miningActive = true;
-      }
-    }
-    
-    function startMining() {
-      if (miningActive) {
-        stopMining();
-        return;
-      }
-      
-      miningActive = true;
-      localStorage.setItem('miningActive', 'true');
-      
-      // Start mining interval
-      miningInterval = setInterval(() => {
-        minedCoins += miningSpeed;
-        localStorage.setItem('minedCoins', minedCoins);
-        
-        // Update UI
-        updateMiningUI();
-        updateMiningStats();
-        
-        // Update assets list if on home page
-        if (document.getElementById('assets-list')) {
-          renderAssets();
-        }
-      }, 1000);
-      
-      showNotification("Mining started!", "success");
-      updateMiningUI();
-    }
-    
-    function stopMining() {
-      miningActive = false;
-      clearInterval(miningInterval);
-      localStorage.setItem('miningActive', 'false');
-      showNotification("Mining stopped", "info");
-      updateMiningUI();
-    }
-    
-    function updateMiningUI() {
-      const toggleBtn = document.getElementById('mining-toggle-btn');
-      const toggleBtnFull = document.getElementById('mining-toggle-btn-full');
-      const statusDisplay = document.getElementById('mining-status-display');
-      const progressBar = document.getElementById('mining-progress');
-      const progressBarFull = document.getElementById('mining-progress-full');
-      const miningStats = document.getElementById('mining-stats');
-      
-      if (toggleBtn) {
-        toggleBtn.innerHTML = miningActive ? 
-          '<i class="fas fa-power-off"></i> Stop Mining' : 
-          '<i class="fas fa-power-off"></i> Start Mining';
-      }
-      
-      if (toggleBtnFull) {
-        toggleBtnFull.innerHTML = miningActive ? 
-          '<i class="fas fa-power-off"></i> Stop Mining' : 
-          '<i class="fas fa-power-off"></i> Start Mining';
-      }
-      
-      if (statusDisplay) {
-        statusDisplay.innerHTML = miningActive ? 
-          '<div class="mining-active"><i class="fas fa-check-circle"></i> Mining Active</div>' : 
-          '<div class="mining-inactive"><i class="fas fa-times-circle"></i> Mining Inactive</div>';
-      }
-      
-      if (progressBar) {
-        // Simple progress animation for demo
-        progressBar.style.width = miningActive ? '100%' : '0%';
-      }
-      
-      if (progressBarFull) {
-        progressBarFull.style.width = miningActive ? '100%' : '0%';
-      }
-      
-      if (miningStats) {
-        miningStats.innerHTML = `Mined: ${minedCoins.toFixed(4)} SA | Speed: ${miningSpeed} SA/sec`;
-      }
-    }
-    
-    function updateMiningStats() {
-      const statsDisplay = document.getElementById('mining-stats-display');
-      const upgradeSection = document.getElementById('mining-upgrade-section');
-      
-      if (statsDisplay) {
-        statsDisplay.innerHTML = `
-          <p>Total Mined: <b>${minedCoins.toFixed(4)} SA</b></p>
-          <p>Current Speed: <b>${miningSpeed} SA/sec</b></p>
-          <p>Status: <b>${miningActive ? 'Active' : 'Inactive'}</b></p>
-        `;
-      }
-      
-      if (upgradeSection) {
-        upgradeSection.innerHTML = `
-          <h3><i class="fas fa-bolt"></i> Upgrade Mining Speed</h3>
-          <p>Increase your mining speed with these upgrades:</p>
-          
-          <div class="card">
-            <h4>🚀 0.05 SA/sec</h4>
-            <p>Duration: 360 days</p>
-            <p>Fee: 0.002 BNB</p>
-            <button class="action" onclick="upgradeMining(0.05, 0.002)">
-              Upgrade Now
-            </button>
-          </div>
-          
-          <div class="card">
-            <h4>🔥 0.1 SA/sec</h4>
-            <p>Duration: 360 days</p>
-            <p>Fee: 0.009 BNB</p>
-            <button class="action" onclick="upgradeMining(0.1, 0.009)">
-              Upgrade Now
-            </button>
-          </div>
-        `;
-      }
-    }
-    
-    function upgradeMining(speed, fee) {
-      if (!currentAccount) {
-        showNotification("Please connect a wallet first", "error");
-        return;
-      }
-      
-      if (confirm(`Upgrade your mining speed to ${speed} SA/sec for 360 days?\n\nCost: ${fee} BNB`)) {
-        // In a real app, this would send a transaction
-        miningSpeed = speed;
-        
-        showNotification(`Mining speed upgraded to ${speed} SA/sec!`, "success");
-        updateMiningUI();
-        updateMiningStats();
-      }
-    }
-
-    // Staking Tab
-    function renderStakingForm() {
-      const el = document.getElementById('staking-form');
-      if (!el) return;
-      el.innerHTML = `
-        <form onsubmit="event.preventDefault();calcStakingReward();">
-          <label>Asset:
-            <select id="stake-asset">
-              ${TOKEN_LIST.map(t => `<option value="${t.symbol}">${t.symbol}</option>`).join('')}
-            </select>
-          </label>
-          <label>Amount ($):
-            <input type="number" id="stake-amount" min="1" required>
-          </label>
-          <label>Duration:
-            <select id="stake-duration">
-              <option value="30">30 Days</option>
-              <option value="62">62 Days</option>
-              <option value="365">1 Year</option>
-            </select>
-          </label>
-          <button type="submit" class="action">
-            <i class="fas fa-calculator"></i> Calculate Reward
-          </button>
-        </form>
-      `;
-    }
-    
-    function calcStakingReward() {
-      const asset = document.getElementById('stake-asset').value;
-      const amount = parseFloat(document.getElementById('stake-amount').value);
-      const duration = parseInt(document.getElementById('stake-duration').value);
-      
-      // Per your formula: $3 stake = 3,000,000 tokens, reward 8% annual. Linear scale.
-      const tokensStaked = (amount / 3) * 3000000;
-      const durationFraction = duration / 365;
-      const reward = tokensStaked * durationFraction * 0.08;
-      
-      document.getElementById('staking-summary').innerHTML = `
-        <div class="card">
-          <h3>Staking Summary</h3>
-          <p><b>Staked:</b> ${tokensStaked.toLocaleString()} tokens</p>
-          <p><b>Reward:</b> ${reward.toLocaleString(undefined,{maximumFractionDigits:2})} SupremeAmer tokens</p>
-          <p><b>Profit:</b> $${(reward/3000000*3).toFixed(4)}</p>
-          <button class="action" onclick="stakeTokens()">
-            <i class="fas fa-lock"></i> Stake Now
-          </button>
-        </div>
-      `;
-    }
-    
-    function stakeTokens() {
-      showNotification("Staking transaction submitted!", "success");
-    }
-
-    // DEX Tab
-    function renderDexForm() {
-      const el = document.getElementById('dex-form');
-      if (!el) return;
-      el.innerHTML = `
-        <form onsubmit="event.preventDefault();performSwap();">
-          <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-              <label>From:
-                <select id="dex-from-asset">
-                  ${TOKEN_LIST.map(t => `<option value="${t.symbol}">${t.symbol}</option>`).join('')}
-                </select>
-              </label>
-              <label>Amount:
-                <input type="number" id="dex-from-amount" min="0.01" step="0.01" required>
-              </label>
-            </div>
-            
-            <div style="flex: 1;">
-              <label>To:
-                <select id="dex-to-asset">
-                  ${TOKEN_LIST.map(t => `<option value="${t.symbol}">${t.symbol}</option>`).join('')}
-                </select>
-              </label>
-              <label>Estimated:
-                <input type="text" id="dex-to-amount" readonly>
-              </label>
-            </div>
-          </div>
-          
-          <button type="submit" class="action">
-            <i class="fas fa-exchange-alt"></i> Swap Tokens
-          </button>
-        </form>
-      `;
-      
-      // Add event listeners for live calculation
-      document.getElementById('dex-from-amount').addEventListener('input', calculateSwap);
-      document.getElementById('dex-from-asset').addEventListener('change', calculateSwap);
-      document.getElementById('dex-to-asset').addEventListener('change', calculateSwap);
-      
-      // Initial calculation
-      calculateSwap();
-    }
-    
-    function calculateSwap() {
-      const fromAsset = document.getElementById('dex-from-asset').value;
-      const toAsset = document.getElementById('dex-to-asset').value;
-      const amount = parseFloat(document.getElementById('dex-from-amount').value) || 0;
-      
-      // Simple conversion rates for demo
-      let rate = 1;
-      if (fromAsset === 'SA' && toAsset === 'BNB') rate = 0.0001;
-      if (fromAsset === 'BNB' && toAsset === 'SA') rate = 10000;
-      if (fromAsset === 'SA' && toAsset === 'USDT') rate = 0.00015;
-      if (fromAsset === 'USDT' && toAsset === 'SA') rate = 6666.67;
-      
-      document.getElementById('dex-to-amount').value = (amount * rate).toFixed(6);
-    }
-    
-    function performSwap() {
-      const fromAsset = document.getElementById('dex-from-asset').value;
-      const toAsset = document.getElementById('dex-to-asset').value;
-      const amount = parseFloat(document.getElementById('dex-from-amount').value);
-      const estimated = document.getElementById('dex-to-amount').value;
-      
-      if (!currentAccount) {
-        showNotification("Please connect a wallet first", "error");
-        return;
-      }
-      
-      if (confirm(`Swap ${amount} ${fromAsset} for ~${estimated} ${toAsset}?`)) {
-        showNotification("Swap transaction submitted!", "success");
-      }
-    }
-
-    // Settings
-    function setPINUI() {
-      const pin = prompt('Enter a 4-digit PIN:');
-      if (/^\d{4}$/.test(pin)) {
-        localStorage.setItem('supremeamer_wallet_pin', pin);
-        showNotification("PIN set successfully!", "success");
-      } else {
-        showNotification("Invalid PIN. Must be 4 digits.", "error");
-      }
-    }
-    
-    function backupCloudUI() {
-      showNotification("Cloud backup with Appwrite: integration required", "info");
-    }
-    
-    function exportSeedUI() {
-      if (activeWallet) {
-        prompt('Your seed phrase (keep this secret!):', activeWallet.seed);
-      } else {
-        showNotification("No active wallet", "error");
-      }
-    }
-    
-    // Copy to clipboard
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        showNotification("Copied to clipboard!", "success");
-      }).catch(err => {
-        console.error('Failed to copy: ', err);
-        showNotification("Failed to copy", "error");
-      });
-    }
-
-    // PIN lock (basic)
-    (function(){
-      const pin = localStorage.getItem('supremeamer_wallet_pin');
-      if (pin) {
-        let entered = prompt('Enter your PIN to unlock SupremeAmer Wallet:');
-        if (entered !== pin) {
-          alert('Incorrect PIN. Reload to try again.');
-          document.body.innerHTML = '';
-        }
-      }
-    })();
-  </script>
-  <!-- QR Code Library -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    });
+    </script>
 </body>
 </html>
