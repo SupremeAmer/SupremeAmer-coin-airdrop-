@@ -57,22 +57,29 @@
         
         /* Profile Dropdown */
         .emoji-avatar {
-            font-size: 2.1em;
+            font-size: 1.5em;
             vertical-align: middle;
             background: transparent;
             border: none;
             cursor: pointer;
             outline: none;
             transition: transform 0.2s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
         .emoji-avatar:hover {
             transform: scale(1.1);
+            background: rgba(255,255,255,0.1);
         }
         .profile-dropdown-content {
             display: none;
             position: absolute;
             right: 5vw;
-            top: 60px;
+            top: 70px;
             background: #222;
             min-width: 210px;
             border-radius: 10px;
@@ -85,6 +92,7 @@
             text-align: left;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 0;
         }
         body.light .profile-dropdown-content {
             background: rgba(255, 255, 255, 0.85);
@@ -97,7 +105,7 @@
             border-top: 1px solid #333;
             margin: 6px 0;
         }
-        .profile-dropdown-content a {
+        .profile-dropdown-content a, .profile-dropdown-content button {
             color: var(--accent-color);
             text-decoration: none;
             font-weight: 600;
@@ -106,13 +114,28 @@
             transition: all 0.2s;
             border-radius: 5px;
             padding: 8px 18px;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95em;
         }
-        .profile-dropdown-content a:hover {
+        .profile-dropdown-content a:hover, .profile-dropdown-content button:hover {
             background: #333;
             color: #fff;
         }
-        body.light .profile-dropdown-content a:hover {
+        body.light .profile-dropdown-content a:hover, 
+        body.light .profile-dropdown-content button:hover {
             background: rgba(0, 0, 0, 0.1);
+        }
+        .theme-toggle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .theme-toggle-item span {
+            margin-right: 10px;
         }
         
         /* Marquee */
@@ -408,39 +431,6 @@
             bottom: 65px;
         }
         
-        /* Light/Dark Toggle */
-        .light-toggle {
-            position: absolute;
-            left: 28px;
-            top: 24px;
-            font-size: 1.7em;
-            background: none;
-            border: none;
-            color: var(--secondary-color);
-            cursor: pointer;
-            z-index: 101;
-            transition: all 0.3s;
-        }
-        .light-toggle:hover {
-            transform: rotate(30deg);
-        }
-        body.light .light-toggle {
-            color: var(--primary-color);
-        }
-        
-        /* Responsive */
-        @media (max-width:600px) {
-            .profile-dropdown-content { 
-                min-width: 140px; 
-                font-size:0.95em;
-                right: 3vw;
-            }
-            .header { font-size: 1.8em; padding-top: 15px; }
-            .light-toggle { left: 15px; top: 15px; font-size: 1.4em; }
-            #profileDropdownBtn { right: 15px; top: 10px; font-size: 1.8em; }
-            .container { padding: 20px 15px; }
-        }
-        
         /* Tabs */
         .tabs {
             display: flex;
@@ -469,24 +459,133 @@
         .tab-content.active {
             display: block;
         }
+        
+        /* Wallet Connection Options */
+        .wallet-options {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .wallet-options-content {
+            background: var(--card-bg-dark);
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        body.light .wallet-options-content {
+            background: var(--card-bg-light);
+        }
+        .wallet-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        body.light .wallet-option {
+            background: rgba(0,0,0,0.05);
+        }
+        .wallet-option:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        body.light .wallet-option:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        .wallet-option img {
+            width: 30px;
+            height: 30px;
+            margin-right: 15px;
+        }
+        .close-wallet-options {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5em;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+        
+        /* Responsive */
+        @media (max-width:600px) {
+            .profile-dropdown-content { 
+                min-width: 180px; 
+                font-size:0.95em;
+                right: 3vw;
+                top: 65px;
+            }
+            .header { font-size: 1.8em; padding-top: 15px; }
+            #profileDropdownBtn { right: 15px; top: 15px; font-size: 1.5em; }
+            .container { padding: 20px 15px; }
+            .emoji-avatar {
+                font-size: 1.2em;
+                width: 36px;
+                height: 36px;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
-        <button class="light-toggle" id="lightToggleBtn" aria-label="Toggle light/dark mode">🌙</button>
         SUPREMEAMER WALLET
         <button id="profileDropdownBtn" class="emoji-avatar" style="position:absolute; top:18px; right:28px;">👤</button>
         <div id="profileDropdownMenu" class="profile-dropdown-content">
             <div id="dropdownUsername" style="padding:8px 18px; font-weight:bold;"><span class="emoji-avatar">🧑</span> </div>
             <div id="dropdownEmail" style="padding:0 18px 8px 18px; color:var(--secondary-color); font-size:0.96em;"><span class="emoji-avatar">✉️</span></div>
             <hr style="margin:8px 0; border:0; border-top:1px solid #333;">
-            <a href="#" id="logoutBtn" style="display:block; color:var(--accent-color); text-decoration:none; font-weight:500;">Logout</a>
+            <button id="themeToggleBtn" class="theme-toggle-item">
+                <span>Dark Mode</span>
+                <span id="themeToggleIcon">🌙</span>
+            </button>
+            <a href="#" id="logoutBtn">Logout</a>
         </div>
     </div>
     
     <div class="marquee">
         <span class="marquee-text">🚀 SupremeAmer Wallet - Connect your wallet to manage your SA tokens and withdraw your earnings! 💰</span>
+    </div>
+    
+    <!-- Wallet Connection Options Modal -->
+    <div class="wallet-options" id="walletOptions">
+        <div class="wallet-options-content">
+            <button class="close-wallet-options" id="closeWalletOptions">&times;</button>
+            <h3>Connect Wallet</h3>
+            <p>Choose your wallet provider</p>
+            
+            <div class="wallet-option" id="metamaskOption">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask">
+                <span>MetaMask</span>
+            </div>
+            
+            <div class="wallet-option" id="trustWalletOption">
+                <img src="https://trustwallet.com/assets/images/media/assets/TWT.png" alt="Trust Wallet">
+                <span>Trust Wallet</span>
+            </div>
+            
+            <div class="wallet-option" id="walletConnectOption">
+                <img src="https://walletconnect.com/walletconnect-logo.png" alt="WalletConnect">
+                <span>WalletConnect</span>
+            </div>
+            
+            <div class="wallet-option" id="binanceWalletOption">
+                <img src="https://bin.bnbstatic.com/static/images/common/favicon.ico" alt="Binance Chain Wallet">
+                <span>Binance Chain Wallet</span>
+            </div>
+        </div>
     </div>
     
     <!-- Main Container -->
@@ -510,6 +609,10 @@
             
             <button id="connectWalletBtn" class="btn">
                 <i class="fas fa-wallet" style="margin-right: 8px;"></i>Connect Wallet
+            </button>
+            
+            <button id="disconnectWalletBtn" class="btn btn-secondary" style="display:none;">
+                <i class="fas fa-unlink" style="margin-right: 8px;"></i>Disconnect
             </button>
             
             <div id="walletMessage" class="status-message" style="display:none;"></div>
@@ -560,20 +663,7 @@
             </div>
             
             <div class="transactions" id="transactionsList">
-                <div class="transaction">
-                    <div>
-                        <div class="transaction-amount">50,000 SA</div>
-                        <div class="transaction-date">2023-11-09</div>
-                    </div>
-                    <div class="transaction-status status-pending">Pending</div>
-                </div>
-                <div class="transaction">
-                    <div>
-                        <div class="transaction-amount">75,000 SA</div>
-                        <div class="transaction-date">2023-10-13</div>
-                    </div>
-                    <div class="transaction-status status-completed">Completed</div>
-                </div>
+                <div style="text-align:center; padding:20px; color:#aaa;">No transactions yet</div>
             </div>
             
             <button id="refreshTransactionsBtn" class="btn btn-secondary">
@@ -604,6 +694,8 @@
     <!-- Appwrite SDK -->
     <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
+    <!-- WalletConnect connector -->
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
     <script>
     // ---- CONFIGURATION ----
     const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
@@ -624,6 +716,7 @@
     let currentAccount = null;
     let provider = null;
     let signer = null;
+    let walletType = null;
     
     // ---- UI Functions ----
     function showMessage(elementId, message, type = 'info') {
@@ -645,85 +738,124 @@
     }
     
     // ---- Wallet Connection ----
-    async function connectWallet() {
-        if (window.ethereum) {
-            try {
-                // Request account access
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                currentAccount = accounts[0];
-                
-                // Set up ethers provider
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
-                
-                // Get network
-                const network = await provider.getNetwork();
-                
-                // Update UI
-                document.getElementById('walletStatus').textContent = 'Wallet Connected';
-                document.getElementById('walletAddress').textContent = currentAccount;
-                document.getElementById('walletAddress').style.display = 'block';
-                document.getElementById('networkInfo').textContent = `Network: ${network.name} (Chain ID: ${network.chainId})`;
-                document.getElementById('connectWalletBtn').textContent = 'Connected';
-                document.getElementById('connectWalletBtn').disabled = true;
-                document.getElementById('submitWithdrawBtn').disabled = false;
-                
-                // Auto-fill wallet address in withdraw form
-                document.getElementById('recipientAddress').value = currentAccount;
-                
-                // Check if user is logged in and get email
-                try {
-                    const user = await account.get();
-                    const res = await databases.listDocuments(APPWRITE_DB_ID, APPWRITE_COLLECTION_ID, [Query.equal("userId", user.$id)]);
-                    if (res.documents.length > 0) {
-                        const profile = res.documents[0];
-                        document.getElementById('userEmail').value = profile.email;
-                    }
-                } catch (err) {
-                    console.log("Not logged in or error fetching user:", err);
+    async function connectWallet(type = 'injected') {
+        try {
+            // Show loading state
+            document.getElementById('connectWalletBtn').disabled = true;
+            document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Connecting...';
+            
+            if (type === 'injected') {
+                // Standard MetaMask/Trust Wallet/Binance Chain Wallet
+                if (window.ethereum) {
+                    // Request account access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    currentAccount = accounts[0];
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    walletType = 'injected';
+                } else {
+                    throw new Error('No Ethereum provider found. Please install MetaMask or another wallet.');
                 }
-                
-                walletConnected = true;
-                showMessage('walletMessage', 'Wallet connected successfully!', 'success');
-                
-                // Listen for account changes
-                window.ethereum.on('accountsChanged', (accounts) => {
-                    if (accounts.length === 0) {
-                        // Wallet disconnected
-                        disconnectWallet();
-                    } else {
-                        // Account changed
-                        currentAccount = accounts[0];
-                        document.getElementById('walletAddress').textContent = currentAccount;
-                        document.getElementById('recipientAddress').value = currentAccount;
-                        showMessage('walletMessage', 'Account changed', 'info');
+            } else if (type === 'walletconnect') {
+                // WalletConnect
+                const walletConnectProvider = new WalletConnectProvider.default({
+                    rpc: {
+                        56: "https://bsc-dataseed.binance.org/", // Binance Smart Chain
+                        97: "https://data-seed-prebsc-1-s1.binance.org:8545/" // BSC Testnet
                     }
                 });
                 
-                // Listen for chain changes
-                window.ethereum.on('chainChanged', () => {
+                // Enable session (triggers QR Code modal)
+                await walletConnectProvider.enable();
+                
+                provider = new ethers.providers.Web3Provider(walletConnectProvider);
+                const accounts = await provider.listAccounts();
+                currentAccount = accounts[0];
+                walletType = 'walletconnect';
+                
+                // Subscribe to accounts change
+                walletConnectProvider.on("accountsChanged", (accounts) => {
+                    currentAccount = accounts[0];
+                    updateWalletUI();
+                });
+                
+                // Subscribe to chainId change
+                walletConnectProvider.on("chainChanged", (chainId) => {
                     window.location.reload();
                 });
                 
-            } catch (error) {
-                console.error("Error connecting wallet:", error);
-                showMessage('walletMessage', 'Error connecting wallet: ' + error.message, 'error');
+                // Subscribe to session disconnect
+                walletConnectProvider.on("disconnect", (code, reason) => {
+                    disconnectWallet();
+                });
             }
-        } else {
-            showMessage('walletMessage', 'Please install MetaMask or another Ethereum wallet', 'error');
+            
+            signer = provider.getSigner();
+            
+            // Get network
+            const network = await provider.getNetwork();
+            
+            // Update UI
+            updateWalletUI();
+            showMessage('walletMessage', 'Wallet connected successfully!', 'success');
+            
+            // Auto-fill wallet address in withdraw form
+            document.getElementById('recipientAddress').value = currentAccount;
+            
+            // Check if user is logged in and get email
+            try {
+                const user = await account.get();
+                const res = await databases.listDocuments(APPWRITE_DB_ID, APPWRITE_COLLECTION_ID, [Query.equal("userId", user.$id)]);
+                if (res.documents.length > 0) {
+                    const profile = res.documents[0];
+                    document.getElementById('userEmail').value = profile.email;
+                }
+            } catch (err) {
+                console.log("Not logged in or error fetching user:", err);
+            }
+            
+            walletConnected = true;
+            
+            // Close wallet options modal if open
+            document.getElementById('walletOptions').style.display = 'none';
+            
+        } catch (error) {
+            console.error("Error connecting wallet:", error);
+            showMessage('walletMessage', 'Error connecting wallet: ' + error.message, 'error');
+            document.getElementById('connectWalletBtn').disabled = false;
+            document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet" style="margin-right: 8px;"></i>Connect Wallet';
         }
+    }
+    
+    function updateWalletUI() {
+        document.getElementById('walletStatus').textContent = 'Wallet Connected';
+        document.getElementById('walletAddress').textContent = currentAccount;
+        document.getElementById('walletAddress').style.display = 'block';
+        
+        // Get network name
+        let networkName = 'Unknown';
+        if (provider.network) {
+            networkName = provider.network.name || `Chain ID: ${provider.network.chainId}`;
+        }
+        document.getElementById('networkInfo').textContent = `Network: ${networkName}`;
+        
+        document.getElementById('connectWalletBtn').style.display = 'none';
+        document.getElementById('disconnectWalletBtn').style.display = 'inline-block';
+        document.getElementById('submitWithdrawBtn').disabled = false;
     }
     
     function disconnectWallet() {
         currentAccount = null;
         provider = null;
         signer = null;
+        walletType = null;
         
         document.getElementById('walletStatus').textContent = 'Please connect your wallet';
         document.getElementById('walletAddress').style.display = 'none';
         document.getElementById('networkInfo').textContent = '';
-        document.getElementById('connectWalletBtn').textContent = 'Connect Wallet';
+        document.getElementById('connectWalletBtn').style.display = 'inline-block';
         document.getElementById('connectWalletBtn').disabled = false;
+        document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet" style="margin-right: 8px;"></i>Connect Wallet';
+        document.getElementById('disconnectWalletBtn').style.display = 'none';
         document.getElementById('submitWithdrawBtn').disabled = true;
         
         walletConnected = false;
@@ -806,7 +938,9 @@
             
             // Reset form
             document.getElementById('withdrawForm').reset();
-            document.getElementById('recipientAddress').value = currentAccount; // Keep wallet address
+            if (currentAccount) {
+                document.getElementById('recipientAddress').value = currentAccount; // Keep wallet address
+            }
             
             showMessage('withdrawMessage', `Withdrawal request submitted successfully! You'll receive an email confirmation. Processing takes 2-5 working days.`, 'success');
             
@@ -880,17 +1014,23 @@
         });
     }
     
-    // ---- Light/Dark Toggle ----
+    // ---- Theme Management ----
     function setTheme(light) {
         if(light) {
             document.body.classList.add('light');
             localStorage.setItem('theme','light');
-            document.getElementById('lightToggleBtn').textContent='🌞';
+            document.getElementById('themeToggleIcon').textContent='🌞';
+            document.getElementById('themeToggleBtn').innerHTML = '<span>Dark Mode</span><span id="themeToggleIcon">🌙</span>';
         } else {
             document.body.classList.remove('light');
             localStorage.setItem('theme','dark');
-            document.getElementById('lightToggleBtn').textContent='🌙';
+            document.getElementById('themeToggleIcon').textContent='🌙';
+            document.getElementById('themeToggleBtn').innerHTML = '<span>Light Mode</span><span id="themeToggleIcon">🌞</span>';
         }
+    }
+    
+    function toggleTheme() {
+        setTheme(!document.body.classList.contains('light'));
     }
     
     // ---- Profile Dropdown ----
@@ -917,7 +1057,24 @@
         updateTransactionsList();
         
         // Connect wallet button
-        document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
+        document.getElementById('connectWalletBtn').addEventListener('click', () => {
+            // Show wallet options modal
+            document.getElementById('walletOptions').style.display = 'flex';
+        });
+        
+        // Disconnect wallet button
+        document.getElementById('disconnectWalletBtn').addEventListener('click', disconnectWallet);
+        
+        // Wallet option buttons
+        document.getElementById('metamaskOption').addEventListener('click', () => connectWallet('injected'));
+        document.getElementById('trustWalletOption').addEventListener('click', () => connectWallet('injected'));
+        document.getElementById('binanceWalletOption').addEventListener('click', () => connectWallet('injected'));
+        document.getElementById('walletConnectOption').addEventListener('click', () => connectWallet('walletconnect'));
+        
+        // Close wallet options
+        document.getElementById('closeWalletOptions').addEventListener('click', () => {
+            document.getElementById('walletOptions').style.display = 'none';
+        });
         
         // Withdraw form submission
         document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
@@ -925,10 +1082,8 @@
         // Refresh transactions button
         document.getElementById('refreshTransactionsBtn').addEventListener('click', updateTransactionsList);
         
-        // Light/dark toggle
-        document.getElementById('lightToggleBtn').addEventListener('click', () => {
-            setTheme(!document.body.classList.contains('light'));
-        });
+        // Theme toggle
+        document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
         
         // Profile dropdown
         document.getElementById('profileDropdownBtn').onclick = function(e) {
@@ -954,14 +1109,18 @@
         };
         
         // On load, restore theme
-        if(localStorage.getItem('theme')==='light') setTheme(true);
+        if(localStorage.getItem('theme')==='light') {
+            setTheme(true);
+        } else {
+            setTheme(false);
+        }
         
         // Display user info if logged in
         displayUser();
         
         // Check if wallet is already connected (e.g., page refresh)
         if (window.ethereum && window.ethereum.selectedAddress) {
-            connectWallet();
+            connectWallet('injected');
         }
     });
     </script>
