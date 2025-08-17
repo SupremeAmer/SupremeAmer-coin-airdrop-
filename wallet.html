@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
     :root {
       --primary-color: #ff9800;
@@ -223,6 +227,40 @@
       min-width: 300px;
     }
     
+    /* QR Code */
+    .qr-container {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    
+    /* Wallet Connection Status */
+    .connection-status {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 20px;
+      background: rgba(0,0,0,0.3);
+      margin-left: auto;
+    }
+    
+    .connection-status.connected {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4CAF50;
+    }
+    
+    .connection-status.disconnected {
+      background: rgba(244, 67, 54, 0.2);
+      color: var(--accent-color);
+    }
+    
+    .connection-status i {
+      margin-right: 6px;
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
       header {
@@ -249,6 +287,12 @@
       .mining-dashboard {
         flex-direction: column;
       }
+      
+      .connection-status {
+        margin-top: 10px;
+        margin-left: 0;
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -263,6 +307,10 @@
     <div style="display:flex; align-items:center;">
       <img src="supremeamer_coin.png" alt="SupremeAmer Wallet Logo" class="logo">
       <h1>SupremeAmer Wallet</h1>
+    </div>
+    <div id="connection-status" class="connection-status disconnected">
+      <i class="fas fa-plug"></i>
+      <span>Disconnected</span>
     </div>
     <nav>
       <button id="nav-home" class="active"><i class="fas fa-home"></i> Home</button>
@@ -279,13 +327,43 @@
   </main>
   
   <script>
-    // Supported tokens and contract addresses
+    // Supported tokens and contract addresses (BSC Mainnet)
     const TOKEN_LIST = [
-      { symbol: 'BNB', name: 'Binance Coin', contract: 'BNB' },
-      { symbol: 'ETH', name: 'Ethereum', contract: 'ETH' },
-      { symbol: 'SA', name: 'SupremeAmer Coin', contract: '0xdd9fd6b6f8f7ea932997992bbe67eabb3e316f3c' },
-      { symbol: 'USDT/BNB', name: 'USDT (BNB)', contract: '0x55d398326f99059fF775485246999027B3197955' },
-      { symbol: 'USDC/BNB', name: 'USDC (BNB)', contract: '0xCEaD5Eb7D8Bbd27BC970c42486fD019A33eA1BB4' },
+      { 
+        symbol: 'BNB', 
+        name: 'Binance Coin', 
+        contract: 'BNB',
+        decimals: 18,
+        logo: 'https://cryptologos.cc/logos/bnb-bnb-logo.png'
+      },
+      { 
+        symbol: 'SA', 
+        name: 'SupremeAmer Coin', 
+        contract: '0xdd9fd6b6f8f7ea932997992bbe67eabb3e316f3c',
+        decimals: 18,
+        logo: 'https://supremeamer.com/logo.png'
+      },
+      { 
+        symbol: 'USDT', 
+        name: 'Tether USD (BEP-20)', 
+        contract: '0x55d398326f99059fF775485246999027B3197955',
+        decimals: 18,
+        logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png'
+      },
+      { 
+        symbol: 'USDC', 
+        name: 'USD Coin (BEP-20)', 
+        contract: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+        decimals: 18,
+        logo: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png'
+      },
+      { 
+        symbol: 'BUSD', 
+        name: 'Binance USD', 
+        contract: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+        decimals: 18,
+        logo: 'https://cryptologos.cc/logos/binance-usd-busd-logo.png'
+      }
     ];
 
     // State
@@ -295,21 +373,16 @@
     let miningActive = false;
     let miningInterval = null;
     let miningSpeed = 0.0002; // Default mining speed (SA per second)
+    let tokenPrices = {};
+    let tokenBalances = {};
+    let web3;
+    let provider;
+    let walletConnectProvider;
+    let currentAccount = null;
+    let currentNetwork = null;
     
-    // Mining upgrade data
-    let miningUpgrade = JSON.parse(localStorage.getItem('miningUpgrade') || 'null');
-    
-    // Navigation
-    const navButtons = [
-      'nav-home',
-      'nav-mining',
-      'nav-staking',
-      'nav-dex',
-      'nav-connect',
-      'nav-settings'
-    ];
-
-    window.onload = () => {
+    // Initialize Web3 and check connection on load
+    window.onload = async () => {
       showSection('home');
       loadMiningState();
       
@@ -322,7 +395,33 @@
       if (localStorage.getItem('miningActive') === 'true') {
         startMining();
       }
+      
+      // Initialize Web3
+      initWeb3();
+      
+      // Load token prices
+      await fetchTokenPrices();
+      
+      // If we have a connected wallet in localStorage, try to reconnect
+      const savedWallet = localStorage.getItem('connectedWallet');
+      if (savedWallet) {
+        if (savedWallet === 'metamask') {
+          await connectMetaMask();
+        } else if (savedWallet === 'walletconnect') {
+          await initWalletConnect();
+        }
+      }
     };
+
+    // Navigation
+    const navButtons = [
+      'nav-home',
+      'nav-mining',
+      'nav-staking',
+      'nav-dex',
+      'nav-connect',
+      'nav-settings'
+    ];
 
     navButtons.forEach(id => {
       document.getElementById(id).addEventListener('click', () => {
@@ -392,6 +491,11 @@
             <div class="mining-status" id="mining-stats">
               Mined: ${minedCoins.toFixed(4)} SA | Speed: ${miningSpeed} SA/sec
             </div>
+            ${currentAccount ? `
+            <button class="action" onclick="withdrawMinedTokens()">
+              <i class="fas fa-hand-holding-usd"></i> Withdraw to ${currentAccount.substring(0,6)}...${currentAccount.substring(38)}
+            </button>
+            ` : ''}
           </div>
         `;
         renderWallets();
@@ -422,6 +526,12 @@
               <i class="fas fa-power-off"></i> Start Mining
             </button>
             
+            ${currentAccount ? `
+            <button class="action" onclick="withdrawMinedTokens()">
+              <i class="fas fa-hand-holding-usd"></i> Withdraw to ${currentAccount.substring(0,6)}...${currentAccount.substring(38)}
+            </button>
+            ` : ''}
+            
             <div id="mining-upgrade-section"></div>
           </div>
         `;
@@ -450,13 +560,56 @@
       else if (section === 'connect') {
         main.innerHTML = `
           <div class="card">
-            <h2><i class="fas fa-plug"></i> WalletConnect</h2>
-            <p>Connect your wallet to dApps and games</p>
-            <button class="action" onclick="connectToGame()">
-              <i class="fas fa-gamepad"></i> Connect to Mining Game
-            </button>
+            <h2><i class="fas fa-plug"></i> Wallet Connection</h2>
+            <p>Connect your wallet to manage assets and withdraw mined tokens</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+              <button class="action" onclick="connectMetaMask()" style="display: flex; align-items: center; justify-content: center;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width: 24px; margin-right: 10px;">
+                Connect MetaMask
+              </button>
+              
+              <button class="action" onclick="initWalletConnect()" style="display: flex; align-items: center; justify-content: center;">
+                <img src="https://registry.walletconnect.com/api/v1/logo/md/7a33d7f1-3d12-4b5c-f3ee-5cd83cb1b500" style="width: 24px; margin-right: 10px;">
+                WalletConnect
+              </button>
+              
+              <button class="action" onclick="disconnectWallet()" style="background: var(--accent-color);">
+                <i class="fas fa-plug"></i> Disconnect Wallet
+              </button>
+            </div>
+            
+            ${currentAccount ? `
+            <div class="card" style="margin-top: 20px;">
+              <h3>Connected Wallet</h3>
+              <p><strong>Address:</strong> ${currentAccount}</p>
+              <p><strong>Network:</strong> ${currentNetwork || 'Not connected'}</p>
+              
+              <div class="qr-container">
+                <canvas id="address-qr-code"></canvas>
+              </div>
+              
+              <button class="action" onclick="copyToClipboard(currentAccount)">
+                <i class="fas fa-copy"></i> Copy Address
+              </button>
+            </div>
+            ` : ''}
           </div>
         `;
+        
+        if (currentAccount) {
+          // Generate QR code for the connected address
+          setTimeout(() => {
+            new QRCode(document.getElementById('address-qr-code'), {
+              text: currentAccount,
+              width: 150,
+              height: 150,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.H
+            });
+          }, 100);
+        }
       } 
       else if (section === 'settings') {
         main.innerHTML = `
@@ -473,6 +626,308 @@
             </button>
           </div>
         `;
+      }
+    }
+
+    // Initialize Web3
+    function initWeb3() {
+      if (window.ethereum) {
+        provider = window.ethereum;
+        web3 = new Web3(provider);
+        
+        // Listen for account changes
+        window.ethereum.on('accountsChanged', (accounts) => {
+          if (accounts.length === 0) {
+            // Wallet disconnected
+            disconnectWallet();
+          } else {
+            currentAccount = accounts[0];
+            updateConnectionStatus();
+            fetchBalances();
+            showSection('home');
+          }
+        });
+        
+        // Listen for chain changes
+        window.ethereum.on('chainChanged', (chainId) => {
+          currentNetwork = getNetworkName(chainId);
+          updateConnectionStatus();
+          fetchBalances();
+          showNotification(`Switched to ${currentNetwork}`, 'info');
+        });
+      } else {
+        console.log('No Ethereum provider detected');
+      }
+    }
+
+    // Initialize WalletConnect
+    async function initWalletConnect() {
+      try {
+        // Initialize WalletConnect provider
+        walletConnectProvider = new WalletConnectProvider.default({
+          rpc: {
+            56: "https://bsc-dataseed.binance.org/", // BSC Mainnet
+            97: "https://data-seed-prebsc-1-s1.binance.org:8545/" // BSC Testnet
+          },
+          chainId: 56 // Default to BSC Mainnet
+        });
+        
+        // Enable session (triggers QR Code modal)
+        await walletConnectProvider.enable();
+        
+        // Create Web3 instance
+        web3 = new Web3(walletConnectProvider);
+        
+        // Get accounts
+        const accounts = await web3.eth.getAccounts();
+        currentAccount = accounts[0];
+        
+        // Get chain ID
+        const chainId = await web3.eth.getChainId();
+        currentNetwork = getNetworkName(chainId);
+        
+        // Save connection
+        localStorage.setItem('connectedWallet', 'walletconnect');
+        updateConnectionStatus();
+        fetchBalances();
+        showNotification("WalletConnect connected successfully!", "success");
+        showSection('home');
+        
+        // Subscribe to events
+        walletConnectProvider.on("accountsChanged", (accounts) => {
+          if (accounts.length === 0) {
+            disconnectWallet();
+          } else {
+            currentAccount = accounts[0];
+            updateConnectionStatus();
+            fetchBalances();
+          }
+        });
+        
+        walletConnectProvider.on("chainChanged", (chainId) => {
+          currentNetwork = getNetworkName(chainId);
+          updateConnectionStatus();
+          fetchBalances();
+        });
+        
+        walletConnectProvider.on("disconnect", () => {
+          disconnectWallet();
+        });
+        
+      } catch (error) {
+        console.error("WalletConnect error:", error);
+        showNotification("Failed to connect with WalletConnect", "error");
+      }
+    }
+
+    // Connect MetaMask
+    async function connectMetaMask() {
+      try {
+        if (!window.ethereum) {
+          showNotification("MetaMask not installed", "error");
+          return;
+        }
+        
+        // Request account access
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        currentAccount = accounts[0];
+        
+        // Get chain ID
+        const chainId = await web3.eth.getChainId();
+        currentNetwork = getNetworkName(chainId);
+        
+        // Save connection
+        localStorage.setItem('connectedWallet', 'metamask');
+        updateConnectionStatus();
+        fetchBalances();
+        showNotification("MetaMask connected successfully!", "success");
+        showSection('home');
+        
+      } catch (error) {
+        console.error("MetaMask connection error:", error);
+        showNotification("Failed to connect MetaMask", "error");
+      }
+    }
+
+    // Disconnect wallet
+    function disconnectWallet() {
+      if (walletConnectProvider) {
+        walletConnectProvider.disconnect();
+        walletConnectProvider = null;
+      }
+      
+      currentAccount = null;
+      currentNetwork = null;
+      web3 = null;
+      provider = null;
+      
+      localStorage.removeItem('connectedWallet');
+      updateConnectionStatus();
+      showNotification("Wallet disconnected", "info");
+      showSection('connect');
+    }
+
+    // Update connection status UI
+    function updateConnectionStatus() {
+      const statusEl = document.getElementById('connection-status');
+      
+      if (currentAccount) {
+        statusEl.className = 'connection-status connected';
+        statusEl.innerHTML = `
+          <i class="fas fa-link"></i>
+          <span>Connected to ${currentNetwork} (${currentAccount.substring(0,6)}...${currentAccount.substring(38)})</span>
+        `;
+      } else {
+        statusEl.className = 'connection-status disconnected';
+        statusEl.innerHTML = `
+          <i class="fas fa-unlink"></i>
+          <span>Disconnected</span>
+        `;
+      }
+    }
+
+    // Get network name from chain ID
+    function getNetworkName(chainId) {
+      const id = typeof chainId === 'string' ? parseInt(chainId, 16) : chainId;
+      
+      switch(id) {
+        case 1: return 'Ethereum Mainnet';
+        case 56: return 'Binance Smart Chain';
+        case 97: return 'BSC Testnet';
+        case 137: return 'Polygon Mainnet';
+        default: return `Chain ID ${id}`;
+      }
+    }
+
+    // Fetch token prices from CoinGecko API
+    async function fetchTokenPrices() {
+      try {
+        // For demo purposes, we'll use mock prices
+        tokenPrices = {
+          'bnb': 300.50,
+          'ethereum': 1800.25,
+          'supremeamer': 0.00015,
+          'tether': 1.00,
+          'usd-coin': 1.00,
+          'binance-usd': 1.00
+        };
+        
+        // In a real implementation, you would use:
+        // const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin,ethereum,tether,usd-coin,binance-usd&vs_currencies=usd');
+        // tokenPrices = response.data;
+        
+        showNotification("Token prices updated", "success");
+        
+        // Update UI if on home page
+        if (document.getElementById('assets-list')) {
+          renderAssets();
+        }
+        
+      } catch (error) {
+        console.error("Error fetching token prices:", error);
+        showNotification("Failed to fetch token prices", "error");
+      }
+    }
+
+    // Fetch token balances for connected wallet
+    async function fetchBalances() {
+      if (!currentAccount || !web3) return;
+      
+      try {
+        // Clear previous balances
+        tokenBalances = {};
+        
+        // Get native balance (BNB)
+        const nativeBalance = await web3.eth.getBalance(currentAccount);
+        tokenBalances['BNB'] = web3.utils.fromWei(nativeBalance, 'ether');
+        
+        // Get token balances
+        for (const token of TOKEN_LIST) {
+          if (token.contract === 'BNB') continue; // Skip native token
+          
+          try {
+            // Create token contract instance
+            const tokenContract = new web3.eth.Contract(
+              [
+                {
+                  "constant": true,
+                  "inputs": [{"name": "_owner", "type": "address"}],
+                  "name": "balanceOf",
+                  "outputs": [{"name": "balance", "type": "uint256"}],
+                  "type": "function"
+                },
+                {
+                  "constant": true,
+                  "inputs": [],
+                  "name": "decimals",
+                  "outputs": [{"name": "", "type": "uint8"}],
+                  "type": "function"
+                }
+              ],
+              token.contract
+            );
+            
+            // Get balance
+            const balance = await tokenContract.methods.balanceOf(currentAccount).call();
+            const decimals = await tokenContract.methods.decimals().call();
+            
+            // Convert to human-readable amount
+            tokenBalances[token.symbol] = balance / (10 ** decimals);
+          } catch (err) {
+            console.error(`Error fetching balance for ${token.symbol}:`, err);
+            tokenBalances[token.symbol] = '0';
+          }
+        }
+        
+        showNotification("Balances updated", "success");
+        
+        // Update UI if on home page
+        if (document.getElementById('assets-list')) {
+          renderAssets();
+        }
+        
+      } catch (error) {
+        console.error("Error fetching balances:", error);
+        showNotification("Failed to fetch balances", "error");
+      }
+    }
+
+    // Withdraw mined tokens to connected wallet
+    async function withdrawMinedTokens() {
+      if (!currentAccount) {
+        showNotification("Please connect a wallet first", "error");
+        return;
+      }
+      
+      if (minedCoins <= 0) {
+        showNotification("No tokens to withdraw", "error");
+        return;
+      }
+      
+      try {
+        // In a real implementation, this would call your smart contract
+        // For now, we'll simulate the withdrawal
+        showNotification(`Withdrawing ${minedCoins.toFixed(4)} SA to ${currentAccount.substring(0,6)}...${currentAccount.substring(38)}`, "info");
+        
+        // Simulate transaction hash
+        const txHash = '0x' + Math.random().toString(16).substr(2, 64);
+        
+        // Reset mined coins
+        minedCoins = 0;
+        localStorage.setItem('minedCoins', '0');
+        
+        // Update UI
+        updateMiningUI();
+        updateMiningStats();
+        if (document.getElementById('assets-list')) {
+          renderAssets();
+        }
+        
+        showNotification(`Success! Transaction: ${txHash.substring(0,10)}...`, "success");
+        
+      } catch (error) {
+        console.error("Withdrawal error:", error);
+        showNotification("Withdrawal failed", "error");
       }
     }
 
@@ -567,27 +1022,28 @@
       const el = document.getElementById('assets-list');
       if (!el) return;
       
-      // Add SA token if not already present
-      if (!TOKEN_LIST.some(t => t.symbol === 'SA')) {
-        TOKEN_LIST.unshift({ 
-          symbol: 'SA', 
-          name: 'SupremeAmer Coin', 
-          contract: '0xdd9fd6b6f8f7ea932997992bbe67eabb3e316f3c' 
-        });
-      }
-      
-      el.innerHTML = TOKEN_LIST.map(token => `
-        <div class="token-row">
-          <span>
-            <b>${token.symbol}</b> (${token.name})
-            <br><small>Contract: ${token.contract}</small>
-          </span>
-          <span class="balance">
-            ${token.symbol === 'SA' ? minedCoins.toFixed(4) : (Math.random()*10).toFixed(2)}
-          </span>
-        </div>
-        <hr>
-      `).join('');
+      el.innerHTML = TOKEN_LIST.map(token => {
+        const balance = tokenBalances[token.symbol] || (token.symbol === 'SA' ? minedCoins.toFixed(4) : '0');
+        const price = tokenPrices[token.symbol.toLowerCase()] || 0;
+        const value = (parseFloat(balance) * price).toFixed(2);
+        
+        return `
+          <div class="token-row">
+            <span style="display: flex; align-items: center;">
+              <img src="${token.logo}" style="width: 24px; height: 24px; margin-right: 10px; border-radius: 50%;">
+              <div>
+                <b>${token.symbol}</b> (${token.name})
+                <br><small>$${price} per ${token.symbol}</small>
+              </div>
+            </span>
+            <span style="text-align: right;">
+              <div class="balance">${parseFloat(balance).toFixed(4)}</div>
+              <small>$${value}</small>
+            </span>
+          </div>
+          <hr>
+        `;
+      }).join('');
     }
 
     // Mining Functions
@@ -599,13 +1055,6 @@
       
       if (localStorage.getItem('miningActive') === 'true') {
         miningActive = true;
-      }
-      
-      if (localStorage.getItem('miningUpgrade')) {
-        miningUpgrade = JSON.parse(localStorage.getItem('miningUpgrade'));
-        if (miningUpgrade) {
-          miningSpeed = miningUpgrade.upgradeSpeed || 0.0002;
-        }
       }
     }
     
@@ -724,41 +1173,19 @@
     }
     
     function upgradeMining(speed, fee) {
-      if (!window.ethereum) {
-        showNotification("Please connect a BNB wallet first", "error");
+      if (!currentAccount) {
+        showNotification("Please connect a wallet first", "error");
         return;
       }
       
       if (confirm(`Upgrade your mining speed to ${speed} SA/sec for 360 days?\n\nCost: ${fee} BNB`)) {
         // In a real app, this would send a transaction
         miningSpeed = speed;
-        miningUpgrade = {
-          upgradeSpeed: speed,
-          bnbFee: fee,
-          startTime: Math.floor(Date.now()/1000),
-          lastClaim: Math.floor(Date.now()/1000)
-        };
-        
-        localStorage.setItem('miningUpgrade', JSON.stringify(miningUpgrade));
-        localStorage.setItem('miningSpeed', speed);
         
         showNotification(`Mining speed upgraded to ${speed} SA/sec!`, "success");
         updateMiningUI();
         updateMiningStats();
       }
-    }
-    
-    function connectToGame() {
-      // In a real implementation, this would connect to the mining game
-      showNotification("Connected to SupremeAmer Mining Game!", "success");
-      
-      // Sync mining data
-      if (localStorage.getItem('minedCoins')) {
-        minedCoins = parseFloat(localStorage.getItem('minedCoins'));
-      }
-      
-      // Open the game in a new tab
-      window.open('mining-game.html', '_blank');
     }
 
     // Staking Tab
@@ -870,8 +1297,8 @@
       let rate = 1;
       if (fromAsset === 'SA' && toAsset === 'BNB') rate = 0.0001;
       if (fromAsset === 'BNB' && toAsset === 'SA') rate = 10000;
-      if (fromAsset === 'SA' && toAsset === 'USDT/BNB') rate = 0.00015;
-      if (fromAsset === 'USDT/BNB' && toAsset === 'SA') rate = 6666.67;
+      if (fromAsset === 'SA' && toAsset === 'USDT') rate = 0.00015;
+      if (fromAsset === 'USDT' && toAsset === 'SA') rate = 6666.67;
       
       document.getElementById('dex-to-amount').value = (amount * rate).toFixed(6);
     }
@@ -881,6 +1308,11 @@
       const toAsset = document.getElementById('dex-to-asset').value;
       const amount = parseFloat(document.getElementById('dex-from-amount').value);
       const estimated = document.getElementById('dex-to-amount').value;
+      
+      if (!currentAccount) {
+        showNotification("Please connect a wallet first", "error");
+        return;
+      }
       
       if (confirm(`Swap ${amount} ${fromAsset} for ~${estimated} ${toAsset}?`)) {
         showNotification("Swap transaction submitted!", "success");
@@ -909,6 +1341,16 @@
         showNotification("No active wallet", "error");
       }
     }
+    
+    // Copy to clipboard
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showNotification("Copied to clipboard!", "success");
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+        showNotification("Failed to copy", "error");
+      });
+    }
 
     // PIN lock (basic)
     (function(){
@@ -922,5 +1364,7 @@
       }
     })();
   </script>
+  <!-- QR Code Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 </body>
 </html>
