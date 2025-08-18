@@ -125,7 +125,7 @@
     (async function checkAlreadyLoggedIn() {
       try {
         await account.get();
-        // Already logged in, redirect to main.html
+        // Already logged in, redirect to index.html
         window.location.href = 'main.html';
       } catch (e) {
         // Not logged in, stay on the login page
