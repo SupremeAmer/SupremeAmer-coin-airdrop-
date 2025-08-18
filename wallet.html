@@ -605,6 +605,11 @@
                 <div id="walletAddress" class="wallet-address" style="display:none;"></div>
                 <div class="balance" id="walletBalance">0 SA</div>
                 <div id="networkInfo"></div>
+                <!-- Referral Code Display -->
+                <div id="referralCodeDisplay" style="margin-top: 15px; display: none;">
+                    <strong>Your Referral Code:</strong>
+                    <div class="wallet-address" id="userReferralCode">SA-REF-123456</div>
+                </div>
             </div>
             
             <button id="connectWalletBtn" class="btn">
@@ -640,6 +645,12 @@
                 <div class="form-group">
                     <label for="userEmail">Email Address</label>
                     <input type="email" id="userEmail" placeholder="Enter your email" required>
+                </div>
+                
+                <!-- Referral Code Input -->
+                <div class="form-group">
+                    <label for="referralCode">Referral Code (Optional)</label>
+                    <input type="text" id="referralCode" placeholder="Enter referral code">
                 </div>
                 
                 <div class="form-group">
@@ -794,6 +805,9 @@
         document.getElementById('walletAddress').textContent = currentAccount;
         document.getElementById('walletAddress').style.display = 'block';
         
+        // Show referral code
+        document.getElementById('referralCodeDisplay').style.display = 'block';
+        
         // Get network name
         let networkName = 'Unknown';
         if (provider && provider.network) {
@@ -814,6 +828,7 @@
         
         document.getElementById('walletStatus').textContent = 'Please connect your wallet';
         document.getElementById('walletAddress').style.display = 'none';
+        document.getElementById('referralCodeDisplay').style.display = 'none';
         document.getElementById('networkInfo').textContent = '';
         document.getElementById('connectWalletBtn').style.display = 'inline-block';
         document.getElementById('connectWalletBtn').disabled = false;
@@ -837,6 +852,7 @@
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
         const recipientAddress = document.getElementById('recipientAddress').value;
         const userEmail = document.getElementById('userEmail').value;
+        const referralCode = document.getElementById('referralCode').value;
         const notes = document.getElementById('additionalNotes').value;
         
         if (!amount || amount < WITHDRAW_MIN_SA) {
@@ -874,6 +890,7 @@
                 amount: amount,
                 recipientAddress: recipientAddress,
                 userEmail: userEmail,
+                referralCode: referralCode || null,
                 notes: notes,
                 txHash: '0x' + Math.random().toString(36).substring(2, 66),
                 status: 'pending',
@@ -941,6 +958,7 @@
                 <div>
                     <div class="transaction-amount">${tx.amount} SA</div>
                     <div class="transaction-date">${formattedDate}</div>
+                    ${tx.referralCode ? `<div style="font-size:0.8em; margin-top:5px;">Ref: ${tx.referralCode}</div>` : ''}
                 </div>
                 <div class="transaction-status ${statusClass}">${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}</div>
             `;
@@ -1000,6 +1018,13 @@
         
         // Initialize transactions list
         updateTransactionsList();
+        
+        // Generate referral code if not exists
+        if (!localStorage.getItem('userReferralCode')) {
+            const refCode = 'SA-REF-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            localStorage.setItem('userReferralCode', refCode);
+        }
+        document.getElementById('userReferralCode').textContent = localStorage.getItem('userReferralCode');
         
         // Connect wallet button
         document.getElementById('connectWalletBtn').addEventListener('click', () => {
