@@ -144,7 +144,7 @@
         await account.createEmailSession(email, password);
 
         document.getElementById('success').textContent = 'Login successful! Redirecting...';
-        setTimeout(() => window.location.href = 'main.html', 1200);
+        setTimeout(() => window.location.href = 'index.html', 1200);
       } catch (err) {
         document.getElementById('error').textContent = (err.message || 'Login failed. Check your credentials.');
       }
