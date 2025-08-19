@@ -5,23 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SupremeAmer Coin Airdrop</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style id="theme-style">
+        :root {
+            --primary-color: #ff9800;
+            --secondary-color: #fdc500;
+            --accent-color: #ff3333;
+            --dark-bg: #111;
+            --light-bg: #fffde4;
+            --text-dark: #fff;
+            --text-light: #333;
+            --card-bg-dark: rgba(30, 30, 40, 0.95);
+            --card-bg-light: rgba(255,255,255,0.90);
+        }
+        
         body {
             font-family: 'Montserrat', Arial, sans-serif;
             min-height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #111 70%, #ff9800 100%);
-            color: #fff;
-            transition: background 0.3s, color 0.3s;
+            background: linear-gradient(135deg, var(--dark-bg) 70%, var(--primary-color) 100%);
+            color: var(--text-dark);
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            overflow-x: hidden;
         }
         body.light {
-            background: linear-gradient(135deg, #fffde4 60%, #f7b733 100%);
-            color: #333;
+            background: linear-gradient(135deg, var(--light-bg) 60%, #f7b733 100%);
+            color: var(--text-light);
         }
+        
+        /* Header Styles */
         .header {
             width: 100%;
             padding: 25px 0 10px 0;
@@ -30,13 +46,16 @@
             font-size: 2.4em;
             font-weight: bold;
             letter-spacing: 2px;
-            box-shadow: 0 2px 16px #ffeb3b33;
+            box-shadow: 0 2px 16px rgba(255, 235, 59, 0.2);
             position: relative;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            z-index: 1000;
         }
         body.light .header {
             background: rgba(255,255,255,0.75);
         }
+        
+        /* Profile Dropdown */
         .emoji-avatar {
             font-size: 2.1em;
             vertical-align: middle;
@@ -44,6 +63,10 @@
             border: none;
             cursor: pointer;
             outline: none;
+            transition: transform 0.2s;
+        }
+        .emoji-avatar:hover {
+            transform: scale(1.1);
         }
         .profile-dropdown-content {
             display: none;
@@ -53,39 +76,48 @@
             background: #222;
             min-width: 210px;
             border-radius: 10px;
-            box-shadow: 0 2px 16px #000a;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.67);
             z-index: 1001;
             color: #fff;
             font-size: 1em;
             margin-top: 6px;
             animation: fadeIn 0.22s;
             text-align: left;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         body.light .profile-dropdown-content {
-            background: #fff3;
+            background: rgba(255, 255, 255, 0.85);
             color: #222;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
-        @keyframes fadeIn { from { opacity: 0;} to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         .profile-dropdown-content hr {
             border: none;
             border-top: 1px solid #333;
             margin: 6px 0;
         }
         .profile-dropdown-content a {
-            color: #ff3333;
+            color: var(--accent-color);
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
             display: block;
-            transition: background 0.1s;
+            transition: all 0.2s;
             border-radius: 5px;
             padding: 8px 18px;
         }
         .profile-dropdown-content a:hover {
             background: #333;
+            color: #fff;
         }
+        body.light .profile-dropdown-content a:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Marquee */
         .marquee {
-            background: linear-gradient(90deg, #ff9800, #fdc500, #ff9800);
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--primary-color));
             color: #222;
             font-size: 1.2em;
             padding: 8px 0;
@@ -95,6 +127,8 @@
             overflow: hidden;
             position: relative;
             height: 1.5em;
+            width: 100%;
+            z-index: 999;
         }
         .marquee-text {
             display: inline-block;
@@ -103,28 +137,51 @@
             animation: marquee 15s linear infinite;
             white-space: nowrap;
             will-change: transform;
+            padding-right: 20px;
         }
         @keyframes marquee {
-            0%   { transform: translateX(0%);}
-            100% { transform: translateX(-100vw);}
+            0%   { transform: translateX(0%); }
+            100% { transform: translateX(-100vw); }
         }
+        
+        /* Main Container */
         .container {
-            background: rgba(30, 30, 40, 0.95);
+            background: var(--card-bg-dark);
             padding: 36px 32px 28px 32px;
             border-radius: 20px;
-            box-shadow: 0 8px 32px #0006;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38);
             text-align: center;
             max-width: 400px;
             width: 90%;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 184, 0, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            animation: rotate 60s linear infinite;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         body.light .container {
-            background: rgba(255,255,255,0.90);
-            color: #222;
+            background: var(--card-bg-light);
+            color: var(--text-light);
         }
+        
+        /* Coin Logo */
         #logoContainer {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             margin: 0 auto 10px auto;
             position: relative;
             display: flex;
@@ -132,50 +189,95 @@
             justify-content: center;
         }
         #coinLogo {
-            width: 80px !important;
-            height: 80px !important;
+            width: 100px !important;
+            height: 100px !important;
             border-radius: 50%;
-            box-shadow: 0 2px 8px #ff980066;
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
             z-index: 2;
             position: relative;
+            border: 3px solid var(--primary-color);
+            transition: all 0.3s;
         }
+        #coinLogo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(255, 152, 0, 0.6);
+        }
+        
+        /* Stats Display */
         .mined-coins {
             font-size: 2.3em;
             margin: 14px 0;
-            color: #ffb900;
+            color: var(--secondary-color);
             font-weight: 700;
             letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         .timer {
             font-size: 1.5em;
-            color: #ff3333;
+            color: var(--accent-color);
             margin-bottom: 18px;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 5px 10px;
+            border-radius: 8px;
         }
+        .timer:hover {
+            background: rgba(255, 51, 51, 0.1);
+        }
+        
+        /* Buttons */
         .mine-btn, .withdraw-btn {
             padding: 15px 38px;
-            background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%);
+            background: linear-gradient(90deg, var(--secondary-color) 40%, var(--primary-color) 100%);
             color: #111;
             border: none;
             border-radius: 8px;
             font-size: 1.2em;
             font-weight: bold;
             cursor: pointer;
-            transition: box-shadow 0.2s, background 0.2s;
-            box-shadow: 0 4px 16px #ff980066;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(255, 152, 0, 0.4);
             margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
         }
         .mine-btn:hover, .withdraw-btn:hover {
-            background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%);
-            box-shadow: 0 8px 24px #ff980099;
+            background: linear-gradient(90deg, var(--primary-color) 40%, var(--secondary-color) 100%);
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.6);
+            transform: translateY(-2px);
+        }
+        .mine-btn:active, .withdraw-btn:active {
+            transform: translateY(0);
+        }
+        .mine-btn::after, .withdraw-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            pointer-events: none;
+        }
+        .mine-btn:hover::after, .withdraw-btn:hover::after {
+            left: 100%;
         }
         .withdraw-btn[disabled] {
             opacity: 0.65;
             cursor: not-allowed;
+            background: #ccc;
+            box-shadow: none;
         }
+        .withdraw-btn[disabled]:hover {
+            transform: none;
+        }
+        
         .upgrade-btn {
             padding: 13px 32px;
-            background: linear-gradient(90deg, #ece9e6 0%, #ff9800 100%);
+            background: linear-gradient(90deg, #ece9e6 0%, var(--primary-color) 100%);
             color: #222;
             border: none;
             border-radius: 8px;
@@ -183,20 +285,51 @@
             font-weight: bold;
             cursor: pointer;
             margin-bottom: 10px;
-            box-shadow: 0 2px 8px #ffb90044;
+            box-shadow: 0 2px 8px rgba(255, 185, 0, 0.27);
+            transition: all 0.2s;
         }
         .upgrade-btn:hover {
             background: linear-gradient(90deg, #ffe259, #ffa751);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 185, 0, 0.4);
         }
+        
+        /* Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .particle {
+            position: absolute;
+            background: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float linear infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+        
         /* Upgrade Modal */
         #upgradeModal {
             display: none;
             position: fixed;
             z-index: 2002;
-            left: 0; top: 0; width: 100vw; height: 100vh;
+            left: 0; 
+            top: 0; 
+            width: 100vw; 
+            height: 100vh;
             background: rgba(0,0,0,0.6);
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s;
         }
         #upgradeModalContent {
             background: #fff;
@@ -206,8 +339,13 @@
             max-width: 340px;
             width: 90vw;
             text-align: center;
-            box-shadow: 0 8px 32px #0005;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.31);
             position: relative;
+            transform: scale(0.95);
+            animation: modalAppear 0.3s forwards;
+        }
+        @keyframes modalAppear {
+            to { transform: scale(1); }
         }
         #upgradeModalContent .close-btn {
             position: absolute;
@@ -216,8 +354,12 @@
             font-size: 1.5em;
             background: none;
             border: none;
-            color: #ff9800;
+            color: var(--primary-color);
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        #upgradeModalContent .close-btn:hover {
+            transform: rotate(90deg);
         }
         .upgrade-plan {
             margin: 18px 0 10px 0;
@@ -225,20 +367,29 @@
             border-radius: 11px;
             background: #fffbe6;
             color: #333;
-            box-shadow: 0 2px 8px #ffd70044;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.27);
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+        }
+        .upgrade-plan:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
         }
         .upgrade-plan .plan-title {
             font-weight: bold;
             font-size: 1.07em;
             margin-bottom: 7px;
-            color: #ff9800;
+            color: var(--primary-color);
         }
         .upgrade-plan .plan-desc {
             font-size: 0.98em;
+            margin-bottom: 10px;
         }
         .upgrade-plan .plan-action {
             margin-top: 9px;
         }
+        
+        /* Footer */
         .footer {
             width: 100%;
             display: flex;
@@ -250,33 +401,73 @@
             bottom: 0;
             left: 0;
             border-radius: 18px 18px 0 0;
-            box-shadow: 0 -4px 24px #ff980022;
+            box-shadow: 0 -4px 24px rgba(255, 152, 0, 0.13);
             z-index: 999;
+            backdrop-filter: blur(5px);
         }
         .footer button {
             background: #fff;
-            color: #ff9800;
+            color: var(--primary-color);
             border: none;
             border-radius: 50%;
             width: 52px;
             height: 52px;
-            font-size: 2em;
+            font-size: 1.5em;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px #2222;
-            transition: background 0.2s, color 0.2s;
+            box-shadow: 0 2px 8px rgba(34, 34, 34, 0.13);
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
         }
         .footer button:hover {
-            background: #ff9800;
+            background: var(--primary-color);
+            color: #fff;
+            transform: translateY(-5px);
+        }
+        .footer button.active {
+            background: var(--primary-color);
             color: #fff;
         }
+        .footer button .tooltip {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s;
+        }
+        .footer button:hover .tooltip {
+            opacity: 1;
+            bottom: 65px;
+        }
+        
+        /* Status Messages */
         .claim-status, .withdraw-status {
             margin: 7px 0 0 0;
-            color: #ffd700;
+            color: var(--secondary-color);
             font-size: 0.97em;
             min-height: 18px;
+            transition: all 0.3s;
         }
+        .success-message {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .error-message {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        /* Light/Dark Toggle */
         .light-toggle {
             position: absolute;
             left: 28px;
@@ -284,80 +475,231 @@
             font-size: 1.7em;
             background: none;
             border: none;
-            color: #ffd700;
+            color: var(--secondary-color);
             cursor: pointer;
             z-index: 101;
+            transition: all 0.3s;
+        }
+        .light-toggle:hover {
+            transform: rotate(30deg);
         }
         body.light .light-toggle {
-            color: #ff9800;
+            color: var(--primary-color);
         }
+        
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            transform: translateX(200%);
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification.success {
+            background: #4CAF50;
+        }
+        .notification.error {
+            background: var(--accent-color);
+        }
+        .notification i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        /* Responsive */
         @media (max-width:600px) {
-            .profile-dropdown-content { min-width: 140px; font-size:0.95em;}
-            #logoContainer { width: 60px; height: 60px; }
-            #coinLogo { width: 60px !important; height: 60px !important; }
+            .profile-dropdown-content { 
+                min-width: 140px; 
+                font-size:0.95em;
+                right: 3vw;
+            }
+            #logoContainer { width: 80px; height: 80px; }
+            #coinLogo { width: 80px !important; height: 80px !important; }
             .container { padding: 18px 4vw 18px 4vw;}
-            .mined-coins { font-size:1.3em;}
+            .mined-coins { font-size:1.8em;}
+            .header { font-size: 1.8em; padding-top: 15px; }
+            .light-toggle { left: 15px; top: 15px; font-size: 1.4em; }
+            #profileDropdownBtn { right: 15px; top: 10px; font-size: 1.8em; }
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 2001;
+            animation: confetti-fall 3s linear forwards;
+        }
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Notification System -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Notification message</span>
+    </div>
+    
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+    
     <div class="header">
         <button class="light-toggle" id="lightToggleBtn" aria-label="Toggle light/dark mode">🌙</button>
         SUPREMEAMER COIN AIRDROP 🚀💰
         <button id="profileDropdownBtn" class="emoji-avatar" style="position:absolute; top:18px; right:28px;">👤</button>
         <div id="profileDropdownMenu" class="profile-dropdown-content">
             <div id="dropdownUsername" style="padding:8px 18px; font-weight:bold;"><span class="emoji-avatar">🧑</span> </div>
-            <div id="dropdownEmail" style="padding:0 18px 8px 18px; color:#ffd700; font-size:0.96em;"><span class="emoji-avatar">✉️</span></div>
+            <div id="dropdownEmail" style="padding:0 18px 8px 18px; color:var(--secondary-color); font-size:0.96em;"><span class="emoji-avatar">✉️</span></div>
             <hr style="margin:8px 0; border:0; border-top:1px solid #333;">
-            <a href="#" id="logoutBtn" style="display:block; color:#ff3333; text-decoration:none; font-weight:500;">Logout</a>
+            <a href="#" id="logoutBtn" style="display:block; color:var(--accent-color); text-decoration:none; font-weight:500;">Logout</a>
         </div>
     </div>
+    
     <div class="marquee">
-        <span class="marquee-text">Welcome to $SA - Mine SupremeAmer coins and join the revolution! 🚀💰🎉</span>
+        <span class="marquee-text">🚀 Welcome to $SA - Mine SupremeAmer coins and join the revolution! 💰 Withdrawals on 9th & 13th each month 🎉</span>
     </div>
+    
     <div class="container">
-        <div style="font-size:1.5em; color:#fdc500; margin-bottom:6px;">Mining Dashboard</div>
+        <div style="font-size:1.5em; color:var(--secondary-color); margin-bottom:6px;">Mining Dashboard</div>
+        
         <div id="logoContainer">
-            <img id="coinLogo" src="supremeamer_coin.png" alt="SupremeAmer Coin">
+            <img id="coinLogo" src="supremeamer_coin.png" alt="SupremeAmer Coin" class="pulse">
         </div>
+        
         <div class="mined-coins" id="minedCoins">Mined Coins: 0 SA</div>
+        
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="miningProgress"></div>
+        </div>
+        
         <div class="timer" id="timer">07:00:00</div>
-        <button class="mine-btn" id="mineBtn">Start Mining</button>
-        <button class="upgrade-btn" id="showUpgradeBtn" style="margin-bottom: 16px;">Upgrade</button>
-        <button class="withdraw-btn" id="withdrawBtn">Withdraw (Min: 50,000 SA)</button>
+        
+        <button class="mine-btn" id="mineBtn">
+            <span id="mineBtnText">Start Mining</span>
+        </button>
+        
+        <button class="upgrade-btn" id="showUpgradeBtn" style="margin-bottom: 16px;">
+            <i class="fas fa-bolt" style="margin-right: 8px;"></i>Upgrade
+        </button>
+        
+        <button class="withdraw-btn" id="withdrawBtn">
+            <i class="fas fa-wallet" style="margin-right: 8px;"></i>Withdraw (Min: 50,000 SA)
+        </button>
+        
         <div class="claim-status" id="claimStatus"></div>
         <div class="withdraw-status" id="withdrawStatus"></div>
     </div>
+    
     <div class="footer">
-        <button onclick="window.location.href='index.html'" title="Home">🏠</button>
-        <button onclick="window.location.href='Task.html'" title="Tasks">📜</button>
-        <button onclick="window.location.href='wallet.html'" title="Wallet">💸</button>
-        <button onclick="window.location.href='dapp.html'" title="DApp">🎮</button>
+        <button onclick="window.location.href='index.html'" title="Home">
+            <i class="fas fa-home"></i>
+            <span class="tooltip">Home</span>
+        </button>
+        <button onclick="window.location.href='Task.html'" title="Tasks">
+            <i class="fas fa-tasks"></i>
+            <span class="tooltip">Tasks</span>
+        </button>
+        <button onclick="window.location.href='wallet.html'" title="Wallet">
+            <i class="fas fa-wallet"></i>
+            <span class="tooltip">Wallet</span>
+        </button>
+        <button onclick="window.location.href='dapp.html'" title="DApp">
+            <i class="fas fa-gamepad"></i>
+            <span class="tooltip">DApp</span>
+        </button>
     </div>
+    
     <!-- Upgrade Modal -->
     <div id="upgradeModal">
         <div id="upgradeModalContent">
             <button class="close-btn" onclick="hideUpgradeModal()">&times;</button>
-            <h3 style="color:#ff9800;margin-top:0;">Upgrade Mining Speed</h3>
+            <h3 style="color:var(--primary-color);margin-top:0;">Upgrade Mining Speed</h3>
+            
             <div class="upgrade-plan">
                 <div class="plan-title">🚀 0.05 SA/sec</div>
                 <div class="plan-desc">Duration: <b>360 days</b> <br> Fee: <b>0.002 BNB</b> <br> Claim every 30 days</div>
                 <div class="plan-action">
-                    <button class="upgrade-btn" style="padding:8px 18px;" onclick="upgradeMining('0.05')">Upgrade</button>
+                    <button class="upgrade-btn" style="padding:8px 18px;" onclick="upgradeMining('0.05')">
+                        <i class="fas fa-bolt" style="margin-right: 5px;"></i>Upgrade
+                    </button>
                 </div>
             </div>
+            
             <div class="upgrade-plan">
                 <div class="plan-title">🔥 0.1 SA/sec</div>
                 <div class="plan-desc">Duration: <b>360 days</b> <br> Fee: <b>0.009 BNB</b> <br> Claim every 30 days</div>
                 <div class="plan-action">
-                    <button class="upgrade-btn" style="padding:8px 18px;" onclick="upgradeMining('0.1')">Upgrade</button>
+                    <button class="upgrade-btn" style="padding:8px 18px;" onclick="upgradeMining('0.1')">
+                        <i class="fas fa-fire" style="margin-right: 5px;"></i>Upgrade
+                    </button>
                 </div>
             </div>
+            
             <div style="font-size:0.98em;color:#666;margin-top:12px;">
                After upgrade, mining speed increases for 360 days. You can claim mined rewards every 30 days. Mining continues even if you delay claim, but only for 360 days. After that, mining returns to 0.0002 SA/sec.
             </div>
         </div>
     </div>
+    
+    <!-- Confetti Container -->
+    <div id="confettiContainer"></div>
+    
     <!-- Appwrite SDK -->
     <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
@@ -391,6 +733,34 @@
     const account = new Account(client);
     const databases = new Databases(client);
 
+    // ---- Notification System ----
+    function showNotification(message, type = 'info', duration = 3000) {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+        
+        notificationText.textContent = message;
+        notification.className = 'notification';
+        
+        // Add type class
+        if (type === 'success') {
+            notification.classList.add('success');
+            notification.querySelector('i').className = 'fas fa-check-circle';
+        } else if (type === 'error') {
+            notification.classList.add('error');
+            notification.querySelector('i').className = 'fas fa-exclamation-circle';
+        } else {
+            notification.querySelector('i').className = 'fas fa-info-circle';
+        }
+        
+        // Show notification
+        notification.classList.add('show');
+        
+        // Hide after duration
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, duration);
+    }
+
     // ---- Profile Dropdown ----
     document.getElementById('profileDropdownBtn').onclick = function(e) {
         e.stopPropagation();
@@ -404,8 +774,15 @@
     document.getElementById('profileDropdownMenu').onclick = function(e) { e.stopPropagation(); };
     document.getElementById('logoutBtn').onclick = async function(e) {
         e.preventDefault();
-        try { await account.deleteSession('current'); } catch (err) {}
-        window.location.href = "login.html";
+        try { 
+            await account.deleteSession('current'); 
+            showNotification("Logged out successfully", "success");
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1000);
+        } catch (err) {
+            showNotification("Error logging out", "error");
+        }
     };
     async function displayUser() {
         try {
@@ -416,7 +793,9 @@
                 document.getElementById('dropdownUsername').innerHTML = `<span class="emoji-avatar">🧑</span> ${profile.name}`;
                 document.getElementById('dropdownEmail').innerHTML = `<span class="emoji-avatar">✉️</span> ${profile.email}`;
             }
-        } catch (err) {}
+        } catch (err) {
+            console.error("Error fetching user:", err);
+        }
     }
     displayUser();
 
@@ -437,6 +816,80 @@
     };
     // On load, restore theme
     if(localStorage.getItem('theme')==='light') setTheme(true);
+
+    // ---- Particles Background ----
+    function createParticles() {
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = window.innerWidth < 600 ? 30 : 50;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // Random size between 2px and 6px
+            const size = Math.random() * 4 + 2;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Random position
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.top = `${Math.random() * 100}vh`;
+            
+            // Random color
+            const colors = ['#ff9800', '#fdc500', '#ff3333', '#4CAF50', '#2196F3'];
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Random animation duration
+            const duration = Math.random() * 20 + 10;
+            particle.style.animationDuration = `${duration}s`;
+            
+            // Random delay
+            particle.style.animationDelay = `${Math.random() * 10}s`;
+            
+            particlesContainer.appendChild(particle);
+        }
+    }
+    createParticles();
+
+    // ---- Confetti Effect ----
+    function createConfetti() {
+        const container = document.getElementById('confettiContainer');
+        const colors = ['#ff9800', '#fdc500', '#ff3333', '#4CAF50', '#2196F3'];
+        
+        for (let i = 0; i < 100; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            
+            // Random position
+            confetti.style.left = `${Math.random() * 100}vw`;
+            
+            // Random size
+            const size = Math.random() * 10 + 5;
+            confetti.style.width = `${size}px`;
+            confetti.style.height = `${size}px`;
+            
+            // Random shape
+            if (Math.random() > 0.5) {
+                confetti.style.borderRadius = '50%';
+            } else {
+                confetti.style.borderRadius = '0';
+            }
+            
+            // Random color
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Random animation duration
+            const duration = Math.random() * 3 + 2;
+            confetti.style.animationDuration = `${duration}s`;
+            
+            container.appendChild(confetti);
+            
+            // Remove after animation
+            setTimeout(() => {
+                confetti.remove();
+            }, duration * 1000);
+        }
+    }
 
     // ---- Mining State ----
     let minedCoins = parseFloat(localStorage.getItem('minedCoins')||'0');
@@ -474,10 +927,12 @@
             lastClaim: Math.floor(Date.now()/1000)
         };
         localStorage.setItem('miningUpgrade', JSON.stringify(miningUpgrade));
+        showNotification(`Mining speed upgraded to ${speed} SA/sec!`, "success");
     }
     function endUpgrade() {
         miningUpgrade = null;
         localStorage.removeItem('miningUpgrade');
+        showNotification("Your mining upgrade has expired", "info");
     }
     function addMinedCoins(amount) {
         minedCoins += amount;
@@ -485,6 +940,25 @@
     }
     function updateMinedCoinsDisplay() {
         document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins.toFixed(4)} SA`;
+        
+        // Add animation when coins increase
+        const coinsElement = document.getElementById('minedCoins');
+        coinsElement.classList.add('bounce');
+        setTimeout(() => {
+            coinsElement.classList.remove('bounce');
+        }, 1000);
+    }
+    function updateProgressBar() {
+        const progressBar = document.getElementById('miningProgress');
+        if (isUpgradeActive()) {
+            const timeLeft = getUpgradeTimeLeft();
+            const progress = 100 - (timeLeft / UPGRADE_DURATION * 100);
+            progressBar.style.width = `${progress}%`;
+        } else {
+            const sessionElapsed = parseInt(localStorage.getItem('miningSessionElapsed')||'0');
+            const progress = (sessionElapsed / (7*3600)) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
     }
     function updateTimerDisplay() {
         if (isUpgradeActive()) {
@@ -527,23 +1001,43 @@
     document.getElementById('showUpgradeBtn').onclick = showUpgradeModal;
     window.upgradeMining = async function(speedKey){
         hideUpgradeModal();
-        if(isUpgradeActive()){ alert("Already upgraded!"); return; }
-        if(!window.ethereum) return alert("Connect a BNB wallet.");
-        if(!confirm(`Upgrade mining speed to ${UPGRADE_SPEEDS[speedKey]} SA/sec for 360 days? Cost: ${UPGRADE_FEES[speedKey]} BNB`)) return;
+        if(isUpgradeActive()){ 
+            showNotification("You already have an active upgrade!", "error");
+            return; 
+        }
+        if(!window.ethereum) {
+            showNotification("Please connect a BNB wallet first", "error");
+            return;
+        }
+        
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
+            const userAddr = await signer.getAddress();
+            
+            // Show confirmation with more details
+            const confirmed = confirm(`Upgrade mining speed to ${UPGRADE_SPEEDS[speedKey]} SA/sec for 360 days?\n\nCost: ${UPGRADE_FEES[speedKey]} BNB\n\nWallet: ${userAddr.substring(0,6)}...${userAddr.substring(38)}`);
+            if(!confirmed) return;
+            
+            showNotification("Processing upgrade transaction...", "info");
+            
             const tx = await signer.sendTransaction({
                 to: SUPREMEAMER_RECEIVER_BNB,
                 value: ethers.utils.parseEther(UPGRADE_FEES[speedKey])
             });
+            
+            showNotification("Transaction sent! Waiting for confirmation...", "info");
             await tx.wait();
+            
             setMiningUpgrade(UPGRADE_SPEEDS[speedKey], UPGRADE_FEES[speedKey]);
             updateUpgradeInfo();
             updateMinedCoinsDisplay();
-            alert("Upgrade successful! Mining speed increased.");
+            createConfetti();
+            
+            showNotification("Upgrade successful! Mining speed increased.", "success");
         } catch (e) {
-            alert("Upgrade cancelled or failed.");
+            console.error("Upgrade error:", e);
+            showNotification("Upgrade cancelled or failed", "error");
         }
     };
 
@@ -553,11 +1047,16 @@
         miningActive = true;
         let sessionStart = Date.now();
         let sessionElapsed = parseInt(localStorage.getItem('miningSessionElapsed')||'0');
+        
+        // Start mining animation
+        document.getElementById('mineBtn').innerHTML = '<i class="fas fa-cog fa-spin" style="margin-right: 8px;"></i> Mining...';
+        
         let sessionInterval = setInterval(function(){
             let speed = getCurrentSpeed();
             minedCoins += speed;
             localStorage.setItem('minedCoins', minedCoins);
             updateMinedCoinsDisplay();
+            updateProgressBar();
 
             if(!isUpgradeActive()){
                 let elapsed = Math.floor((Date.now()-sessionStart)/1000)+sessionElapsed;
@@ -566,8 +1065,9 @@
                     clearInterval(sessionInterval);
                     localStorage.setItem('miningSessionElapsed','0');
                     document.getElementById('mineBtn').disabled = false;
-                    document.getElementById('mineBtn').textContent = 'Start Mining';
+                    document.getElementById('mineBtn').innerHTML = '<span id="mineBtnText">Start Mining</span>';
                     updateTimerDisplay();
+                    showNotification("Mining session completed! Start again to continue.", "info");
                     return;
                 }
                 localStorage.setItem('miningSessionElapsed',elapsed);
@@ -576,7 +1076,7 @@
                 document.getElementById('timer').textContent = formatTime(getUpgradeTimeLeft());
             }
         }, 1000);
-        document.getElementById('mineBtn').textContent = 'Mining...';
+        
         document.getElementById('mineBtn').disabled = true;
     };
 
@@ -585,50 +1085,90 @@
         const status = document.getElementById('withdrawStatus');
         status.textContent = "";
         const today = new Date();
+        
+        // Check withdrawal day
         if (!WITHDRAW_DAYS.includes(today.getDate())) {
-            status.textContent = "Withdrawals only on 9th or 13th!";
+            status.textContent = `Withdrawals only on ${WITHDRAW_DAYS.join('th and ')}th each month!`;
+            status.classList.add('error-message');
             return;
         }
+        
+        // Check minimum balance
         if (minedCoins < WITHDRAW_MIN_SA) {
-            status.textContent = `Need at least ${WITHDRAW_MIN_SA} SA.`;
+            status.textContent = `Need at least ${WITHDRAW_MIN_SA} SA to withdraw.`;
+            status.classList.add('error-message');
             return;
         }
+        
+        // Check wallet connection
         if(!window.ethereum) {
-            status.textContent = "Connect a BNB wallet.";
+            status.textContent = "Please connect a BNB wallet first.";
+            status.classList.add('error-message');
             return;
         }
+        
         // Get connected wallet address
         let provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
         const userAddr = await signer.getAddress();
+        
         // Eligibility fee
         if (localStorage.getItem('withdrawEligible')!=='true') {
-            if (!confirm(`To withdraw, pay a onetime eligibility fee of 0.0017 BNB.`)) return;
+            const confirmed = confirm(`To withdraw, you need to pay a one-time eligibility fee of ${WITHDRAW_ELIGIBILITY_FEE_BNB} BNB.\n\nThis fee helps prevent abuse of the system.\n\nWallet: ${userAddr.substring(0,6)}...${userAddr.substring(38)}`);
+            if (!confirmed) {
+                status.textContent = "Withdrawal cancelled";
+                status.classList.add('error-message');
+                return;
+            }
+            
             try {
+                showNotification("Processing eligibility fee payment...", "info");
                 const tx = await signer.sendTransaction({
                     to: SUPREMEAMER_RECEIVER_BNB,
                     value: ethers.utils.parseEther(WITHDRAW_ELIGIBILITY_FEE_BNB)
                 });
+                
+                showNotification("Transaction sent! Waiting for confirmation...", "info");
                 await tx.wait();
+                
                 localStorage.setItem('withdrawEligible','true');
-                alert("Eligibility fee paid.");
+                showNotification("Eligibility fee paid successfully!", "success");
             } catch(e) {
-                status.textContent = "Fee payment failed.";
+                status.textContent = "Fee payment failed. Please try again.";
+                status.classList.add('error-message');
+                showNotification("Fee payment failed", "error");
                 return;
             }
         }
-        // Withdraw (simulate: send to user's address)
+        
+        // Confirm withdrawal
         const withdrawAmount = minedCoins;
         const feeAmount = withdrawAmount * (WITHDRAW_FEE_PERCENT/100);
         const sendAmount = withdrawAmount - feeAmount;
+        
+        const confirmed = confirm(`Confirm withdrawal of ${withdrawAmount.toFixed(2)} SA?\n\nYou will receive: ${sendAmount.toFixed(2)} SA (${WITHDRAW_FEE_PERCENT}% fee)\n\nWallet: ${userAddr.substring(0,6)}...${userAddr.substring(38)}`);
+        if (!confirmed) {
+            status.textContent = "Withdrawal cancelled";
+            status.classList.add('error-message');
+            return;
+        }
+        
         status.textContent = "Processing withdrawal...";
+        status.classList.remove('error-message');
+        showNotification("Processing withdrawal transaction...", "info");
+        
+        // Simulate withdrawal processing
         setTimeout(() => {
             minedCoins = 0;
             localStorage.setItem('minedCoins', minedCoins);
             updateMinedCoinsDisplay();
             status.textContent = "";
-            alert(`Withdrawal submitted!\nSent ${sendAmount.toFixed(4)} SA to your wallet (${userAddr}). 6% fee (${feeAmount.toFixed(2)} SA) sent to project address.`);
-        }, 2000);
+            
+            createConfetti();
+            showNotification(`Withdrawal successful! ${sendAmount.toFixed(2)} SA sent to your wallet.`, "success");
+            
+            alert(`Withdrawal completed!\n\nSent: ${sendAmount.toFixed(2)} SA to ${userAddr}\nFee: ${feeAmount.toFixed(2)} SA (${WITHDRAW_FEE_PERCENT}%)\n\nThank you for using SupremeAmer Coin!`);
+        }, 3000);
     };
 
     // --- Claim logic (click timer to claim if ready) ---
@@ -638,13 +1178,23 @@
             const now = Math.floor(Date.now()/1000);
             let seconds = now - miningUpgrade.lastClaim;
             let claimAmount = seconds * miningUpgrade.upgradeSpeed;
+            
             minedCoins += claimAmount;
             miningUpgrade.lastClaim = now;
             localStorage.setItem('minedCoins', minedCoins);
             localStorage.setItem('miningUpgrade', JSON.stringify(miningUpgrade));
+            
             updateMinedCoinsDisplay();
             updateUpgradeInfo();
-            alert(`You claimed ${claimAmount.toFixed(4)} SA!`);
+            
+            createConfetti();
+            showNotification(`You claimed ${claimAmount.toFixed(4)} SA!`, "success");
+        } else if (isUpgradeActive()) {
+            const nextClaim = getNextClaimTime();
+            const now = Math.floor(Date.now()/1000);
+            const timeLeft = nextClaim - now;
+            
+            showNotification(`Next claim available in ${formatTime(timeLeft)}`, "info");
         }
     };
 
@@ -653,7 +1203,18 @@
         updateMinedCoinsDisplay();
         updateTimerDisplay();
         updateUpgradeInfo();
+        updateProgressBar();
         document.getElementById('mineBtn').disabled = false;
+        
+        // Check if upgrade expired
+        if (isUpgradeActive() && getUpgradeTimeLeft() <= 0) {
+            endUpgrade();
+        }
+        
+        // Show welcome message
+        setTimeout(() => {
+            showNotification("Welcome to SupremeAmer Coin Mining!", "info");
+        }, 1000);
     };
     </script>
 </body>
