@@ -707,12 +707,12 @@
         </button>
     </div>
     <script>
-    // ---- CONFIGURATION ----
+        // ---- CONFIGURATION ----
 const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
 const APPWRITE_PROJECT = '6839d9640019316a160d';
 const APPWRITE_DB_ID = '6839dcca000190bf99f6';
 const APPWRITE_COLLECTION_ID = 'users';
-const WITHDRAW_FEE_BNB = "0.0017"; // ~0.5$ worth of BNB
+const WITHDRAW_FEE_BNB = "0.0017";
 const WITHDRAW_MIN_SA = 50000;
 
 // Appwrite
@@ -736,7 +736,6 @@ function showMessage(elementId, message, type = 'info') {
     element.textContent = message;
     element.className = 'status-message ' + type;
     element.style.display = 'block';
-
     if (type !== 'error') {
         setTimeout(() => {
             element.style.display = 'none';
@@ -757,10 +756,9 @@ function setupWeb3Modal() {
             walletconnect: {
                 package: window.WalletConnectProvider.default,
                 options: {
-                    infuraId: "c3b1dbb8edc0417e8c0a1c4c1c8e0fbe", // Use your Infura ID or a public one
+                    infuraId: "c3b1dbb8edc0417e8c0a1c4c1c8e0fbe",
                 }
             }
-            // Injected wallets (MetaMask, TrustWallet, Binance) are supported by default
         }
     });
 }
@@ -772,7 +770,7 @@ async function connectWallet(type = 'injected') {
 
     try {
         if (type === 'walletconnect') {
-            if(!walletModal) setupWeb3Modal();
+            if (!walletModal) setupWeb3Modal();
             const instance = await walletModal.connectTo('walletconnect');
             web3Provider = new ethers.providers.Web3Provider(instance);
             const accounts = await web3Provider.listAccounts();
@@ -780,8 +778,11 @@ async function connectWallet(type = 'injected') {
             provider = web3Provider;
             walletType = 'walletconnect';
 
-            // Listen for disconnect
-            instance.on("disconnect", disconnectWallet);
+            // Listen for disconnect only once
+            instance.removeAllListeners && instance.removeAllListeners("disconnect");
+            instance.on && instance.on("disconnect", () => {
+                disconnectWallet();
+            });
 
         } else if (type === 'injected') {
             if (window.ethereum) {
@@ -809,7 +810,7 @@ async function connectWallet(type = 'injected') {
         }
 
         signer = provider.getSigner();
-        const network = await provider.getNetwork();
+        await provider.getNetwork();
 
         updateWalletUI();
         showMessage('walletMessage', 'Wallet connected successfully!', 'success');
@@ -832,8 +833,6 @@ function updateWalletUI() {
     document.getElementById('walletStatus').textContent = 'Wallet Connected';
     document.getElementById('walletAddress').textContent = currentAccount;
     document.getElementById('walletAddress').style.display = 'block';
-
-    // Show referral code
     document.getElementById('referralCodeDisplay').style.display = 'block';
 
     // Get network name
@@ -858,7 +857,8 @@ function disconnectWallet() {
     walletType = null;
     web3Provider = null;
 
-    if (walletModal && walletModal.clearCachedProvider) {
+    // Only clear cached provider if walletType is walletconnect
+    if (walletType === 'walletconnect' && walletModal && walletModal.clearCachedProvider) {
         walletModal.clearCachedProvider();
     }
 
@@ -901,7 +901,6 @@ async function submitWithdrawal(e) {
         return;
     }
 
-    // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(userEmail)) {
         showMessage('withdrawMessage', 'Please enter a valid email address', 'error');
@@ -909,7 +908,6 @@ async function submitWithdrawal(e) {
     }
 
     try {
-        // Show confirmation
         const confirmed = confirm(`Confirm withdrawal request for ${amount} SA to ${formatAddress(recipientAddress)}?\n\nA fee of ${WITHDRAW_FEE_BNB} BNB will be charged.`);
         if (!confirmed) return;
 
@@ -918,10 +916,8 @@ async function submitWithdrawal(e) {
 
         showMessage('withdrawMessage', 'Processing withdrawal request...', 'info');
 
-        // Simulate transaction processing
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Simulate sending email
         const withdrawalData = {
             amount: amount,
             recipientAddress: recipientAddress,
@@ -933,7 +929,6 @@ async function submitWithdrawal(e) {
             date: new Date().toISOString()
         };
 
-        // Save to localStorage
         let withdrawals = JSON.parse(localStorage.getItem('withdrawals') || '[]');
         if (typeof withdrawals === 'string') {
             withdrawals = JSON.parse(withdrawals);
@@ -941,10 +936,8 @@ async function submitWithdrawal(e) {
         withdrawals.push(withdrawalData);
         localStorage.setItem('withdrawals', JSON.stringify(withdrawals));
 
-        // Update transactions list
         updateTransactionsList();
 
-        // Reset form
         document.getElementById('withdrawForm').reset();
         if (currentAccount) {
             document.getElementById('recipientAddress').value = currentAccount;
@@ -1010,16 +1003,11 @@ function setupTabs() {
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            // Remove active class from all tabs and contents
             tabs.forEach(t => t.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
-
-            // Add active class to clicked tab and corresponding content
             tab.classList.add('active');
             const tabId = tab.getAttribute('data-tab');
             document.getElementById(`${tabId}-tab`).classList.add('active');
-
-            // Refresh transactions list if that tab is selected
             if (tabId === 'transactions') {
                 updateTransactionsList();
             }
@@ -1049,55 +1037,40 @@ function toggleTheme() {
 
 // ---- Initialize App ----
 document.addEventListener('DOMContentLoaded', () => {
-    // Set up tabs
     setupTabs();
-
-    // Initialize transactions list
     updateTransactionsList();
 
-    // Generate referral code if not exists
     if (!localStorage.getItem('userReferralCode')) {
         const refCode = 'SA-REF-' + Math.random().toString(36).substring(2, 8).toUpperCase();
         localStorage.setItem('userReferralCode', refCode);
     }
     document.getElementById('userReferralCode').textContent = localStorage.getItem('userReferralCode');
 
-    // Connect wallet button
     document.getElementById('connectWalletBtn').addEventListener('click', () => {
         document.getElementById('walletOptions').style.display = 'flex';
     });
 
-    // Disconnect wallet button
     document.getElementById('disconnectWalletBtn').addEventListener('click', disconnectWallet);
 
-    // Wallet option buttons
     document.getElementById('metamaskOption').addEventListener('click', () => connectWallet('injected'));
     document.getElementById('trustWalletOption').addEventListener('click', () => connectWallet('injected'));
     document.getElementById('binanceWalletOption').addEventListener('click', () => connectWallet('injected'));
     document.getElementById('walletConnectOption').addEventListener('click', () => connectWallet('walletconnect'));
 
-    // Close wallet options
     document.getElementById('closeWalletOptions').addEventListener('click', () => {
         document.getElementById('walletOptions').style.display = 'none';
     });
 
-    // Withdraw form submission
     document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
-
-    // Refresh transactions button
     document.getElementById('refreshTransactionsBtn').addEventListener('click', updateTransactionsList);
-
-    // Theme toggle
     document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
 
-    // Profile dropdown
     document.getElementById('profileDropdownBtn').addEventListener('click', function(e) {
         e.stopPropagation();
         const menu = document.getElementById('profileDropdownMenu');
         menu.style.display = menu.style.display === "block" ? "none" : "block";
     });
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.profile-dropdown-content') && 
             !e.target.closest('#profileDropdownBtn')) {
@@ -1105,32 +1078,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Logout
     document.getElementById('logoutBtn').addEventListener('click', async function(e) {
         e.preventDefault();
         try { 
-            // For demo, just redirect to login
             window.location.href = "login.html";
         } catch (err) {
             console.error("Error logging out:", err);
         }
     });
 
-    // On load, restore theme
     if(localStorage.getItem('theme') === 'light') {
         setTheme(true);
     } else {
         setTheme(false);
     }
 
-    // Web3Modal setup for WalletConnect
     setupWeb3Modal();
 
-    // Check if wallet is already connected (injected)
     if (window.ethereum && window.ethereum.selectedAddress) {
         connectWallet('injected');
     }
-});
+});    
+        
     </script>
     </body>
 </html>
