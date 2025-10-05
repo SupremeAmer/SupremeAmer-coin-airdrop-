@@ -1,9 +1,10 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SupremeAmer | Task Page</title>
+  <title>SupremeAmer | Task Center</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Complete tasks and earn SupremeAmer coins">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -21,6 +22,11 @@
       --radius: 18px;
       --shadow: 0 8px 28px #0006;
       --pulse: 0 0 15px rgba(255, 152, 0, 0.7);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    * {
+      box-sizing: border-box;
     }
     
     html, body {
@@ -31,6 +37,7 @@
       color: #fff;
       min-height: 100vh;
       width: 100vw;
+      overflow-x: hidden;
     }
     
     .header {
@@ -43,6 +50,7 @@
       letter-spacing: 2px;
       box-shadow: 0 2px 16px #ffeb3b33;
       position: relative;
+      z-index: 10;
     }
     
     .container {
@@ -54,6 +62,7 @@
       padding: 34px 22px 28px 22px;
       position: relative;
       overflow: hidden;
+      z-index: 1;
     }
     
     .container::before {
@@ -97,12 +106,56 @@
       box-shadow: 0 2px 10px #ff980033;
       word-break: break-word;
       justify-content: center;
-      transition: all 0.3s;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .balance-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.7s;
+    }
+    
+    .balance-bar:hover::before {
+      left: 100%;
     }
     
     .balance-bar:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 15px #ff980055;
+    }
+    
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      background: rgba(44, 44, 60, 0.7);
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+    }
+    
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .stat-value {
+      font-weight: 700;
+      color: var(--secondary);
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--gray);
     }
     
     .task-list {
@@ -119,7 +172,7 @@
       justify-content: space-between;
       align-items: center;
       border-left: 7px solid var(--primary);
-      transition: all 0.3s;
+      transition: var(--transition);
       box-shadow: 0 2px 8px #0003;
       position: relative;
       overflow: hidden;
@@ -170,6 +223,9 @@
       letter-spacing: 0.11em;
       color: var(--gray);
       margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
     
     .task-title {
@@ -191,7 +247,7 @@
       margin-left: 8px;
       display: inline-block;
       vertical-align: middle;
-      transition: all 0.3s;
+      transition: var(--transition);
     }
     
     .task-card:hover .task-reward {
@@ -242,7 +298,7 @@
       font-weight: 700;
       cursor: pointer;
       font-size: 14px;
-      transition: all 0.3s;
+      transition: var(--transition);
       box-shadow: 0 2px 6px #ff980033;
       position: relative;
       overflow: hidden;
@@ -301,7 +357,7 @@
       box-shadow: 0 6px 24px #0008;
       border: 2px solid #ffd670;
       opacity: 0;
-      transition: all 0.3s;
+      transition: var(--transition);
       backdrop-filter: blur(5px);
     }
     
@@ -386,7 +442,7 @@
       gap: 12px;
       padding: 8px 12px;
       border-radius: 6px;
-      transition: all 0.2s;
+      transition: var(--transition);
     }
     
     .modal-list li:hover {
@@ -401,6 +457,11 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      transition: var(--transition);
+    }
+    
+    .modal-list a:hover {
+      color: var(--primary);
     }
     
     .modal-list i {
@@ -417,7 +478,7 @@
       margin-top: 18px;
       font-size: 1rem;
       color: var(--text-dark);
-      transition: all 0.2s;
+      transition: var(--transition);
       width: 100%;
       box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
     }
@@ -492,7 +553,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 2px 8px rgba(34, 34, 34, 0.13);
-      transition: all 0.2s;
+      transition: var(--transition);
       cursor: pointer;
       position: relative;
     }
@@ -521,12 +582,44 @@
       white-space: nowrap;
       opacity: 0;
       pointer-events: none;
-      transition: all 0.2s;
+      transition: var(--transition);
     }
     
     .footer button:hover .tooltip {
       opacity: 1;
       bottom: 65px;
+    }
+    
+    /* Loading Spinner */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Progress Bar */
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      border-radius: 4px;
+      transition: width 0.3s ease;
     }
     
     /* Responsive */
@@ -599,9 +692,48 @@
         opacity: 0;
       }
     }
+    
+    /* Floating Particles */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 152, 0, 0.5);
+      border-radius: 50%;
+      animation: float 15s infinite linear;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="particles" id="particles"></div>
+  
   <div class="header">SUPREMEAMER COIN TASKS 📜</div>
   
   <div class="container">
@@ -611,6 +743,21 @@
       <span>Your Balance:</span>
       <span id="balance">0</span>
       <span style="font-size:0.98em;">SupremeAmer Coin</span>
+    </div>
+    
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-value" id="completedTasks">0</span>
+        <span class="stat-label">Completed</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="totalRewards">0</span>
+        <span class="stat-label">Total Earned</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="availableTasks">0</span>
+        <span class="stat-label">Available</span>
+      </div>
     </div>
     
     <div class="task-list" id="taskList"></div>
@@ -629,21 +776,24 @@
       </div>
       <ul class="modal-list">
         <li>
-          <a href="https://twitter.com/supremeamer" target="_blank">
+          <a href="https://twitter.com/supremeamer" target="_blank" id="twitter-link">
             <i class="fab fa-twitter"></i> Twitter
           </a>
         </li>
         <li>
-          <a href="https://t.me/supremeamer" target="_blank">
+          <a href="https://t.me/supremeamer" target="_blank" id="telegram-link">
             <i class="fab fa-telegram"></i> Telegram
           </a>
         </li>
         <li>
-          <a href="https://discord.gg/supremeamer" target="_blank">
+          <a href="https://discord.gg/supremeamer" target="_blank" id="discord-link">
             <i class="fab fa-discord"></i> Discord
           </a>
         </li>
       </ul>
+      <div class="progress-container">
+        <div class="progress-bar" id="social-progress" style="width: 0%"></div>
+      </div>
       <button class="close-modal" onclick="closeSocialModal()">
         <i class="fas fa-check"></i> Done
       </button>
@@ -703,6 +853,7 @@
     const TELEGRAM_JOINED_KEY = 'telegramJoined';
     const DISCORD_JOINED_KEY = 'discordJoined';
     const INVITED_FRIENDS_KEY = 'invitedFriends';
+    const TOTAL_REWARDS_KEY = 'totalTaskRewards';
     
     // --- Task Definitions ---
     const tasks = [
@@ -714,7 +865,7 @@
         description: 'Upgrade your mining speed to at least 0.05 SA/sec',
         reward: 500,
         verify: () => {
-          const speed = parseFloat(localStorage.getItem(MINING_SPEED_KEY) || 0.0002;
+          const speed = parseFloat(localStorage.getItem(MINING_SPEED_KEY) || 0.0002);
           return speed >= 0.05;
         },
         icon: 'fas fa-bolt'
@@ -726,7 +877,7 @@
         description: 'Invite friends to join SupremeAmer (check invites in your wallet)',
         reward: 100,
         verify: () => {
-          const invites = parseInt(localStorage.getItem(INVITED_FRIENDS_KEY) || 0;
+          const invites = parseInt(localStorage.getItem(INVITED_FRIENDS_KEY) || 0);
           return invites >= 5;
         },
         icon: 'fas fa-user-plus'
@@ -817,23 +968,37 @@
     // --- DOM Elements ---
     const taskListEl = document.getElementById('taskList');
     const balanceEl = document.getElementById('balance');
+    const completedTasksEl = document.getElementById('completedTasks');
+    const totalRewardsEl = document.getElementById('totalRewards');
+    const availableTasksEl = document.getElementById('availableTasks');
     const socialModalEl = document.getElementById('social-modal');
     const adModalEl = document.getElementById('ad-modal');
     const adProgressEl = document.getElementById('adProgress');
     const adCloseBtnEl = document.getElementById('adCloseBtn');
+    const socialProgressEl = document.getElementById('social-progress');
     
     // --- Initialization ---
     document.addEventListener('DOMContentLoaded', () => {
       renderBalance();
+      renderStats();
       renderTasks();
+      createParticles();
       
       // Initialize balance if not exists
       if (!localStorage.getItem(BALANCE_KEY)) {
         localStorage.setItem(BALANCE_KEY, '0');
       }
       
+      // Initialize total rewards if not exists
+      if (!localStorage.getItem(TOTAL_REWARDS_KEY)) {
+        localStorage.setItem(TOTAL_REWARDS_KEY, '0');
+      }
+      
       // Check for completed tasks
       checkCompletedTasks();
+      
+      // Update social progress
+      updateSocialProgress();
     });
     
     // --- Rendering Functions ---
@@ -842,10 +1007,34 @@
       balanceEl.textContent = balance.toFixed(4);
     }
     
+    function renderStats() {
+      // Count completed tasks
+      const completedCount = Object.keys(completedTasks).filter(id => completedTasks[id]).length;
+      completedTasksEl.textContent = completedCount;
+      
+      // Calculate total rewards
+      const totalRewards = parseFloat(localStorage.getItem(TOTAL_REWARDS_KEY) || '0');
+      totalRewardsEl.textContent = totalRewards.toFixed(2);
+      
+      // Calculate available tasks
+      const availableCount = tasks.length - completedCount;
+      availableTasksEl.textContent = availableCount;
+    }
+    
     function renderTasks() {
       taskListEl.innerHTML = '';
       
-      tasks.forEach(task => {
+      // Sort tasks by completion status (incomplete first)
+      const sortedTasks = [...tasks].sort((a, b) => {
+        const aCompleted = completedTasks[a.id];
+        const bCompleted = completedTasks[b.id];
+        
+        if (aCompleted && !bCompleted) return 1;
+        if (!aCompleted && bCompleted) return -1;
+        return 0;
+      });
+      
+      sortedTasks.forEach(task => {
         const isCompleted = completedTasks[task.id];
         const isVerifiable = task.verify && task.verify();
         
@@ -897,8 +1086,14 @@
       balance += reward;
       localStorage.setItem(BALANCE_KEY, balance.toString());
       
+      // Update total rewards
+      let totalRewards = parseFloat(localStorage.getItem(TOTAL_REWARDS_KEY) || '0');
+      totalRewards += reward;
+      localStorage.setItem(TOTAL_REWARDS_KEY, totalRewards.toString());
+      
       // Update UI
       renderBalance();
+      renderStats();
       renderTasks();
       
       // Show success message
@@ -923,6 +1118,21 @@
     function openSocialModal(taskId) {
       socialModalEl.setAttribute('data-taskid', taskId);
       socialModalEl.classList.add('show');
+      
+      // Update progress bar
+      updateSocialProgress();
+    }
+    
+    function updateSocialProgress() {
+      const socialTasks = ['follow-communities', 'join-telegram', 'join-discord'];
+      let completedCount = 0;
+      
+      socialTasks.forEach(taskId => {
+        if (completedTasks[taskId]) completedCount++;
+      });
+      
+      const progress = (completedCount / socialTasks.length) * 100;
+      socialProgressEl.style.width = `${progress}%`;
     }
     
     function closeSocialModal() {
@@ -942,6 +1152,9 @@
         localStorage.setItem(DISCORD_JOINED_KEY, 'true');
         completeTask(taskId, tasks.find(t => t.id === taskId).reward);
       }
+      
+      // Update social progress
+      updateSocialProgress();
     }
     
     function openAdModal(taskId) {
@@ -1049,11 +1262,43 @@
       }
     }
     
+    // --- Particles Effect ---
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 30;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Random position
+        particle.style.left = `${Math.random() * 100}vw`;
+        
+        // Random size
+        const size = Math.random() * 3 + 1;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random opacity
+        particle.style.opacity = Math.random() * 0.5 + 0.2;
+        
+        // Random animation delay and duration
+        const delay = Math.random() * 15;
+        const duration = Math.random() * 10 + 15;
+        particle.style.animationDelay = `${delay}s`;
+        particle.style.animationDuration = `${duration}s`;
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+    
     // --- Debug Helpers ---
     window.debugResetTasks = function() {
       localStorage.removeItem(COMPLETED_TASKS_KEY);
+      localStorage.removeItem(TOTAL_REWARDS_KEY);
       completedTasks = {};
       renderTasks();
+      renderStats();
       showPopup('success', 'Tasks reset!');
     };
     
@@ -1066,4 +1311,4 @@
     };
   </script>
 </body>
-</html>  
+</html>
