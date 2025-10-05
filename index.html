@@ -1991,7 +1991,10 @@
                     lastActive: new Date().toISOString(),
                     referralCode: `SA-REF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
                     referralCount: 0,
-                    referralEarnings: 0
+                    referralEarnings: 0,
+                    miningSessionStart: 0,
+                    miningSessionEnd: 0,
+                    miningActive: false
                 }
             );
             
@@ -2100,6 +2103,11 @@
                 document.getElementById('referralCount').textContent = userData.referralCount || 0;
                 document.getElementById('referralEarnings').textContent = userData.referralEarnings || 0;
                 
+                // Update mining session data
+                miningSessionStart = userData.miningSessionStart || 0;
+                miningSessionEnd = userData.miningSessionEnd || 0;
+                miningActive = userData.miningActive || false;
+                
                 // Update UI
                 updateMinedCoinsDisplay();
                 updateStats();
@@ -2133,7 +2141,10 @@
                     {
                         minedCoins: minedCoins,
                         totalMined: totalMined,
-                        lastActive: new Date().toISOString()
+                        lastActive: new Date().toISOString(),
+                        miningSessionStart: miningSessionStart,
+                        miningSessionEnd: miningSessionEnd,
+                        miningActive: miningActive
                     }
                 );
             }
@@ -2688,10 +2699,7 @@
     
     // ---- Persistent Mining Timer ----
     function checkPersistentMiningSession() {
-        miningSessionStart = parseInt(localStorage.getItem('miningSessionStart') || '0');
-        miningSessionEnd = parseInt(localStorage.getItem('miningSessionEnd') || '0');
-        miningActive = localStorage.getItem('miningActive') === 'true';
-        
+        // Check if we have an active mining session from Appwrite
         if (miningActive && miningSessionStart > 0 && miningSessionEnd > Date.now()) {
             // Calculate coins earned while offline
             const now = Date.now();
@@ -2701,11 +2709,12 @@
             
             // Continue mining
             document.getElementById('mineBtn').innerHTML = '<i class="fas fa-cog fa-spin" style="margin-right: 8px;"></i> Mining...';
-            document.getElementById('mineBtn').disabled = false;
+            document.getElementById('mineBtn').disabled = true;
             startMining();
         } else if (miningActive) {
             // Session expired
             stopMining();
+            showNotification("Your previous mining session has completed", "info");
         }
     }
     
@@ -2767,17 +2776,21 @@
 
     // ---- Enhanced Mining Logic ----
     function startMining() {
-        if (miningActive || !isLoggedIn) { return; }
+        if (miningActive || !isLoggedIn) { 
+            // If mining is already active, do nothing
+            if (miningActive) return;
+            
+            // If not logged in, show login modal
+            showNotification("Please login to start mining", "error");
+            showLoginModal();
+            return;
+        }
         
         miningActive = true;
-        localStorage.setItem('miningActive', 'true');
         
         // Set session start and end times
         miningSessionStart = Date.now();
         miningSessionEnd = miningSessionStart + miningSessionDuration;
-        
-        localStorage.setItem('miningSessionStart', miningSessionStart.toString());
-        localStorage.setItem('miningSessionEnd', miningSessionEnd.toString());
         
         // Start mining animation
         document.getElementById('mineBtn').innerHTML = '<i class="fas fa-cog fa-spin" style="margin-right: 8px;"></i> Mining...';
@@ -2808,14 +2821,21 @@
             updateSessionInfo();
             updateTimerDisplay();
             
+            // Update Appwrite every 30 seconds to save progress
+            if (miningTime % 30 === 0) {
+                updateUserInAppwrite();
+            }
+            
         }, 1000);
         
         document.getElementById('mineBtn').disabled = true;
+        
+        // Save mining state to Appwrite
+        updateUserInAppwrite();
     }
     
     function stopMining() {
         miningActive = false;
-        localStorage.setItem('miningActive', 'false');
         clearInterval(miningTimerInterval);
         document.getElementById('mineBtn').disabled = false;
         document.getElementById('mineBtn').innerHTML = '<i class="fas fa-hammer" style="margin-right: 8px;"></i><span id="mineBtnText">Start Mining</span>';
@@ -2823,14 +2843,16 @@
         // Reset session data
         miningSessionStart = 0;
         miningSessionEnd = 0;
-        localStorage.removeItem('miningSessionStart');
-        localStorage.removeItem('miningSessionEnd');
+        sessionEarnings = 0;
         
         // Reset session info display
         document.getElementById('sessionProgress').textContent = "0%";
         document.getElementById('sessionCompletion').textContent = "--:--:--";
         document.getElementById('sessionEarned').textContent = "0 SA";
         document.getElementById('miningProgress').style.width = "0%";
+        
+        // Update Appwrite
+        updateUserInAppwrite();
     }
 
     document.getElementById('mineBtn').onclick = function() {
@@ -2841,8 +2863,10 @@
         }
         
         if (miningActive) {
+            // If mining is active, stop it
             stopMining();
         } else {
+            // Only start mining if no active session
             startMining();
         }
     };
