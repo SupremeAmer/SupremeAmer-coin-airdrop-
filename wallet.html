@@ -6,12 +6,7 @@
     <title>SupremeAmer Wallet V2</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- WalletConnect V2 & Web3Modal dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@2.1.1/dist/umd/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web3modal@2.0.0/dist/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web3@4.0.3/dist/web3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.4.0/dist/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
     <style>
     :root {
         --primary-color: #FFB800;
@@ -650,7 +645,7 @@
             </div>
             <div class="wallet-option" id="walletConnectOption">
                 <img src="https://walletconnect.com/walletconnect-logo.png" alt="WalletConnect">
-                <span>WalletConnect V2 (Mobile)</span>
+                <span>WalletConnect (Mobile)</span>
             </div>
             <div class="wallet-option" id="coinbaseOption">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/coinbase-3-1174883.png" alt="Coinbase">
@@ -690,13 +685,6 @@
                     <strong>Your Referral Code:</strong>
                     <div class="wallet-address" id="userReferralCode">SA-REF-123456</div>
                 </div>
-            </div>
-            
-            <!-- QR Code for WalletConnect -->
-            <div class="qr-code-container" id="qrCodeContainer" style="display:none;">
-                <h4>Scan QR Code</h4>
-                <div class="qr-code" id="walletConnectQR"></div>
-                <p>Scan with your mobile wallet</p>
             </div>
             
             <button id="connectWalletBtn" class="btn">
@@ -836,19 +824,8 @@
     <!-- Main Logic Script -->
     <script>
     // ---- CONFIGURATION ----
-    const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
-    const APPWRITE_PROJECT = '6839d9640019316a160d';
-    const APPWRITE_DB_ID = '6839dcca000190bf99f6';
-    const APPWRITE_COLLECTION_ID = 'users';
     const WITHDRAW_FEE_BNB = "0.0017";
     const WITHDRAW_MIN_SA = 50000;
-    const WALLETCONNECT_PROJECT_ID = "c3b1dbb8edc0417e8c0a1c4c1c8e0fbe";
-
-    // Appwrite
-    const { Client, Account, Databases, Query } = Appwrite;
-    const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT);
-    const account = new Account(client);
-    const databases = new Databases(client);
 
     // Wallet state
     let walletConnected = false;
@@ -856,9 +833,6 @@
     let provider = null;
     let signer = null;
     let walletType = null;
-    let walletModal = null;
-    let web3Provider = null;
-    let walletConnectProvider = null;
 
     // ---- UI Functions ----
     function showMessage(elementId, message, type = 'info') {
@@ -878,83 +852,27 @@
         return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
     }
 
-    // ---- WalletConnect V2 & Modal Setup ----
-    function setupWeb3Modal() {
-        const providerOptions = {
-            walletconnect: {
-                package: window.WalletConnectProvider.default,
-                options: {
-                    projectId: WALLETCONNECT_PROJECT_ID,
-                    chains: [1, 56, 137], // Ethereum, BSC, Polygon
-                    showQrModal: true
-                }
-            },
-            coinbasewallet: {
-                package: window.CoinbaseWalletSDK,
-                options: {
-                    appName: "SupremeAmer Wallet",
-                    appLogo: "https://your-app-logo.com/logo.png",
-                    darkMode: !document.body.classList.contains('light')
-                }
-            }
-        };
-
-        walletModal = new window.Web3Modal.default({
-            cacheProvider: false,
-            providerOptions,
-            theme: document.body.classList.contains('light') ? 'light' : 'dark'
-        });
-    }
-
     // ---- Wallet Connection ----
     async function connectWallet(type = 'injected') {
         document.getElementById('connectWalletBtn').disabled = true;
         document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Connecting...';
 
         try {
-            if (type === 'walletconnect') {
-                if (!walletModal) setupWeb3Modal();
-                const instance = await walletModal.connectTo('walletconnect');
-                web3Provider = new ethers.BrowserProvider(instance);
-                const accounts = await web3Provider.listAccounts();
-                currentAccount = accounts[0].address;
-                provider = web3Provider;
-                walletType = 'walletconnect';
-
-                // Listen for disconnect
-                instance.on("disconnect", () => {
-                    disconnectWallet();
-                });
-
-            } else if (type === 'coinbase') {
-                if (!walletModal) setupWeb3Modal();
-                const instance = await walletModal.connectTo('coinbasewallet');
-                web3Provider = new ethers.BrowserProvider(instance);
-                const accounts = await web3Provider.listAccounts();
-                currentAccount = accounts[0].address;
-                provider = web3Provider;
-                walletType = 'coinbase';
-
-                // Listen for account change/disconnect
-                instance.on('accountsChanged', (accounts) => {
-                    if (accounts.length > 0) {
-                        currentAccount = accounts[0];
-                        updateWalletUI();
-                    } else {
-                        disconnectWallet();
-                    }
-                });
-
-            } else if (type === 'injected') {
+            if (type === 'injected') {
+                // MetaMask and other injected providers
                 if (window.ethereum) {
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    web3Provider = new ethers.BrowserProvider(window.ethereum);
-                    const accounts = await web3Provider.listAccounts();
-                    currentAccount = accounts[0].address;
-                    provider = web3Provider;
+                    // Request account access
+                    const accounts = await window.ethereum.request({ 
+                        method: 'eth_requestAccounts' 
+                    });
+                    
+                    // Create provider and signer
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    signer = await provider.getSigner();
+                    currentAccount = accounts[0];
                     walletType = 'injected';
-
-                    // Listen for account change/disconnect
+                    
+                    // Set up event listeners
                     window.ethereum.on('accountsChanged', (accounts) => {
                         if (accounts.length > 0) {
                             currentAccount = accounts[0];
@@ -963,16 +881,38 @@
                             disconnectWallet();
                         }
                     });
-                    window.ethereum.on('disconnect', disconnectWallet);
-
+                    
+                    window.ethereum.on('chainChanged', () => {
+                        window.location.reload();
+                    });
+                    
                 } else {
                     throw new Error('No Ethereum provider found. Please install MetaMask or another wallet.');
                 }
+            } else if (type === 'walletconnect') {
+                // For WalletConnect, we'll use a simplified approach
+                // In a real implementation, you'd use the WalletConnect library
+                showMessage('walletMessage', 'WalletConnect integration requires additional setup. Please use MetaMask for now.', 'info');
+                document.getElementById('connectWalletBtn').disabled = false;
+                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet" style="margin-right: 8px;"></i>Connect Wallet';
+                return;
+            } else if (type === 'coinbase') {
+                // For Coinbase Wallet
+                if (window.ethereum && window.ethereum.isCoinbaseWallet) {
+                    const accounts = await window.ethereum.request({ 
+                        method: 'eth_requestAccounts' 
+                    });
+                    
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    signer = await provider.getSigner();
+                    currentAccount = accounts[0];
+                    walletType = 'coinbase';
+                } else {
+                    throw new Error('Coinbase Wallet not detected. Please install Coinbase Wallet.');
+                }
             }
 
-            signer = await provider.getSigner();
-            await provider.getNetwork();
-
+            // Update UI with connected wallet info
             updateWalletUI();
             showMessage('walletMessage', 'Wallet connected successfully!', 'success');
             document.getElementById('recipientAddress').value = currentAccount;
@@ -996,14 +936,20 @@
         document.getElementById('walletAddress').style.display = 'block';
         document.getElementById('referralCodeDisplay').style.display = 'block';
 
-        // Get network name
-        let networkName = 'Unknown';
-        if (provider && provider._network) {
-            networkName = provider._network.name || `Chain ID: ${provider._network.chainId}`;
-            document.getElementById('networkInfo').textContent = `Network: ${networkName}`;
-        } else if (provider && provider.network) {
-            networkName = provider.network.name || `Chain ID: ${provider.network.chainId}`;
-            document.getElementById('networkInfo').textContent = `Network: ${networkName}`;
+        // Get network info
+        if (provider) {
+            provider.getNetwork().then(network => {
+                let networkName = 'Unknown';
+                switch (network.chainId) {
+                    case 1n: networkName = 'Ethereum Mainnet'; break;
+                    case 56n: networkName = 'Binance Smart Chain'; break;
+                    case 137n: networkName = 'Polygon'; break;
+                    case 42161n: networkName = 'Arbitrum'; break;
+                    case 10n: networkName = 'Optimism'; break;
+                    default: networkName = `Chain ID: ${network.chainId}`;
+                }
+                document.getElementById('networkInfo').textContent = `Network: ${networkName}`;
+            });
         }
 
         document.getElementById('connectWalletBtn').style.display = 'none';
@@ -1016,12 +962,6 @@
         provider = null;
         signer = null;
         walletType = null;
-        web3Provider = null;
-
-        // Only clear cached provider if walletType is walletconnect
-        if (walletType === 'walletconnect' && walletModal && walletModal.clearCachedProvider) {
-            walletModal.clearCachedProvider();
-        }
 
         document.getElementById('walletStatus').textContent = 'Please connect your wallet';
         document.getElementById('walletAddress').style.display = 'none';
@@ -1077,8 +1017,10 @@
 
             showMessage('withdrawMessage', 'Processing withdrawal request...', 'info');
 
+            // Simulate processing delay
             await new Promise(resolve => setTimeout(resolve, 2000));
 
+            // Create withdrawal record
             const withdrawalData = {
                 amount: amount,
                 recipientAddress: recipientAddress,
@@ -1090,15 +1032,13 @@
                 date: new Date().toISOString()
             };
 
+            // Save to localStorage
             let withdrawals = JSON.parse(localStorage.getItem('withdrawals') || '[]');
-            if (typeof withdrawals === 'string') {
-                withdrawals = JSON.parse(withdrawals);
-            }
             withdrawals.push(withdrawalData);
             localStorage.setItem('withdrawals', JSON.stringify(withdrawals));
 
+            // Update UI
             updateTransactionsList();
-
             document.getElementById('withdrawForm').reset();
             if (currentAccount) {
                 document.getElementById('recipientAddress').value = currentAccount;
@@ -1132,6 +1072,9 @@
             transactionsList.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">No transactions yet</div>';
             return;
         }
+
+        // Sort by date (newest first)
+        withdrawals.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         withdrawals.forEach(tx => {
             const txElement = document.createElement('div');
@@ -1201,18 +1144,21 @@
         setupTabs();
         updateTransactionsList();
 
+        // Generate referral code if not exists
         if (!localStorage.getItem('userReferralCode')) {
             const refCode = 'SA-REF-' + Math.random().toString(36).substring(2, 8).toUpperCase();
             localStorage.setItem('userReferralCode', refCode);
         }
         document.getElementById('userReferralCode').textContent = localStorage.getItem('userReferralCode');
 
+        // Event Listeners
         document.getElementById('connectWalletBtn').addEventListener('click', () => {
             document.getElementById('walletOptions').style.display = 'flex';
         });
 
         document.getElementById('disconnectWalletBtn').addEventListener('click', disconnectWallet);
 
+        // Wallet connection options
         document.getElementById('metamaskOption').addEventListener('click', () => connectWallet('injected'));
         document.getElementById('walletConnectOption').addEventListener('click', () => connectWallet('walletconnect'));
         document.getElementById('coinbaseOption').addEventListener('click', () => connectWallet('coinbase'));
@@ -1221,19 +1167,26 @@
             document.getElementById('walletOptions').style.display = 'none';
         });
 
+        // Form submission
         document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
+        
+        // Refresh buttons
         document.getElementById('refreshTransactionsBtn').addEventListener('click', updateTransactionsList);
-        document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
         document.getElementById('refreshTokensBtn').addEventListener('click', () => {
             showMessage('walletMessage', 'Token balances refreshed', 'success');
         });
 
+        // Theme toggle
+        document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+
+        // Profile dropdown
         document.getElementById('profileDropdownBtn').addEventListener('click', function(e) {
             e.stopPropagation();
             const menu = document.getElementById('profileDropdownMenu');
             menu.style.display = menu.style.display === "block" ? "none" : "block";
         });
 
+        // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.profile-dropdown-content') && 
                 !e.target.closest('#profileDropdownBtn')) {
@@ -1241,6 +1194,7 @@
             }
         });
 
+        // Logout
         document.getElementById('logoutBtn').addEventListener('click', async function(e) {
             e.preventDefault();
             try { 
@@ -1250,14 +1204,14 @@
             }
         });
 
+        // Set initial theme
         if(localStorage.getItem('theme') === 'light') {
             setTheme(true);
         } else {
             setTheme(false);
         }
 
-        setupWeb3Modal();
-
+        // Auto-connect if wallet was previously connected
         if (window.ethereum && window.ethereum.selectedAddress) {
             connectWallet('injected');
         }
