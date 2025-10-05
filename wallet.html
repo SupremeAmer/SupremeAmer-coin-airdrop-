@@ -41,7 +41,7 @@
         color: var(--text-light);
     }
     
-    /* Enhanced Header */
+    /* Header */
     .header {
         width: 100%;
         padding: 25px 0 10px 0;
@@ -60,7 +60,7 @@
         background: rgba(255,255,255,0.75);
     }
     
-    /* Enhanced Profile Dropdown */
+    /* Profile Dropdown */
     .emoji-avatar {
         font-size: 1.5em;
         vertical-align: middle;
@@ -143,7 +143,7 @@
         margin-right: 10px;
     }
     
-    /* Enhanced Marquee */
+    /* Marquee */
     .marquee {
         background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--primary-color));
         color: #222;
@@ -172,7 +172,7 @@
         100% { transform: translateX(-100vw); }
     }
     
-    /* Enhanced Main Container */
+    /* Main Container */
     .container {
         background: var(--card-bg-dark);
         padding: 36px 32px 28px 32px;
@@ -210,7 +210,7 @@
         border: 1px solid rgba(0, 0, 0, 0.1);
     }
     
-    /* Enhanced Wallet Info */
+    /* Wallet Info */
     .wallet-info {
         background: rgba(255, 184, 0, 0.1);
         border-radius: 12px;
@@ -241,7 +241,7 @@
         margin: 10px 0;
     }
     
-    /* Enhanced Form Styles */
+    /* Form Styles */
     .form-group {
         margin-bottom: 15px;
         text-align: left;
@@ -272,7 +272,7 @@
         box-shadow: 0 0 0 2px rgba(255, 184, 0, 0.2);
     }
     
-    /* Enhanced Buttons */
+    /* Buttons */
     .btn {
         padding: 12px 24px;
         background: linear-gradient(90deg, var(--secondary-color) 40%, var(--primary-color) 100%);
@@ -313,7 +313,7 @@
         background: linear-gradient(90deg, #777, #aaa);
     }
     
-    /* Enhanced Status Messages */
+    /* Status Messages */
     .status-message {
         margin: 15px 0;
         padding: 10px;
@@ -336,7 +336,7 @@
         border: 1px solid #2196F3;
     }
     
-    /* Enhanced Transaction History */
+    /* Transaction History */
     .transactions {
         margin-top: 20px;
         max-height: 300px;
@@ -383,7 +383,7 @@
         color: var(--accent-color);
     }
     
-    /* Enhanced Footer */
+    /* Footer */
     .footer {
         width: 100%;
         display: flex;
@@ -444,7 +444,7 @@
         bottom: 65px;
     }
     
-    /* Enhanced Tabs */
+    /* Tabs */
     .tabs {
         display: flex;
         margin-bottom: 20px;
@@ -465,7 +465,7 @@
         border-bottom: 3px solid rgba(255, 184, 0, 0.5);
     }
     
-    /* Enhanced Tab Content */
+    /* Tab Content */
     .tab-content {
         display: none;
     }
@@ -473,7 +473,7 @@
         display: block;
     }
     
-    /* Enhanced Wallet Connection Options */
+    /* Wallet Connection Options */
     .wallet-options {
         display: none;
         position: fixed;
@@ -532,66 +532,6 @@
         cursor: pointer;
     }
     
-    /* New Features */
-    .qr-code-container {
-        text-align: center;
-        margin: 20px 0;
-    }
-    .qr-code {
-        width: 150px;
-        height: 150px;
-        margin: 0 auto;
-        background: #fff;
-        border-radius: 10px;
-        padding: 10px;
-    }
-    .token-list {
-        margin-top: 20px;
-        max-height: 200px;
-        overflow-y: auto;
-    }
-    .token-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .token-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-    .token-details {
-        display: flex;
-        align-items: center;
-    }
-    .token-balance {
-        font-weight: bold;
-    }
-    .token-value {
-        color: #aaa;
-        font-size: 0.8em;
-    }
-    .network-selector {
-        position: relative;
-        display: inline-block;
-        margin-bottom: 15px;
-    }
-    .network-selector select {
-        background: rgba(0,0,0,0.2);
-        border: 1px solid rgba(255,184,0,0.3);
-        border-radius: 8px;
-        padding: 8px 12px;
-        color: var(--text-dark);
-        font-family: 'Montserrat', sans-serif;
-    }
-    body.light .network-selector select {
-        background: rgba(255,255,255,0.8);
-        color: var(--text-light);
-    }
-    
     /* Responsive */
     @media (max-width:600px) {
         .profile-dropdown-content { 
@@ -647,10 +587,6 @@
                 <img src="https://walletconnect.com/walletconnect-logo.png" alt="WalletConnect">
                 <span>WalletConnect (Mobile)</span>
             </div>
-            <div class="wallet-option" id="coinbaseOption">
-                <img src="https://cdn.iconscout.com/icon/free/png-256/coinbase-3-1174883.png" alt="Coinbase">
-                <span>Coinbase Wallet</span>
-            </div>
         </div>
     </div>
     
@@ -661,19 +597,10 @@
             <div class="tab active" data-tab="wallet">Wallet</div>
             <div class="tab" data-tab="withdraw">Withdraw</div>
             <div class="tab" data-tab="transactions">Transactions</div>
-            <div class="tab" data-tab="tokens">Tokens</div>
         </div>
         
         <!-- Wallet Tab -->
         <div id="wallet-tab" class="tab-content active">
-            <div class="network-selector">
-                <select id="networkSelector">
-                    <option value="eth">Ethereum</option>
-                    <option value="bsc">Binance Smart Chain</option>
-                    <option value="polygon">Polygon</option>
-                </select>
-            </div>
-            
             <div class="wallet-info">
                 <h3>Wallet Information</h3>
                 <div id="walletStatus">Please connect your wallet</div>
@@ -755,51 +682,6 @@
                 <i class="fas fa-sync-alt" style="margin-right: 8px;"></i>Refresh
             </button>
         </div>
-        
-        <!-- Tokens Tab -->
-        <div id="tokens-tab" class="tab-content">
-            <div class="wallet-info">
-                <h3>Token Balances</h3>
-                <p>Your token balances across connected networks</p>
-            </div>
-            
-            <div class="token-list" id="tokenList">
-                <div class="token-item">
-                    <div class="token-details">
-                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="ETH" class="token-icon">
-                        <div>
-                            <div>Ethereum</div>
-                            <div class="token-value">ETH</div>
-                        </div>
-                    </div>
-                    <div class="token-balance">0.00</div>
-                </div>
-                <div class="token-item">
-                    <div class="token-details">
-                        <img src="https://cryptologos.cc/logos/bnb-bnb-logo.png" alt="BNB" class="token-icon">
-                        <div>
-                            <div>BNB</div>
-                            <div class="token-value">BNB</div>
-                        </div>
-                    </div>
-                    <div class="token-balance">0.00</div>
-                </div>
-                <div class="token-item">
-                    <div class="token-details">
-                        <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT" class="token-icon">
-                        <div>
-                            <div>Tether</div>
-                            <div class="token-value">USDT</div>
-                        </div>
-                    </div>
-                    <div class="token-balance">0.00</div>
-                </div>
-            </div>
-            
-            <button id="refreshTokensBtn" class="btn btn-secondary">
-                <i class="fas fa-sync-alt" style="margin-right: 8px;"></i>Refresh Balances
-            </button>
-        </div>
     </div>
     
     <div class="footer">
@@ -832,7 +714,6 @@
     let currentAccount = null;
     let provider = null;
     let signer = null;
-    let walletType = null;
 
     // ---- UI Functions ----
     function showMessage(elementId, message, type = 'info') {
@@ -853,76 +734,67 @@
     }
 
     // ---- Wallet Connection ----
-    async function connectWallet(type = 'injected') {
+    async function connectWallet() {
         document.getElementById('connectWalletBtn').disabled = true;
         document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Connecting...';
 
         try {
-            if (type === 'injected') {
-                // MetaMask and other injected providers
-                if (window.ethereum) {
-                    // Request account access
-                    const accounts = await window.ethereum.request({ 
-                        method: 'eth_requestAccounts' 
-                    });
-                    
-                    // Create provider and signer
-                    provider = new ethers.BrowserProvider(window.ethereum);
-                    signer = await provider.getSigner();
-                    currentAccount = accounts[0];
-                    walletType = 'injected';
-                    
-                    // Set up event listeners
-                    window.ethereum.on('accountsChanged', (accounts) => {
-                        if (accounts.length > 0) {
-                            currentAccount = accounts[0];
-                            updateWalletUI();
-                        } else {
-                            disconnectWallet();
-                        }
-                    });
-                    
-                    window.ethereum.on('chainChanged', () => {
-                        window.location.reload();
-                    });
-                    
-                } else {
-                    throw new Error('No Ethereum provider found. Please install MetaMask or another wallet.');
-                }
-            } else if (type === 'walletconnect') {
-                // For WalletConnect, we'll use a simplified approach
-                // In a real implementation, you'd use the WalletConnect library
-                showMessage('walletMessage', 'WalletConnect integration requires additional setup. Please use MetaMask for now.', 'info');
-                document.getElementById('connectWalletBtn').disabled = false;
-                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet" style="margin-right: 8px;"></i>Connect Wallet';
-                return;
-            } else if (type === 'coinbase') {
-                // For Coinbase Wallet
-                if (window.ethereum && window.ethereum.isCoinbaseWallet) {
-                    const accounts = await window.ethereum.request({ 
-                        method: 'eth_requestAccounts' 
-                    });
-                    
-                    provider = new ethers.BrowserProvider(window.ethereum);
-                    signer = await provider.getSigner();
-                    currentAccount = accounts[0];
-                    walletType = 'coinbase';
-                } else {
-                    throw new Error('Coinbase Wallet not detected. Please install Coinbase Wallet.');
-                }
+            // Check if MetaMask is installed
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('MetaMask is installed!');
+                
+                // Request account access
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                
+                // Get the first account
+                currentAccount = accounts[0];
+                console.log('Connected account:', currentAccount);
+                
+                // Create a provider using ethers
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
+                
+                // Get network info
+                const network = await provider.getNetwork();
+                console.log('Network:', network);
+                
+                // Set up event listeners
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts.length > 0) {
+                        currentAccount = accounts[0];
+                        updateWalletUI();
+                    } else {
+                        disconnectWallet();
+                    }
+                });
+                
+                window.ethereum.on('chainChanged', (chainId) => {
+                    // Reload the page when chain changes
+                    window.location.reload();
+                });
+                
+                // Update UI
+                updateWalletUI();
+                showMessage('walletMessage', 'Wallet connected successfully!', 'success');
+                document.getElementById('recipientAddress').value = currentAccount;
+                walletConnected = true;
+                document.getElementById('walletOptions').style.display = 'none';
+                
+            } else {
+                throw new Error('MetaMask is not installed. Please install MetaMask to use this wallet.');
             }
-
-            // Update UI with connected wallet info
-            updateWalletUI();
-            showMessage('walletMessage', 'Wallet connected successfully!', 'success');
-            document.getElementById('recipientAddress').value = currentAccount;
-            document.getElementById('userEmail').value = 'user@example.com';
-            walletConnected = true;
-            document.getElementById('walletOptions').style.display = 'none';
-
         } catch (error) {
             console.error("Error connecting wallet:", error);
-            showMessage('walletMessage', 'Error connecting wallet: ' + error.message, 'error');
+            
+            if (error.code === 4001) {
+                // User rejected the connection request
+                showMessage('walletMessage', 'Connection rejected by user. Please try again.', 'error');
+            } else {
+                showMessage('walletMessage', 'Error connecting wallet: ' + error.message, 'error');
+            }
+            
             disconnectWallet();
         } finally {
             document.getElementById('connectWalletBtn').disabled = false;
@@ -961,7 +833,6 @@
         currentAccount = null;
         provider = null;
         signer = null;
-        walletType = null;
 
         document.getElementById('walletStatus').textContent = 'Please connect your wallet';
         document.getElementById('walletAddress').style.display = 'none';
@@ -1159,9 +1030,10 @@
         document.getElementById('disconnectWalletBtn').addEventListener('click', disconnectWallet);
 
         // Wallet connection options
-        document.getElementById('metamaskOption').addEventListener('click', () => connectWallet('injected'));
-        document.getElementById('walletConnectOption').addEventListener('click', () => connectWallet('walletconnect'));
-        document.getElementById('coinbaseOption').addEventListener('click', () => connectWallet('coinbase'));
+        document.getElementById('metamaskOption').addEventListener('click', connectWallet);
+        document.getElementById('walletConnectOption').addEventListener('click', () => {
+            showMessage('walletMessage', 'WalletConnect integration requires additional setup. Please use MetaMask for now.', 'info');
+        });
 
         document.getElementById('closeWalletOptions').addEventListener('click', () => {
             document.getElementById('walletOptions').style.display = 'none';
@@ -1172,9 +1044,6 @@
         
         // Refresh buttons
         document.getElementById('refreshTransactionsBtn').addEventListener('click', updateTransactionsList);
-        document.getElementById('refreshTokensBtn').addEventListener('click', () => {
-            showMessage('walletMessage', 'Token balances refreshed', 'success');
-        });
 
         // Theme toggle
         document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
@@ -1213,7 +1082,7 @@
 
         // Auto-connect if wallet was previously connected
         if (window.ethereum && window.ethereum.selectedAddress) {
-            connectWallet('injected');
+            connectWallet();
         }
     });
     </script>
