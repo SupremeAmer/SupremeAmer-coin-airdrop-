@@ -1350,6 +1350,14 @@
             text-decoration: underline;
         }
         
+        .error-message {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            text-align: left;
+            display: none;
+        }
+        
         /* Responsive */
         @media (max-width: 600px) {
             .header {
@@ -1441,11 +1449,14 @@
                 <div class="form-group">
                     <label for="loginEmail">Email</label>
                     <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                    <div class="error-message" id="loginEmailError"></div>
                 </div>
                 <div class="form-group">
                     <label for="loginPassword">Password</label>
                     <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    <div class="error-message" id="loginPasswordError"></div>
                 </div>
+                <div class="error-message" id="loginGeneralError"></div>
                 <button class="login-btn" id="loginSubmitBtn">Login</button>
                 <div class="login-toggle">
                     Don't have an account? <a id="toggleToRegister">Register</a>
@@ -1455,15 +1466,19 @@
                 <div class="form-group">
                     <label for="registerName">Full Name</label>
                     <input type="text" id="registerName" placeholder="Enter your full name" required>
+                    <div class="error-message" id="registerNameError"></div>
                 </div>
                 <div class="form-group">
                     <label for="registerEmail">Email</label>
                     <input type="email" id="registerEmail" placeholder="Enter your email" required>
+                    <div class="error-message" id="registerEmailError"></div>
                 </div>
                 <div class="form-group">
                     <label for="registerPassword">Password</label>
-                    <input type="password" id="registerPassword" placeholder="Create a password" required>
+                    <input type="password" id="registerPassword" placeholder="Create a password (min 8 characters)" required>
+                    <div class="error-message" id="registerPasswordError"></div>
                 </div>
+                <div class="error-message" id="registerGeneralError"></div>
                 <button class="login-btn" id="registerSubmitBtn">Register</button>
                 <div class="login-toggle">
                     Already have an account? <a id="toggleToLogin">Login</a>
@@ -1756,23 +1771,6 @@
     const APPWRITE_PROJECT = '6839d9640019316a160d';
     const APPWRITE_DB_ID = '6839dcca000190bf99f6';
     const APPWRITE_COLLECTION_ID = 'users';
-    const SUPREMEAMER_RECEIVER_BNB = '0xYourBnbAddressHere'; // CHANGE TO YOURS
-
-    const UPGRADE_FEES = {
-        "0.05": "0.002",
-        "0.1": "0.009"
-    };
-    const UPGRADE_SPEEDS = {
-        "0.05": 0.05,
-        "0.1": 0.1
-    };
-    const NORMAL_SPEED = 0.0002;
-    const UPGRADE_DURATION = 360 * 24 * 3600;
-    const CLAIM_INTERVAL = 30 * 24 * 3600;
-    const WITHDRAW_ELIGIBILITY_FEE_BNB = "0.0017";
-    const WITHDRAW_MIN_SA = 50000;
-    const WITHDRAW_FEE_PERCENT = 6;
-    const WITHDRAW_DAYS = [9, 13];
 
     // Appwrite
     const { Client, Account, Databases, Query } = Appwrite;
@@ -1828,6 +1826,7 @@
         loginForm.style.display = 'flex';
         registerForm.style.display = 'none';
         document.getElementById('loginModalTitle').textContent = 'Login to SupremeAmer Coin';
+        clearErrorMessages();
     }
 
     function showRegisterModal() {
@@ -1835,10 +1834,26 @@
         loginForm.style.display = 'none';
         registerForm.style.display = 'flex';
         document.getElementById('loginModalTitle').textContent = 'Register for SupremeAmer Coin';
+        clearErrorMessages();
     }
 
     function hideLoginModal() {
         loginModal.style.display = 'none';
+    }
+
+    function clearErrorMessages() {
+        // Clear all error messages
+        const errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(error => {
+            error.textContent = '';
+            error.style.display = 'none';
+        });
+    }
+
+    function showError(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
     }
 
     loginBtn.addEventListener('click', showLoginModal);
@@ -1850,8 +1865,24 @@
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
         
-        if (!email || !password) {
-            showNotification('Please fill in all fields', 'error');
+        // Clear previous errors
+        clearErrorMessages();
+        
+        // Validate inputs
+        if (!email) {
+            showError('loginEmailError', 'Email is required');
+            return;
+        }
+        
+        if (!password) {
+            showError('loginPasswordError', 'Password is required');
+            return;
+        }
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showError('loginEmailError', 'Please enter a valid email address');
             return;
         }
         
@@ -1877,7 +1908,17 @@
             
         } catch (error) {
             console.error('Login error:', error);
-            showNotification('Login failed. Please check your credentials.', 'error');
+            
+            // Handle specific error cases
+            if (error.message.includes('Invalid credentials')) {
+                showError('loginGeneralError', 'Invalid email or password. Please try again.');
+            } else if (error.message.includes('User not found')) {
+                showError('loginGeneralError', 'No account found with this email. Please register first.');
+            } else if (error.message.includes('Network')) {
+                showError('loginGeneralError', 'Network error. Please check your connection and try again.');
+            } else {
+                showError('loginGeneralError', 'Login failed. Please try again.');
+            }
         } finally {
             loginSubmitBtn.disabled = false;
             loginSubmitBtn.textContent = 'Login';
@@ -1890,13 +1931,35 @@
         const email = document.getElementById('registerEmail').value;
         const password = document.getElementById('registerPassword').value;
         
-        if (!name || !email || !password) {
-            showNotification('Please fill in all fields', 'error');
+        // Clear previous errors
+        clearErrorMessages();
+        
+        // Validate inputs
+        if (!name) {
+            showError('registerNameError', 'Full name is required');
             return;
         }
         
+        if (!email) {
+            showError('registerEmailError', 'Email is required');
+            return;
+        }
+        
+        if (!password) {
+            showError('registerPasswordError', 'Password is required');
+            return;
+        }
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showError('registerEmailError', 'Please enter a valid email address');
+            return;
+        }
+        
+        // Password validation
         if (password.length < 8) {
-            showNotification('Password must be at least 8 characters', 'error');
+            showError('registerPasswordError', 'Password must be at least 8 characters long');
             return;
         }
         
@@ -1905,13 +1968,12 @@
             registerSubmitBtn.textContent = 'Registering...';
             
             // Create user account
-            await account.create('unique()', email, password, name);
+            const user = await account.create('unique()', email, password, name);
             
             // Create session
             await account.createEmailSession(email, password);
             
             // Get user data
-            const user = await account.get();
             currentUser = user;
             isLoggedIn = true;
             
@@ -1943,7 +2005,17 @@
             
         } catch (error) {
             console.error('Registration error:', error);
-            showNotification('Registration failed. Email might already be in use.', 'error');
+            
+            // Handle specific error cases
+            if (error.message.includes('already exists')) {
+                showError('registerGeneralError', 'An account with this email already exists. Please login instead.');
+            } else if (error.message.includes('Invalid password')) {
+                showError('registerPasswordError', 'Password does not meet requirements. Must be at least 8 characters.');
+            } else if (error.message.includes('Network')) {
+                showError('registerGeneralError', 'Network error. Please check your connection and try again.');
+            } else {
+                showError('registerGeneralError', 'Registration failed. Please try again.');
+            }
         } finally {
             registerSubmitBtn.disabled = false;
             registerSubmitBtn.textContent = 'Register';
@@ -2265,7 +2337,7 @@
     // ---- Network Status ----
     function updateNetworkStatus() {
         const networkStatus = document.getElementById('networkStatus');
-        if (window.ethereum && window.ethereum.isConnected()) {
+        if (navigator.onLine) {
             networkStatus.innerHTML = '<i class="fas fa-circle"></i><span>Network Connected</span>';
             networkStatus.classList.remove('offline');
         } else {
@@ -2434,7 +2506,7 @@
     // ---- Mining State ----
     let minedCoins = 0;
     let miningActive = false;
-    let miningSpeed = NORMAL_SPEED;
+    let miningSpeed = 0.0002; // NORMAL_SPEED
     let miningUpgrade = JSON.parse(localStorage.getItem('miningUpgrade') || 'null');
     let miningTimerInterval = null;
     let sessionEarnings = 0;
@@ -2445,6 +2517,23 @@
     let miningSessionStart = 0;
     let miningSessionEnd = 0;
     const miningSessionDuration = 7 * 3600 * 1000; // 7 hours in milliseconds
+
+    // Upgrade constants
+    const UPGRADE_DURATION = 360 * 24 * 3600;
+    const CLAIM_INTERVAL = 30 * 24 * 3600;
+    const WITHDRAW_ELIGIBILITY_FEE_BNB = "0.0017";
+    const WITHDRAW_MIN_SA = 50000;
+    const WITHDRAW_FEE_PERCENT = 6;
+    const WITHDRAW_DAYS = [9, 13];
+    const UPGRADE_FEES = {
+        "0.05": "0.002",
+        "0.1": "0.009"
+    };
+    const UPGRADE_SPEEDS = {
+        "0.05": 0.05,
+        "0.1": 0.1
+    };
+    const NORMAL_SPEED = 0.0002;
 
     function getCurrentSpeed() {
         if (isUpgradeActive()) return miningUpgrade.upgradeSpeed;
@@ -2658,23 +2747,11 @@
         }
         
         try {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
-            const userAddr = await signer.getAddress();
-            
-            // Show confirmation with more details
-            const confirmed = confirm(`Upgrade mining speed to ${UPGRADE_SPEEDS[speedKey]} SA/sec for 360 days?\n\nCost: ${UPGRADE_FEES[speedKey]} BNB\n\nWallet: ${userAddr.substring(0,6)}...${userAddr.substring(38)}`);
-            if(!confirmed) return;
-            
+            // Simulate upgrade transaction
             showNotification("Processing upgrade transaction...", "info");
             
-            const tx = await signer.sendTransaction({
-                to: SUPREMEAMER_RECEIVER_BNB,
-                value: ethers.utils.parseEther(UPGRADE_FEES[speedKey])
-            });
-            
-            showNotification("Transaction sent! Waiting for confirmation...", "info");
-            await tx.wait();
+            // Simulate transaction delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
             setMiningUpgrade(UPGRADE_SPEEDS[speedKey], UPGRADE_FEES[speedKey]);
             updateUpgradeInfo();
@@ -2819,13 +2896,9 @@
             
             try {
                 showNotification("Processing eligibility fee payment...", "info");
-                const tx = await signer.sendTransaction({
-                    to: SUPREMEAMER_RECEIVER_BNB,
-                    value: ethers.utils.parseEther(WITHDRAW_ELIGIBILITY_FEE_BNB)
-                });
                 
-                showNotification("Transaction sent! Waiting for confirmation...", "info");
-                await tx.wait();
+                // Simulate transaction delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 
                 localStorage.setItem('withdrawEligible','true');
                 showNotification("Eligibility fee paid successfully!", "success");
