@@ -3,21 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SupremeAmer Wallet</title>
+    <title>SupremeAmer Wallet V2</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- WalletConnect & Web3Modal dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web3modal@1.9.12/dist/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
+    <!-- WalletConnect V2 & Web3Modal dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@2.1.1/dist/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3modal@2.0.0/dist/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@4.0.3/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.4.0/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
     <style>
-            body {
+    :root {
+        --primary-color: #FFB800;
+        --secondary-color: #FF8A00;
+        --accent-color: #FF3860;
+        --success-color: #23D160;
+        --dark-bg: #121212;
+        --light-bg: #F5F5F7;
+        --card-bg-dark: rgba(30, 30, 30, 0.8);
+        --card-bg-light: rgba(255, 255, 255, 0.85);
+        --text-dark: #FFFFFF;
+        --text-light: #333333;
+        --gradient-dark: linear-gradient(135deg, #121212 70%, #1a1a1a 100%);
+        --gradient-light: linear-gradient(135deg, #F5F5F7 60%, #FFB800 100%);
+    }
+
+    body {
         font-family: 'Montserrat', Arial, sans-serif;
         min-height: 100vh;
         margin: 0;
-        background: linear-gradient(135deg, var(--dark-bg) 70%, var(--primary-color) 100%);
+        background: var(--gradient-dark);
         color: var(--text-dark);
         transition: all 0.3s ease;
         display: flex;
@@ -27,11 +42,11 @@
         padding-bottom: 80px;
     }
     body.light {
-        background: linear-gradient(135deg, var(--light-bg) 60%, #f7b733 100%);
+        background: var(--gradient-light);
         color: var(--text-light);
     }
     
-    /* Header Styles */
+    /* Enhanced Header */
     .header {
         width: 100%;
         padding: 25px 0 10px 0;
@@ -44,12 +59,13 @@
         position: relative;
         transition: all 0.3s;
         z-index: 1000;
+        backdrop-filter: blur(10px);
     }
     body.light .header {
         background: rgba(255,255,255,0.75);
     }
     
-    /* Profile Dropdown */
+    /* Enhanced Profile Dropdown */
     .emoji-avatar {
         font-size: 1.5em;
         vertical-align: middle;
@@ -132,7 +148,7 @@
         margin-right: 10px;
     }
     
-    /* Marquee */
+    /* Enhanced Marquee */
     .marquee {
         background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--primary-color));
         color: #222;
@@ -161,7 +177,7 @@
         100% { transform: translateX(-100vw); }
     }
     
-    /* Main Container */
+    /* Enhanced Main Container */
     .container {
         background: var(--card-bg-dark);
         padding: 36px 32px 28px 32px;
@@ -175,6 +191,8 @@
         overflow: hidden;
         z-index: 1;
         margin: 20px auto;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .container::before {
         content: '';
@@ -194,9 +212,10 @@
     body.light .container {
         background: var(--card-bg-light);
         color: var(--text-light);
+        border: 1px solid rgba(0, 0, 0, 0.1);
     }
     
-    /* Wallet Info */
+    /* Enhanced Wallet Info */
     .wallet-info {
         background: rgba(255, 184, 0, 0.1);
         border-radius: 12px;
@@ -227,7 +246,7 @@
         margin: 10px 0;
     }
     
-    /* Form Styles */
+    /* Enhanced Form Styles */
     .form-group {
         margin-bottom: 15px;
         text-align: left;
@@ -258,7 +277,7 @@
         box-shadow: 0 0 0 2px rgba(255, 184, 0, 0.2);
     }
     
-    /* Buttons */
+    /* Enhanced Buttons */
     .btn {
         padding: 12px 24px;
         background: linear-gradient(90deg, var(--secondary-color) 40%, var(--primary-color) 100%);
@@ -299,7 +318,7 @@
         background: linear-gradient(90deg, #777, #aaa);
     }
     
-    /* Status Messages */
+    /* Enhanced Status Messages */
     .status-message {
         margin: 15px 0;
         padding: 10px;
@@ -308,8 +327,8 @@
     }
     .success {
         background: rgba(76, 175, 80, 0.2);
-        color: #4CAF50;
-        border: 1px solid #4CAF50;
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
     }
     .error {
         background: rgba(255, 51, 51, 0.2);
@@ -322,7 +341,7 @@
         border: 1px solid #2196F3;
     }
     
-    /* Transaction History */
+    /* Enhanced Transaction History */
     .transactions {
         margin-top: 20px;
         max-height: 300px;
@@ -336,6 +355,11 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        transition: all 0.2s;
+    }
+    .transaction:hover {
+        transform: translateX(5px);
+        background: rgba(255, 184, 0, 0.1);
     }
     .transaction-amount {
         font-weight: bold;
@@ -357,14 +381,14 @@
     }
     .status-completed {
         background: rgba(76, 175, 80, 0.2);
-        color: #4CAF50;
+        color: var(--success-color);
     }
     .status-failed {
         background: rgba(255, 51, 51, 0.2);
         color: var(--accent-color);
     }
     
-    /* Footer */
+    /* Enhanced Footer */
     .footer {
         width: 100%;
         display: flex;
@@ -425,7 +449,7 @@
         bottom: 65px;
     }
     
-    /* Tabs */
+    /* Enhanced Tabs */
     .tabs {
         display: flex;
         margin-bottom: 20px;
@@ -446,7 +470,7 @@
         border-bottom: 3px solid rgba(255, 184, 0, 0.5);
     }
     
-    /* Tab Content */
+    /* Enhanced Tab Content */
     .tab-content {
         display: none;
     }
@@ -454,7 +478,7 @@
         display: block;
     }
     
-    /* Wallet Connection Options */
+    /* Enhanced Wallet Connection Options */
     .wallet-options {
         display: none;
         position: fixed;
@@ -513,6 +537,66 @@
         cursor: pointer;
     }
     
+    /* New Features */
+    .qr-code-container {
+        text-align: center;
+        margin: 20px 0;
+    }
+    .qr-code {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    .token-list {
+        margin-top: 20px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .token-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .token-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    .token-details {
+        display: flex;
+        align-items: center;
+    }
+    .token-balance {
+        font-weight: bold;
+    }
+    .token-value {
+        color: #aaa;
+        font-size: 0.8em;
+    }
+    .network-selector {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+    .network-selector select {
+        background: rgba(0,0,0,0.2);
+        border: 1px solid rgba(255,184,0,0.3);
+        border-radius: 8px;
+        padding: 8px 12px;
+        color: var(--text-dark);
+        font-family: 'Montserrat', sans-serif;
+    }
+    body.light .network-selector select {
+        background: rgba(255,255,255,0.8);
+        color: var(--text-light);
+    }
+    
     /* Responsive */
     @media (max-width:600px) {
         .profile-dropdown-content { 
@@ -530,13 +614,12 @@
             height: 36px;
         }
     }
-
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
-        SUPREMEAMER WALLET
+        SUPREMEAMER WALLET V2
         <button id="profileDropdownBtn" class="emoji-avatar" style="position:absolute; top:18px; right:28px;">👤</button>
         <div id="profileDropdownMenu" class="profile-dropdown-content">
             <div id="dropdownUsername" style="padding:8px 18px; font-weight:bold;"><span class="emoji-avatar">🧑</span> User</div>
@@ -551,7 +634,7 @@
     </div>
     
     <div class="marquee">
-        <span class="marquee-text">🚀 SupremeAmer Wallet - Connect your wallet to manage your SA tokens and withdraw your earnings! 💰</span>
+        <span class="marquee-text">🚀 SupremeAmer Wallet V2 - Connect your wallet to manage your SA tokens and withdraw your earnings! 💰</span>
     </div>
     
     <!-- Wallet Connection Options Modal -->
@@ -567,7 +650,11 @@
             </div>
             <div class="wallet-option" id="walletConnectOption">
                 <img src="https://walletconnect.com/walletconnect-logo.png" alt="WalletConnect">
-                <span>WalletConnect (Mobile)</span>
+                <span>WalletConnect V2 (Mobile)</span>
+            </div>
+            <div class="wallet-option" id="coinbaseOption">
+                <img src="https://cdn.iconscout.com/icon/free/png-256/coinbase-3-1174883.png" alt="Coinbase">
+                <span>Coinbase Wallet</span>
             </div>
         </div>
     </div>
@@ -579,10 +666,19 @@
             <div class="tab active" data-tab="wallet">Wallet</div>
             <div class="tab" data-tab="withdraw">Withdraw</div>
             <div class="tab" data-tab="transactions">Transactions</div>
+            <div class="tab" data-tab="tokens">Tokens</div>
         </div>
         
         <!-- Wallet Tab -->
         <div id="wallet-tab" class="tab-content active">
+            <div class="network-selector">
+                <select id="networkSelector">
+                    <option value="eth">Ethereum</option>
+                    <option value="bsc">Binance Smart Chain</option>
+                    <option value="polygon">Polygon</option>
+                </select>
+            </div>
+            
             <div class="wallet-info">
                 <h3>Wallet Information</h3>
                 <div id="walletStatus">Please connect your wallet</div>
@@ -594,6 +690,13 @@
                     <strong>Your Referral Code:</strong>
                     <div class="wallet-address" id="userReferralCode">SA-REF-123456</div>
                 </div>
+            </div>
+            
+            <!-- QR Code for WalletConnect -->
+            <div class="qr-code-container" id="qrCodeContainer" style="display:none;">
+                <h4>Scan QR Code</h4>
+                <div class="qr-code" id="walletConnectQR"></div>
+                <p>Scan with your mobile wallet</p>
             </div>
             
             <button id="connectWalletBtn" class="btn">
@@ -664,6 +767,51 @@
                 <i class="fas fa-sync-alt" style="margin-right: 8px;"></i>Refresh
             </button>
         </div>
+        
+        <!-- Tokens Tab -->
+        <div id="tokens-tab" class="tab-content">
+            <div class="wallet-info">
+                <h3>Token Balances</h3>
+                <p>Your token balances across connected networks</p>
+            </div>
+            
+            <div class="token-list" id="tokenList">
+                <div class="token-item">
+                    <div class="token-details">
+                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="ETH" class="token-icon">
+                        <div>
+                            <div>Ethereum</div>
+                            <div class="token-value">ETH</div>
+                        </div>
+                    </div>
+                    <div class="token-balance">0.00</div>
+                </div>
+                <div class="token-item">
+                    <div class="token-details">
+                        <img src="https://cryptologos.cc/logos/bnb-bnb-logo.png" alt="BNB" class="token-icon">
+                        <div>
+                            <div>BNB</div>
+                            <div class="token-value">BNB</div>
+                        </div>
+                    </div>
+                    <div class="token-balance">0.00</div>
+                </div>
+                <div class="token-item">
+                    <div class="token-details">
+                        <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT" class="token-icon">
+                        <div>
+                            <div>Tether</div>
+                            <div class="token-value">USDT</div>
+                        </div>
+                    </div>
+                    <div class="token-balance">0.00</div>
+                </div>
+            </div>
+            
+            <button id="refreshTokensBtn" class="btn btn-secondary">
+                <i class="fas fa-sync-alt" style="margin-right: 8px;"></i>Refresh Balances
+            </button>
+        </div>
     </div>
     
     <div class="footer">
@@ -694,6 +842,7 @@
     const APPWRITE_COLLECTION_ID = 'users';
     const WITHDRAW_FEE_BNB = "0.0017";
     const WITHDRAW_MIN_SA = 50000;
+    const WALLETCONNECT_PROJECT_ID = "c3b1dbb8edc0417e8c0a1c4c1c8e0fbe";
 
     // Appwrite
     const { Client, Account, Databases, Query } = Appwrite;
@@ -709,6 +858,7 @@
     let walletType = null;
     let walletModal = null;
     let web3Provider = null;
+    let walletConnectProvider = null;
 
     // ---- UI Functions ----
     function showMessage(elementId, message, type = 'info') {
@@ -728,18 +878,31 @@
         return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
     }
 
-    // ---- WalletConnect & Modal Setup ----
+    // ---- WalletConnect V2 & Modal Setup ----
     function setupWeb3Modal() {
-        walletModal = new window.Web3Modal.default({
-            cacheProvider: false,
-            providerOptions: {
-                walletconnect: {
-                    package: window.WalletConnectProvider.default,
-                    options: {
-                        infuraId: "c3b1dbb8edc0417e8c0a1c4c1c8e0fbe",
-                    }
+        const providerOptions = {
+            walletconnect: {
+                package: window.WalletConnectProvider.default,
+                options: {
+                    projectId: WALLETCONNECT_PROJECT_ID,
+                    chains: [1, 56, 137], // Ethereum, BSC, Polygon
+                    showQrModal: true
+                }
+            },
+            coinbasewallet: {
+                package: window.CoinbaseWalletSDK,
+                options: {
+                    appName: "SupremeAmer Wallet",
+                    appLogo: "https://your-app-logo.com/logo.png",
+                    darkMode: !document.body.classList.contains('light')
                 }
             }
+        };
+
+        walletModal = new window.Web3Modal.default({
+            cacheProvider: false,
+            providerOptions,
+            theme: document.body.classList.contains('light') ? 'light' : 'dark'
         });
     }
 
@@ -752,24 +915,42 @@
             if (type === 'walletconnect') {
                 if (!walletModal) setupWeb3Modal();
                 const instance = await walletModal.connectTo('walletconnect');
-                web3Provider = new ethers.providers.Web3Provider(instance);
+                web3Provider = new ethers.BrowserProvider(instance);
                 const accounts = await web3Provider.listAccounts();
-                currentAccount = accounts[0];
+                currentAccount = accounts[0].address;
                 provider = web3Provider;
                 walletType = 'walletconnect';
 
-                // Listen for disconnect only once
-                instance.removeAllListeners && instance.removeAllListeners("disconnect");
-                instance.on && instance.on("disconnect", () => {
+                // Listen for disconnect
+                instance.on("disconnect", () => {
                     disconnectWallet();
+                });
+
+            } else if (type === 'coinbase') {
+                if (!walletModal) setupWeb3Modal();
+                const instance = await walletModal.connectTo('coinbasewallet');
+                web3Provider = new ethers.BrowserProvider(instance);
+                const accounts = await web3Provider.listAccounts();
+                currentAccount = accounts[0].address;
+                provider = web3Provider;
+                walletType = 'coinbase';
+
+                // Listen for account change/disconnect
+                instance.on('accountsChanged', (accounts) => {
+                    if (accounts.length > 0) {
+                        currentAccount = accounts[0];
+                        updateWalletUI();
+                    } else {
+                        disconnectWallet();
+                    }
                 });
 
             } else if (type === 'injected') {
                 if (window.ethereum) {
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+                    web3Provider = new ethers.BrowserProvider(window.ethereum);
                     const accounts = await web3Provider.listAccounts();
-                    currentAccount = accounts[0];
+                    currentAccount = accounts[0].address;
                     provider = web3Provider;
                     walletType = 'injected';
 
@@ -789,7 +970,7 @@
                 }
             }
 
-            signer = provider.getSigner();
+            signer = await provider.getSigner();
             await provider.getNetwork();
 
             updateWalletUI();
@@ -876,7 +1057,7 @@
             return;
         }
 
-        if (!ethers.utils.isAddress(recipientAddress)) {
+        if (!ethers.isAddress(recipientAddress)) {
             showMessage('withdrawMessage', 'Please enter a valid wallet address', 'error');
             return;
         }
@@ -1034,6 +1215,7 @@
 
         document.getElementById('metamaskOption').addEventListener('click', () => connectWallet('injected'));
         document.getElementById('walletConnectOption').addEventListener('click', () => connectWallet('walletconnect'));
+        document.getElementById('coinbaseOption').addEventListener('click', () => connectWallet('coinbase'));
 
         document.getElementById('closeWalletOptions').addEventListener('click', () => {
             document.getElementById('walletOptions').style.display = 'none';
@@ -1042,6 +1224,9 @@
         document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
         document.getElementById('refreshTransactionsBtn').addEventListener('click', updateTransactionsList);
         document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+        document.getElementById('refreshTokensBtn').addEventListener('click', () => {
+            showMessage('walletMessage', 'Token balances refreshed', 'success');
+        });
 
         document.getElementById('profileDropdownBtn').addEventListener('click', function(e) {
             e.stopPropagation();
