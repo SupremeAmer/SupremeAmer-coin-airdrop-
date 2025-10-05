@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SupremeAmer Wallet V2</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.4.0/dist/ethers.umd.min.js"></script>
+  <script src="https:                                                                     
   <script src="https://unpkg.com/@walletconnect/web3modal@2.5.0/dist/index.umd.js"></script>
   <style>
     body {
@@ -66,7 +66,7 @@
           chainId: 56, // BSC Mainnet
           name: "BNB Smart Chain",
           currency: "BNB",
-          rpcUrl: "https://bsc-dataseed.binance.org/",
+          rpcUrl: "https:                             
           explorerUrl: "https://bscscan.com",
         }
       ]
@@ -80,9 +80,7 @@
         signer = await provider.getSigner();
         walletAddress = await signer.getAddress();
 
-        document.getElementById("walletAddress").innerText = "Connected: " + walletAddress;
-        document.getElementById("connectWalletBtn").style.display = "none";
-        document.getElementById("disconnectWalletBtn").style.display = "inline-block";
+        updateUI(walletAddress);
       } catch (err) {
         console.error("Connection Error:", err);
         alert("Connection failed: " + err.message);
@@ -95,6 +93,16 @@
       } catch (err) {
         console.warn("Disconnect Error:", err);
       }
+      resetUI();
+    }
+
+    function updateUI(address) {
+      document.getElementById("walletAddress").innerText = "Connected: " + address;
+      document.getElementById("connectWalletBtn").style.display = "none";
+      document.getElementById("disconnectWalletBtn").style.display = "inline-block";
+    }
+
+    function resetUI() {
       provider = null;
       signer = null;
       walletAddress = null;
