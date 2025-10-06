@@ -42,7 +42,7 @@
     body {
         font-family: 'Montserrat', sans-serif;
         min-height: 100vh;
-        background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a1a 100%);
+        background: linear-gradient(135deg, #FF8A00 0%, #FFB800 100%);
         color: var(--text-dark);
         transition: all 0.3s ease;
         display: flex;
@@ -53,7 +53,7 @@
     }
 
     body.light {
-        background: linear-gradient(135deg, var(--light-bg) 0%, #e9ecef 100%);
+        background: linear-gradient(135deg, #87CEEB 0%, #B0E2FF 100%);
         color: var(--text-light);
     }
 
@@ -140,6 +140,7 @@
     .balance-section {
         text-align: center;
         margin: 25px 0;
+        position: relative;
     }
 
     .balance-amount {
@@ -149,11 +150,60 @@
         background: linear-gradient(135deg, var(--primary), var(--secondary));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        transition: all 0.3s ease;
     }
 
     .balance-label {
         color: var(--text-secondary);
         font-size: 0.9rem;
+    }
+
+    .hide-balance-btn {
+        position: absolute;
+        right: 0;
+        top: 0;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .hide-balance-btn:hover {
+        color: var(--primary);
+    }
+
+    .balance-hidden {
+        filter: blur(8px);
+        user-select: none;
+    }
+
+    .currency-selector {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .currency-btn {
+        background: rgba(255, 184, 0, 0.1);
+        border: 1px solid rgba(255, 184, 0, 0.2);
+        color: var(--primary);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .currency-btn:hover {
+        background: rgba(255, 184, 0, 0.2);
+    }
+
+    .currency-btn.active {
+        background: var(--primary);
+        color: #000;
     }
 
     .wallet-address {
@@ -192,7 +242,7 @@
 
     .wallet-actions {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 12px;
         margin-top: 20px;
     }
@@ -1055,6 +1105,47 @@
         margin-top: 20px;
     }
 
+    /* Profile Image Styles */
+    .profile-image-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: var(--dark-surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        overflow: hidden;
+        border: 3px solid var(--primary);
+    }
+
+    body.light .profile-image {
+        background: var(--light-surface);
+    }
+
+    .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-image-placeholder {
+        font-size: 2.5rem;
+        color: var(--primary);
+    }
+
+    .profile-image-upload {
+        display: flex;
+        gap: 10px;
+    }
+
     /* Responsive */
     @media (max-width: 480px) {
         .container {
@@ -1112,8 +1203,31 @@
                 </div>
                 
                 <div class="balance-section">
+                    <button class="hide-balance-btn" id="hideBalanceBtn">
+                        <i class="fas fa-eye"></i>
+                    </button>
                     <div class="balance-amount" id="walletBalance">0 ETH</div>
                     <div class="balance-label">Total Balance</div>
+                    <div class="currency-selector">
+                        <button class="currency-btn active" data-currency="USD">USD</button>
+                        <button class="currency-btn" data-currency="EUR">EUR</button>
+                        <button class="currency-btn" data-currency="BTC">BTC</button>
+                    </div>
+                </div>
+                
+                <div class="wallet-actions" id="walletActions" style="display: none;">
+                    <div class="action-btn" id="sendActionBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Send</span>
+                    </div>
+                    <div class="action-btn" id="receiveActionBtn">
+                        <i class="fas fa-qrcode"></i>
+                        <span>Receive</span>
+                    </div>
+                    <div class="action-btn" id="withdrawActionBtn">
+                        <i class="fas fa-wallet"></i>
+                        <span>Withdraw</span>
+                    </div>
                 </div>
                 
                 <div class="wallet-address" id="walletAddressSection" style="display: none;">
@@ -1123,23 +1237,85 @@
                     </button>
                 </div>
                 
-                <div class="wallet-actions" id="walletActions" style="display: none;">
-                    <div class="action-btn" id="sendBtn">
-                        <i class="fas fa-paper-plane"></i>
-                        <span>Send</span>
+                <!-- Send Section -->
+                <div class="send-section" id="sendSection" style="display: none;">
+                    <form id="sendForm">
+                        <div class="form-group">
+                            <label class="form-label" for="sendAmount">Amount</label>
+                            <input type="number" class="form-input" id="sendAmount" placeholder="Enter amount" step="0.0001" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="recipientAddress">Recipient Address</label>
+                            <input type="text" class="form-input" id="recipientAddress" placeholder="Enter recipient address" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="sendToken">Token</label>
+                            <select class="form-input" id="sendToken">
+                                <option value="ETH">ETH</option>
+                                <option value="SA">SA</option>
+                                <option value="USDC">USDC</option>
+                                <option value="USDT">USDT</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Tokens
+                        </button>
+                    </form>
+                    
+                    <div class="status-message" id="sendMessage"></div>
+                </div>
+                
+                <!-- Receive Section -->
+                <div class="receive-section" id="receiveSection" style="display: none;">
+                    <div class="qr-code-container">
+                        <div class="qr-code" id="homeQrCode"></div>
+                        <div class="qr-address" id="homeQrAddress">0x0000...0000</div>
+                        <button class="btn btn-primary btn-block" id="copyHomeQrAddressBtn">
+                            <i class="fas fa-copy"></i>
+                            Copy Address
+                        </button>
                     </div>
-                    <div class="action-btn" id="receiveBtn">
-                        <i class="fas fa-qrcode"></i>
-                        <span>Receive</span>
-                    </div>
-                    <div class="action-btn" id="swapBtn">
-                        <i class="fas fa-exchange-alt"></i>
-                        <span>Swap</span>
-                    </div>
-                    <div class="action-btn" id="importBtn">
-                        <i class="fas fa-download"></i>
-                        <span>Import</span>
-                    </div>
+                </div>
+                
+                <!-- Withdraw Section -->
+                <div class="withdraw-section" id="withdrawSection">
+                    <form id="withdrawForm">
+                        <div class="form-group">
+                            <label class="form-label" for="withdrawAmount">Amount to Withdraw (SA)</label>
+                            <input type="number" class="form-input" id="withdrawAmount" placeholder="Enter amount" min="50000" step="1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="recipientAddress">Your SA Token Address</label>
+                            <input type="text" class="form-input" id="recipientAddress" placeholder="Enter your SA token address" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="userEmail">Email Address</label>
+                            <input type="email" class="form-input" id="userEmail" placeholder="Enter your email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="referralCode">Referral Code (Optional)</label>
+                            <input type="text" class="form-input" id="referralCode" placeholder="Enter referral code">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="additionalNotes">Additional Notes (Optional)</label>
+                            <textarea class="form-input form-textarea" id="additionalNotes" placeholder="Any additional information"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block" id="submitWithdrawBtn" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                            Submit Withdrawal Request
+                        </button>
+                    </form>
+                    
+                    <div class="status-message" id="withdrawMessage"></div>
                 </div>
                 
                 <!-- Connect Wallet Screen -->
@@ -1170,43 +1346,6 @@
                 <div class="token-list" id="tokenList">
                     <!-- Token items will be added here dynamically -->
                 </div>
-            </div>
-            
-            <!-- Withdraw Section -->
-            <div class="withdraw-section">
-                <form id="withdrawForm">
-                    <div class="form-group">
-                        <label class="form-label" for="withdrawAmount">Amount to Withdraw (SA)</label>
-                        <input type="number" class="form-input" id="withdrawAmount" placeholder="Enter amount" min="50000" step="1" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="recipientAddress">Your SA Token Address</label>
-                        <input type="text" class="form-input" id="recipientAddress" placeholder="Enter your SA token address" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="userEmail">Email Address</label>
-                        <input type="email" class="form-input" id="userEmail" placeholder="Enter your email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="referralCode">Referral Code (Optional)</label>
-                        <input type="text" class="form-input" id="referralCode" placeholder="Enter referral code">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="additionalNotes">Additional Notes (Optional)</label>
-                        <textarea class="form-input form-textarea" id="additionalNotes" placeholder="Any additional information"></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary btn-block" id="submitWithdrawBtn" disabled>
-                        <i class="fas fa-paper-plane"></i>
-                        Submit Withdrawal Request
-                    </button>
-                </form>
-                
-                <div class="status-message" id="withdrawMessage"></div>
             </div>
             
             <!-- Status Messages -->
@@ -1258,6 +1397,24 @@
             
             <div class="settings-section">
                 <div class="settings-title">Profile</div>
+                <div class="profile-image-container">
+                    <div class="profile-image" id="profileImage">
+                        <div class="profile-image-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    <div class="profile-image-upload">
+                        <input type="file" id="profileImageInput" accept="image/*" style="display: none;">
+                        <button class="btn btn-secondary" id="uploadImageBtn">
+                            <i class="fas fa-upload"></i>
+                            Upload Photo
+                        </button>
+                        <button class="btn btn-secondary" id="removeImageBtn">
+                            <i class="fas fa-trash"></i>
+                            Remove
+                        </button>
+                    </div>
+                </div>
                 <div class="security-item">
                     <div class="security-info">
                         <div class="security-title" id="profileName">User Profile</div>
@@ -1521,6 +1678,13 @@
     let appwriteInitialized = false;
     let priceChart = null;
     let currentChartCoin = null;
+    let balanceHidden = false;
+    let selectedCurrency = "USD";
+    let exchangeRates = {
+        USD: 1,
+        EUR: 0.85,
+        BTC: 0.000022
+    };
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
@@ -1537,6 +1701,8 @@
         setupDefaultTokens();
         loadCustomTokens();
         initializeAppwrite();
+        loadProfileImage();
+        setupActionButtons();
     }
 
     // Initialize Appwrite
@@ -1616,39 +1782,6 @@
         }
     }
 
-    // Get wallet from Appwrite
-    async function getWalletFromAppwrite(address, password) {
-        if (!appwriteInitialized) {
-            console.error('Appwrite not initialized');
-            return null;
-        }
-        
-        try {
-            const result = await window.appwriteDatabases.listDocuments(
-                APPWRITE_DATABASE_ID,
-                APPWRITE_COLLECTION_ID,
-                [Appwrite.Query.equal('walletAddress', address)]
-            );
-            
-            if (result.documents.length === 0) {
-                return null;
-            }
-            
-            const walletData = result.documents[0];
-            
-            // In a real app, you would verify the password hash
-            // For demo, we're doing a simple comparison (NOT SECURE)
-            if (walletData.password !== password) {
-                return null;
-            }
-            
-            return walletData;
-        } catch (error) {
-            console.error('Error getting wallet from Appwrite:', error);
-            return null;
-        }
-    }
-
     // Set up event listeners
     function setupEventListeners() {
         // Wallet connection
@@ -1684,10 +1817,9 @@
         document.getElementById('copyAddressBtn').addEventListener('click', copyAddress);
         
         // Wallet actions
-        document.getElementById('sendBtn').addEventListener('click', sendTokens);
-        document.getElementById('receiveBtn').addEventListener('click', receiveTokens);
-        document.getElementById('swapBtn').addEventListener('click', swapTokens);
-        document.getElementById('importBtn').addEventListener('click', openImportModal);
+        document.getElementById('sendActionBtn').addEventListener('click', showSendSection);
+        document.getElementById('receiveActionBtn').addEventListener('click', showReceiveSection);
+        document.getElementById('withdrawActionBtn').addEventListener('click', showWithdrawSection);
         
         // Import options
         document.getElementById('importWalletOption').addEventListener('click', openImportModal);
@@ -1698,6 +1830,7 @@
         document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
         document.getElementById('importForm').addEventListener('submit', importWallet);
         document.getElementById('importTokenForm').addEventListener('submit', importToken);
+        document.getElementById('sendForm').addEventListener('submit', sendTokens);
         
         // Market search
         document.getElementById('marketSearch').addEventListener('input', filterMarketData);
@@ -1750,11 +1883,38 @@
         // Import type change
         document.getElementById('importType').addEventListener('change', handleImportTypeChange);
         
+        // Hide balance toggle
+        document.getElementById('hideBalanceBtn').addEventListener('click', toggleBalanceVisibility);
+        
+        // Currency selector
+        document.querySelectorAll('.currency-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.currency-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedCurrency = this.getAttribute('data-currency');
+                updateBalanceDisplay();
+            });
+        });
+        
+        // Profile image
+        document.getElementById('uploadImageBtn').addEventListener('click', function() {
+            document.getElementById('profileImageInput').click();
+        });
+        
+        document.getElementById('profileImageInput').addEventListener('change', handleProfileImageUpload);
+        document.getElementById('removeImageBtn').addEventListener('click', removeProfileImage);
+        
         // MetaMask event listeners
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', handleAccountsChanged);
             window.ethereum.on('chainChanged', handleChainChanged);
         }
+    }
+
+    // Set up action buttons functionality
+    function setupActionButtons() {
+        // Home QR code copy
+        document.getElementById('copyHomeQrAddressBtn').addEventListener('click', copyQrAddress);
     }
 
     // Switch between pages
@@ -1772,7 +1932,60 @@
             updateTransactionList();
         } else if (pageId === 'market') {
             loadMarketData();
+        } else if (pageId === 'home') {
+            // Reset to default view (withdraw section)
+            showWithdrawSection();
         }
+    }
+
+    // Show send section
+    function showSendSection() {
+        document.getElementById('sendSection').style.display = 'block';
+        document.getElementById('receiveSection').style.display = 'none';
+        document.getElementById('withdrawSection').style.display = 'none';
+        
+        // Update active button state
+        document.querySelectorAll('.action-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('sendActionBtn').classList.add('active');
+    }
+
+    // Show receive section
+    function showReceiveSection() {
+        document.getElementById('sendSection').style.display = 'none';
+        document.getElementById('receiveSection').style.display = 'block';
+        document.getElementById('withdrawSection').style.display = 'none';
+        
+        // Update active button state
+        document.querySelectorAll('.action-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('receiveActionBtn').classList.add('active');
+        
+        // Generate QR code for home page
+        if (walletConnected) {
+            const qrCodeElement = document.getElementById('homeQrCode');
+            qrCodeElement.innerHTML = '';
+            
+            QRCode.toCanvas(currentAccount, { width: 180, height: 180 }, function(err, canvas) {
+                if (err) {
+                    console.error('Error generating QR code:', err);
+                    qrCodeElement.innerHTML = '<div style="color: var(--text-secondary);">QR Code Error</div>';
+                    return;
+                }
+                qrCodeElement.appendChild(canvas);
+            });
+            
+            document.getElementById('homeQrAddress').textContent = currentAccount;
+        }
+    }
+
+    // Show withdraw section
+    function showWithdrawSection() {
+        document.getElementById('sendSection').style.display = 'none';
+        document.getElementById('receiveSection').style.display = 'none';
+        document.getElementById('withdrawSection').style.display = 'block';
+        
+        // Update active button state
+        document.querySelectorAll('.action-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('withdrawActionBtn').classList.add('active');
     }
 
     // Check if wallet is already connected
@@ -1851,9 +2064,50 @@
         try {
             const balance = await provider.getBalance(currentAccount);
             currentBalance = ethers.formatEther(balance);
-            document.getElementById('walletBalance').textContent = `${parseFloat(currentBalance).toFixed(4)} ETH`;
+            updateBalanceDisplay();
         } catch (error) {
             console.error('Error fetching balance:', error);
+        }
+    }
+
+    // Update balance display with current currency
+    function updateBalanceDisplay() {
+        const balanceElement = document.getElementById('walletBalance');
+        const ethBalance = parseFloat(currentBalance);
+        
+        if (selectedCurrency === "USD") {
+            const usdValue = ethBalance * 3200; // Assuming 1 ETH = $3200
+            balanceElement.textContent = `$${usdValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        } else if (selectedCurrency === "EUR") {
+            const eurValue = ethBalance * 3200 * exchangeRates.EUR;
+            balanceElement.textContent = `€${eurValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        } else if (selectedCurrency === "BTC") {
+            const btcValue = ethBalance * exchangeRates.BTC;
+            balanceElement.textContent = `${btcValue.toFixed(6)} BTC`;
+        } else {
+            balanceElement.textContent = `${ethBalance.toFixed(4)} ETH`;
+        }
+        
+        // Apply blur if balance is hidden
+        if (balanceHidden) {
+            balanceElement.classList.add('balance-hidden');
+        } else {
+            balanceElement.classList.remove('balance-hidden');
+        }
+    }
+
+    // Toggle balance visibility
+    function toggleBalanceVisibility() {
+        balanceHidden = !balanceHidden;
+        const balanceElement = document.getElementById('walletBalance');
+        const eyeIcon = document.getElementById('hideBalanceBtn').querySelector('i');
+        
+        if (balanceHidden) {
+            balanceElement.classList.add('balance-hidden');
+            eyeIcon.className = 'fas fa-eye-slash';
+        } else {
+            balanceElement.classList.remove('balance-hidden');
+            eyeIcon.className = 'fas fa-eye';
         }
     }
 
@@ -1904,6 +2158,9 @@
         document.getElementById('profileEmail').textContent = 'Connected to MetaMask';
         
         walletConnected = true;
+        
+        // Show withdraw section by default
+        showWithdrawSection();
     }
 
     // Handle account changes
@@ -1918,6 +2175,7 @@
                 updateWalletUI();
                 updateBalance();
                 updateTokenBalances();
+                loadProfileImage();
             }
         }
     }
@@ -2127,6 +2385,65 @@
         } finally {
             document.getElementById('submitWithdrawBtn').disabled = false;
             document.getElementById('submitWithdrawBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Submit Withdrawal Request';
+        }
+    }
+
+    // Send tokens
+    async function sendTokens(e) {
+        e.preventDefault();
+        
+        if (!walletConnected) {
+            showMessage('sendMessage', 'Please connect your wallet first', 'error');
+            return;
+        }
+        
+        const amount = document.getElementById('sendAmount').value;
+        const recipient = document.getElementById('recipientAddress').value;
+        const token = document.getElementById('sendToken').value;
+        
+        if (!amount || amount <= 0) {
+            showMessage('sendMessage', 'Please enter a valid amount', 'error');
+            return;
+        }
+        
+        if (!ethers.isAddress(recipient)) {
+            showMessage('sendMessage', 'Please enter a valid recipient address', 'error');
+            return;
+        }
+        
+        try {
+            showMessage('sendMessage', 'Processing transaction...', 'info');
+            
+            // In a real implementation, you would send the transaction here
+            // For demo purposes, we'll simulate a successful transaction
+            
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // Add to transaction history
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push({
+                type: 'send',
+                amount: amount,
+                token: token,
+                recipient: recipient,
+                txHash: '0x' + Math.random().toString(36).substring(2, 66),
+                status: 'completed',
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            // Update balance
+            await updateBalance();
+            updateTokenBalances();
+            
+            // Reset form
+            document.getElementById('sendForm').reset();
+            
+            showMessage('sendMessage', `Successfully sent ${amount} ${token} to ${recipient.substring(0, 6)}...${recipient.substring(recipient.length - 4)}`, 'success');
+            
+        } catch (error) {
+            console.error('Send error:', error);
+            showMessage('sendMessage', 'Transaction failed: ' + (error.message || 'Unknown error'), 'error');
         }
     }
 
@@ -2372,6 +2689,47 @@
         const savedTokens = localStorage.getItem('customTokens');
         if (savedTokens) {
             customTokens = JSON.parse(savedTokens);
+        }
+    }
+
+    // Handle profile image upload
+    function handleProfileImageUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const imageUrl = event.target.result;
+            const profileImage = document.getElementById('profileImage');
+            profileImage.innerHTML = `<img src="${imageUrl}" alt="Profile Image">`;
+            
+            // Save to localStorage with address as key
+            if (currentAccount) {
+                localStorage.setItem(`profileImage_${currentAccount}`, imageUrl);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Remove profile image
+    function removeProfileImage() {
+        const profileImage = document.getElementById('profileImage');
+        profileImage.innerHTML = '<div class="profile-image-placeholder"><i class="fas fa-user"></i></div>';
+        
+        // Remove from localStorage
+        if (currentAccount) {
+            localStorage.removeItem(`profileImage_${currentAccount}`);
+        }
+    }
+
+    // Load profile image from localStorage
+    function loadProfileImage() {
+        if (!currentAccount) return;
+        
+        const savedImage = localStorage.getItem(`profileImage_${currentAccount}`);
+        if (savedImage) {
+            const profileImage = document.getElementById('profileImage');
+            profileImage.innerHTML = `<img src="${savedImage}" alt="Profile Image">`;
         }
     }
 
@@ -2928,15 +3286,6 @@
         renderTokenList();
     }
 
-    // Wallet action functions
-    function sendTokens() {
-        showMessage('walletMessage', 'Send functionality would open here', 'info');
-    }
-    
-    function swapTokens() {
-        showMessage('walletMessage', 'Swap functionality would open here', 'info');
-    }
-    
     // Logout function
     function logout() {
         disconnectWallet();
