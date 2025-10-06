@@ -12,6 +12,7 @@
       --secondary: #fdc500;
       --success: #2ecc71;
       --error: #e74c3c;
+      --info: #3498db;
       --bg: #111;
       --panel: rgba(30, 30, 40, 0.95);
       --text: #fff;
@@ -36,6 +37,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
+      overflow-x: hidden;
     }
     
     .header {
@@ -174,6 +176,12 @@
       opacity: 1;
       top: -30%;
       left: -30%;
+    }
+    
+    .cell.filled {
+      background: var(--letter-bg);
+      color: var(--letter-text);
+      transform: scale(1.05);
     }
     
     #selector {
@@ -419,6 +427,208 @@
       }
     }
     
+    /* NEW FEATURES STYLES */
+    
+    /* Power-ups */
+    .power-ups {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+    }
+    
+    .power-up {
+      background: var(--info);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 8px 15px;
+      font-size: 0.9em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .power-up:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    
+    .power-up:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    /* Timer */
+    #timer {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin: 10px 0;
+      color: var(--secondary);
+    }
+    
+    /* Progress Bar */
+    .progress-container {
+      width: 100%;
+      background-color: #333;
+      border-radius: 10px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 10px;
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      width: 0%;
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+    
+    /* Stats Panel */
+    .stats-panel {
+      display: none;
+      background: var(--panel);
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+      width: 100%;
+      text-align: left;
+    }
+    
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    /* Achievements */
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .achievement {
+      background: #222;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .achievement.unlocked {
+      background: var(--success);
+      color: white;
+    }
+    
+    .achievement.locked {
+      opacity: 0.5;
+    }
+    
+    /* Leaderboard */
+    .leaderboard {
+      display: none;
+      background: var(--panel);
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+      width: 100%;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 8px;
+      background: #222;
+      border-radius: 5px;
+    }
+    
+    .leaderboard-item.you {
+      background: var(--primary);
+      color: white;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-content {
+      background: var(--panel);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+    
+    .close-modal {
+      float: right;
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+    
+    /* Word Definition */
+    .word-definition {
+      margin-top: 15px;
+      padding: 10px;
+      background: #222;
+      border-radius: 8px;
+      text-align: left;
+    }
+    
+    /* Daily Challenge */
+    .daily-challenge {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+    
+    /* Theme Selector */
+    .theme-selector {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    
+    .theme {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    
+    .theme.active {
+      border-color: white;
+    }
+    
     /* Responsive */
     @media (max-width: 600px) {
       .container { 
@@ -475,6 +685,31 @@
     .shake {
       animation: shake 0.5s;
     }
+    
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 5px var(--success); }
+      50% { box-shadow: 0 0 20px var(--success); }
+    }
+    
+    .glow {
+      animation: glow 1.5s infinite;
+    }
+    
+    /* Popup */
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--panel);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      z-index: 2000;
+      text-align: center;
+      max-width: 300px;
+      width: 80%;
+    }
   </style>
 </head>
 <body>
@@ -486,11 +721,47 @@
       <i class="fas fa-coins"></i> 
       <span id="mining-balance-value">0</span> SA
     </div>
+    
+    <!-- Theme Selector -->
+    <div class="theme-selector">
+      <div class="theme active" style="background: #ff9800;" data-theme="default"></div>
+      <div class="theme" style="background: #9c27b0;" data-theme="purple"></div>
+      <div class="theme" style="background: #2196f3;" data-theme="blue"></div>
+      <div class="theme" style="background: #4caf50;" data-theme="green"></div>
+    </div>
+    
+    <!-- Timer -->
+    <div id="timer">Time: 60s</div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    
     <div id="level"></div>
     <div id="reward-msg"></div>
+    
+    <!-- Daily Challenge -->
+    <div id="daily-challenge" class="daily-challenge" style="display:none;">
+      <i class="fas fa-calendar-day"></i> Daily Challenge: <span id="daily-word"></span>
+    </div>
+    
     <div id="grid"></div>
     <div id="input-word"></div>
     <div id="selector"></div>
+    
+    <!-- Power-ups -->
+    <div class="power-ups">
+      <button class="power-up" id="hint-btn" data-cost="50">
+        <i class="fas fa-lightbulb"></i> Hint (50 SA)
+      </button>
+      <button class="power-up" id="shuffle-btn" data-cost="30">
+        <i class="fas fa-random"></i> Shuffle (30 SA)
+      </button>
+      <button class="power-up" id="solve-btn" data-cost="100">
+        <i class="fas fa-bolt"></i> Solve (100 SA)
+      </button>
+    </div>
     
     <div id="footer-buttons">
       <button class="main-btn" id="submit-btn">
@@ -499,12 +770,56 @@
       <button class="main-btn" id="history-btn">
         <i class="fas fa-history"></i> History
       </button>
+      <button class="main-btn" id="stats-btn">
+        <i class="fas fa-chart-bar"></i> Stats
+      </button>
       <button class="main-btn" id="restart-btn">
         <i class="fas fa-redo"></i> Restart
       </button>
     </div>
     
+    <!-- Word Definition -->
+    <div id="word-definition" class="word-definition" style="display:none;"></div>
+    
     <div id="history-list" style="display:none;"></div>
+    
+    <!-- Stats Panel -->
+    <div id="stats-panel" class="stats-panel">
+      <h3>Game Statistics</h3>
+      <div class="stat-item">
+        <span>Total Words Solved:</span>
+        <span id="stat-words-solved">0</span>
+      </div>
+      <div class="stat-item">
+        <span>Total Coins Earned:</span>
+        <span id="stat-coins-earned">0</span>
+      </div>
+      <div class="stat-item">
+        <span>Current Streak:</span>
+        <span id="stat-streak">0</span>
+      </div>
+      <div class="stat-item">
+        <span>Longest Streak:</span>
+        <span id="stat-longest-streak">0</span>
+      </div>
+      <div class="stat-item">
+        <span>Accuracy:</span>
+        <span id="stat-accuracy">0%</span>
+      </div>
+      
+      <h3>Achievements</h3>
+      <div class="achievements-grid" id="achievements-grid">
+        <!-- Achievements will be populated by JS -->
+      </div>
+    </div>
+    
+    <!-- Leaderboard -->
+    <div id="leaderboard" class="leaderboard">
+      <h3>Leaderboard</h3>
+      <div id="leaderboard-list">
+        <!-- Leaderboard items will be populated by JS -->
+      </div>
+    </div>
   </div>
   
   <div class="footer">
@@ -524,6 +839,58 @@
       <i class="fas fa-gamepad"></i>
       <span class="tooltip">Games</span>
     </button>
+    <button id="settings-btn" title="Settings">
+      <i class="fas fa-cog"></i>
+      <span class="tooltip">Settings</span>
+    </button>
+  </div>
+  
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>Game Settings</h2>
+      
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="sound-toggle" checked> Enable Sound Effects
+        </label>
+      </div>
+      
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="timer-toggle" checked> Enable Timer
+        </label>
+      </div>
+      
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="daily-challenge-toggle" checked> Show Daily Challenges
+        </label>
+      </div>
+      
+      <div class="setting-item">
+        <label>Difficulty:
+          <select id="difficulty-select">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+      </div>
+      
+      <button class="main-btn" id="reset-stats-btn">Reset Statistics</button>
+    </div>
+  </div>
+  
+  <!-- Achievement Unlocked Modal -->
+  <div id="achievement-modal" class="modal">
+    <div class="modal-content">
+      <h2>Achievement Unlocked!</h2>
+      <div id="achievement-content">
+        <!-- Content will be populated by JS -->
+      </div>
+    </div>
   </div>
   
   <div id="confetti-container"></div>
@@ -535,6 +902,9 @@
     const BALANCE_KEY = 'minedCoins'; // Match mining game's key
     const GAME_STATE_KEY = "supremeamer_wordgame";
     const DAILY_BONUS_KEY = "supremeamer_daily_bonus";
+    const STATS_KEY = "supremeamer_wordgame_stats";
+    const SETTINGS_KEY = "supremeamer_wordgame_settings";
+    const LEADERBOARD_KEY = "supremeamer_wordgame_leaderboard";
     
     // --- WORD DATA ---
     const WORDS = [
@@ -564,6 +934,18 @@
       hard: WORDS.filter(word => word.length > 8)
     };
     
+    // Achievement definitions
+    const ACHIEVEMENTS = [
+      { id: "first_word", name: "First Word", description: "Solve your first word", icon: "fa-star", reward: 50 },
+      { id: "word_master", name: "Word Master", description: "Solve 50 words", icon: "fa-trophy", reward: 500 },
+      { id: "coin_collector", name: "Coin Collector", description: "Earn 1000 SA coins", icon: "fa-coins", reward: 100 },
+      { id: "streak_5", name: "Hot Streak", description: "Get a 5-word streak", icon: "fa-fire", reward: 200 },
+      { id: "streak_10", name: "Unstoppable", description: "Get a 10-word streak", icon: "fa-bolt", reward: 500 },
+      { id: "daily_player", name: "Daily Player", description: "Play for 7 consecutive days", icon: "fa-calendar", reward: 300 },
+      { id: "speed_runner", name: "Speed Runner", description: "Solve a word in under 10 seconds", icon: "fa-stopwatch", reward: 150 },
+      { id: "perfectionist", name: "Perfectionist", description: "Solve 10 words without any mistakes", icon: "fa-check-double", reward: 400 }
+    ];
+    
     // --- GAME STATE ---
     let gameState = {
       level: 0,
@@ -572,8 +954,37 @@
       history: [],
       difficulty: 'easy', // easy, medium, hard
       streak: 0,
-      lastPlayed: null
+      lastPlayed: null,
+      dailyChallenge: {
+        word: "",
+        completed: false,
+        date: null
+      }
     };
+    
+    // Game statistics
+    let gameStats = {
+      wordsSolved: 0,
+      coinsEarned: 0,
+      longestStreak: 0,
+      totalAttempts: 0,
+      correctAttempts: 0,
+      playDays: [],
+      achievements: [],
+      powerUpsUsed: 0
+    };
+    
+    // Game settings
+    let gameSettings = {
+      soundEnabled: true,
+      timerEnabled: true,
+      dailyChallengesEnabled: true,
+      theme: 'default'
+    };
+    
+    // Timer variables
+    let timerInterval;
+    let timeLeft = 60;
     
     // --- UTILITIES FOR COIN CREDIT ---
     function getMainMinedCoins() {
@@ -596,6 +1007,8 @@
     // --- SAVE/LOAD GAME ---
     function saveGame() {
       localStorage.setItem(GAME_STATE_KEY, JSON.stringify(gameState));
+      localStorage.setItem(STATS_KEY, JSON.stringify(gameStats));
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(gameSettings));
       
       // Sync mining balance to global minedCoins
       let totalMined = getMainMinedCoins();
@@ -610,12 +1023,34 @@
           const obj = JSON.parse(data);
           if (typeof obj === "object") {
             gameState = {...gameState, ...obj};
-            
-            // Check for daily reset
-            checkDailyReset();
           }
         } catch {}
       }
+      
+      // Load stats
+      const statsData = localStorage.getItem(STATS_KEY);
+      if (statsData) {
+        try {
+          const obj = JSON.parse(statsData);
+          if (typeof obj === "object") {
+            gameStats = {...gameStats, ...obj};
+          }
+        } catch {}
+      }
+      
+      // Load settings
+      const settingsData = localStorage.getItem(SETTINGS_KEY);
+      if (settingsData) {
+        try {
+          const obj = JSON.parse(settingsData);
+          if (typeof obj === "object") {
+            gameSettings = {...gameSettings, ...obj};
+          }
+        } catch {}
+      }
+      
+      // Check for daily reset
+      checkDailyReset();
     }
     
     function checkDailyReset() {
@@ -624,8 +1059,27 @@
         // Reset streak if not played today
         gameState.streak = 0;
         gameState.lastPlayed = today;
+        
+        // Check for daily challenge reset
+        if (!gameState.dailyChallenge.date || gameState.dailyChallenge.date !== today) {
+          generateDailyChallenge();
+        }
+        
         saveGame();
       }
+    }
+    
+    function generateDailyChallenge() {
+      const words = WORDS.filter(word => word.length >= 6 && word.length <= 10);
+      const randomWord = words[Math.floor(Math.random() * words.length)];
+      
+      gameState.dailyChallenge = {
+        word: randomWord,
+        completed: false,
+        date: new Date().toDateString()
+      };
+      
+      saveGame();
     }
     
     function resetGame() {
@@ -637,7 +1091,8 @@
           history: [],
           difficulty: 'easy',
           streak: 0,
-          lastPlayed: new Date().toDateString()
+          lastPlayed: new Date().toDateString(),
+          dailyChallenge: gameState.dailyChallenge
         };
         saveGame();
         renderGame();
@@ -657,7 +1112,10 @@
       // Streak bonus (up to 50% bonus for 5+ streak)
       const streakBonus = Math.min(gameState.streak, 5) * 0.1;
       
-      return Math.floor(baseReward * multiplier * (1 + streakBonus));
+      // Time bonus (faster completion = more reward)
+      const timeBonus = Math.max(0, (60 - timeLeft) / 60) * 0.5;
+      
+      return Math.floor(baseReward * multiplier * (1 + streakBonus + timeBonus));
     }
     
     function getCurrentWord() {
@@ -668,7 +1126,30 @@
     // --- GAME LOGIC + UI ---
     function renderGame() {
       document.getElementById("history-list").style.display = "none";
+      document.getElementById("stats-panel").style.display = "none";
+      document.getElementById("leaderboard").style.display = "none";
       updateBalanceDisplay();
+      
+      // Update progress bar
+      const tier = WORD_TIERS[gameState.difficulty];
+      const progress = ((gameState.level % tier.length) / tier.length) * 100;
+      document.getElementById("progress-bar").style.width = `${progress}%`;
+      
+      // Update timer display
+      if (gameSettings.timerEnabled) {
+        document.getElementById("timer").style.display = "block";
+        resetTimer();
+      } else {
+        document.getElementById("timer").style.display = "none";
+      }
+      
+      // Show daily challenge if enabled
+      if (gameSettings.dailyChallengesEnabled && gameState.dailyChallenge.word && !gameState.dailyChallenge.completed) {
+        document.getElementById("daily-challenge").style.display = "block";
+        document.getElementById("daily-word").textContent = gameState.dailyChallenge.word.toUpperCase();
+      } else {
+        document.getElementById("daily-challenge").style.display = "none";
+      }
       
       const word = getCurrentWord();
       if (!word) {
@@ -702,6 +1183,7 @@
         const cell = document.createElement("div");
         cell.className = "cell";
         cell.innerText = "";
+        cell.dataset.index = i;
         gridDiv.appendChild(cell);
       }
       
@@ -715,11 +1197,20 @@
         const div = document.createElement("div");
         div.className = "letter";
         div.innerText = letter;
+        div.dataset.index = idx;
         div.onclick = () => {
           if (!div.classList.contains("selected")) {
             div.classList.add("selected");
             input += letter;
             document.getElementById("input-word").innerText = input;
+            
+            // Fill the corresponding grid cell
+            const cells = document.querySelectorAll('.cell');
+            const emptyCellIndex = Array.from(cells).findIndex(cell => cell.innerText === '');
+            if (emptyCellIndex !== -1) {
+              cells[emptyCellIndex].innerText = letter;
+              cells[emptyCellIndex].classList.add('filled');
+            }
           }
         };
         selectorDiv.appendChild(div);
@@ -741,6 +1232,23 @@
           gameState.streak += 1;
           gameState.lastPlayed = new Date().toDateString();
           
+          // Update stats
+          gameStats.wordsSolved += 1;
+          gameStats.coinsEarned += reward;
+          gameStats.correctAttempts += 1;
+          gameStats.totalAttempts += 1;
+          
+          // Update longest streak
+          if (gameState.streak > gameStats.longestStreak) {
+            gameStats.longestStreak = gameState.streak;
+          }
+          
+          // Track play days
+          const today = new Date().toDateString();
+          if (!gameStats.playDays.includes(today)) {
+            gameStats.playDays.push(today);
+          }
+          
           gameState.history.push({
             type: "level-up",
             level: gameState.level,
@@ -749,6 +1257,9 @@
             streak: gameState.streak,
             timestamp: Date.now()
           });
+          
+          // Check for achievements
+          checkAchievements();
           
           saveGame();
           
@@ -759,8 +1270,20 @@
           `;
           document.getElementById("reward-msg").classList.add("bounce");
           
+          // Stop timer
+          if (gameSettings.timerEnabled) {
+            clearInterval(timerInterval);
+          }
+          
           // Celebrate!
           createConfetti();
+          
+          // Check if daily challenge was completed
+          if (gameState.dailyChallenge.word && 
+              userWord === gameState.dailyChallenge.word.toLowerCase() && 
+              !gameState.dailyChallenge.completed) {
+            completeDailyChallenge();
+          }
           
           // Check difficulty progression
           checkDifficultyProgression();
@@ -772,6 +1295,7 @@
         } else {
           // Incorrect answer
           gameState.streak = 0;
+          gameStats.totalAttempts += 1;
           saveGame();
           
           document.getElementById("reward-msg").style.color = "var(--error)";
@@ -784,6 +1308,10 @@
           input = "";
           
           document.querySelectorAll(".letter").forEach(x => x.classList.remove("selected"));
+          document.querySelectorAll(".cell").forEach(cell => {
+            cell.innerText = "";
+            cell.classList.remove("filled");
+          });
           
           setTimeout(() => {
             document.getElementById("reward-msg").classList.remove("shake");
@@ -806,6 +1334,347 @@
       }
     }
     
+    // --- POWER-UPS ---
+    function useHint() {
+      const cost = 50;
+      const balance = getMainMinedCoins();
+      
+      if (balance < cost) {
+        showPopup("Not enough SA coins for hint!", "error");
+        return;
+      }
+      
+      setMainMinedCoins(balance - cost);
+      gameStats.powerUpsUsed += 1;
+      
+      // Find an empty cell and reveal the correct letter
+      const word = getCurrentWord().toUpperCase();
+      const cells = document.querySelectorAll('.cell');
+      const emptyCells = Array.from(cells).filter(cell => cell.innerText === '');
+      
+      if (emptyCells.length > 0) {
+        const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        const cellIndex = parseInt(randomCell.dataset.index);
+        randomCell.innerText = word[cellIndex];
+        randomCell.classList.add('filled');
+        randomCell.classList.add('glow');
+        
+        // Update input
+        let input = "";
+        cells.forEach(cell => {
+          if (cell.innerText) input += cell.innerText;
+        });
+        document.getElementById("input-word").innerText = input;
+        
+        // Remove the used letter from selector
+        const selectorLetters = document.querySelectorAll('.letter');
+        selectorLetters.forEach(letter => {
+          if (letter.innerText === word[cellIndex] && !letter.classList.contains('selected')) {
+            letter.classList.add('selected');
+            break;
+          }
+        });
+        
+        setTimeout(() => {
+          randomCell.classList.remove('glow');
+        }, 2000);
+      }
+      
+      saveGame();
+    }
+    
+    function shuffleLetters() {
+      const cost = 30;
+      const balance = getMainMinedCoins();
+      
+      if (balance < cost) {
+        showPopup("Not enough SA coins for shuffle!", "error");
+        return;
+      }
+      
+      setMainMinedCoins(balance - cost);
+      gameStats.powerUpsUsed += 1;
+      
+      // Get current input
+      const currentInput = document.getElementById("input-word").innerText;
+      
+      // Clear grid and selector
+      document.querySelectorAll('.cell').forEach(cell => {
+        cell.innerText = "";
+        cell.classList.remove('filled');
+      });
+      
+      document.querySelectorAll('.letter').forEach(letter => {
+        letter.classList.remove('selected');
+      });
+      
+      // Reshuffle letters
+      const selectorDiv = document.getElementById("selector");
+      const letters = Array.from(selectorDiv.children);
+      const shuffled = shuffle(Array.from(letters).map(l => l.innerText));
+      
+      letters.forEach((letter, idx) => {
+        letter.innerText = shuffled[idx];
+      });
+      
+      document.getElementById("input-word").innerText = "";
+      
+      saveGame();
+    }
+    
+    function solveWord() {
+      const cost = 100;
+      const balance = getMainMinedCoins();
+      
+      if (balance < cost) {
+        showPopup("Not enough SA coins to solve!", "error");
+        return;
+      }
+      
+      setMainMinedCoins(balance - cost);
+      gameStats.powerUpsUsed += 1;
+      
+      const word = getCurrentWord().toUpperCase();
+      const cells = document.querySelectorAll('.cell');
+      const selectorLetters = document.querySelectorAll('.letter');
+      
+      // Fill all cells with correct letters
+      cells.forEach((cell, index) => {
+        cell.innerText = word[index];
+        cell.classList.add('filled');
+      });
+      
+      // Mark all letters as selected
+      selectorLetters.forEach(letter => {
+        letter.classList.add('selected');
+      });
+      
+      document.getElementById("input-word").innerText = word;
+      
+      saveGame();
+    }
+    
+    // --- TIMER FUNCTIONS ---
+    function startTimer() {
+      if (!gameSettings.timerEnabled) return;
+      
+      clearInterval(timerInterval);
+      timeLeft = 60;
+      updateTimerDisplay();
+      
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timeUp();
+        }
+      }, 1000);
+    }
+    
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timeLeft = 60;
+      updateTimerDisplay();
+      startTimer();
+    }
+    
+    function updateTimerDisplay() {
+      document.getElementById("timer").textContent = `Time: ${timeLeft}s`;
+      
+      // Change color when time is running out
+      if (timeLeft <= 10) {
+        document.getElementById("timer").style.color = "var(--error)";
+        document.getElementById("timer").classList.add("pulse");
+      } else {
+        document.getElementById("timer").style.color = "var(--secondary)";
+        document.getElementById("timer").classList.remove("pulse");
+      }
+    }
+    
+    function timeUp() {
+      document.getElementById("reward-msg").style.color = "var(--error)";
+      document.getElementById("reward-msg").innerHTML = `
+        <i class="fas fa-clock"></i> Time's up! Try again.
+      `;
+      document.getElementById("reward-msg").classList.add("shake");
+      
+      gameState.streak = 0;
+      gameStats.totalAttempts += 1;
+      saveGame();
+      
+      setTimeout(() => {
+        document.getElementById("reward-msg").classList.remove("shake");
+        renderGame();
+      }, 2000);
+    }
+    
+    // --- ACHIEVEMENTS ---
+    function checkAchievements() {
+      ACHIEVEMENTS.forEach(achievement => {
+        // Skip if already unlocked
+        if (gameStats.achievements.includes(achievement.id)) return;
+        
+        let unlocked = false;
+        
+        switch(achievement.id) {
+          case "first_word":
+            unlocked = gameStats.wordsSolved >= 1;
+            break;
+          case "word_master":
+            unlocked = gameStats.wordsSolved >= 50;
+            break;
+          case "coin_collector":
+            unlocked = gameStats.coinsEarned >= 1000;
+            break;
+          case "streak_5":
+            unlocked = gameState.streak >= 5;
+            break;
+          case "streak_10":
+            unlocked = gameState.streak >= 10;
+            break;
+          case "daily_player":
+            unlocked = gameStats.playDays.length >= 7;
+            break;
+          case "speed_runner":
+            unlocked = timeLeft >= 50; // Solved in under 10 seconds
+            break;
+          case "perfectionist":
+            // This would need additional tracking
+            break;
+        }
+        
+        if (unlocked) {
+          unlockAchievement(achievement);
+        }
+      });
+    }
+    
+    function unlockAchievement(achievement) {
+      gameStats.achievements.push(achievement.id);
+      
+      // Add reward coins
+      const balance = getMainMinedCoins();
+      setMainMinedCoins(balance + achievement.reward);
+      
+      // Show achievement popup
+      document.getElementById("achievement-content").innerHTML = `
+        <h3>${achievement.name}</h3>
+        <p>${achievement.description}</p>
+        <p>Reward: +${achievement.reward} SA</p>
+        <i class="fas ${achievement.icon} fa-3x" style="color: var(--secondary); margin: 15px 0;"></i>
+      `;
+      
+      document.getElementById("achievement-modal").style.display = "flex";
+      
+      // Add to history
+      gameState.history.push({
+        type: "achievement",
+        achievement: achievement.name,
+        amount: achievement.reward,
+        timestamp: Date.now()
+      });
+      
+      saveGame();
+      
+      // Auto-close after 3 seconds
+      setTimeout(() => {
+        document.getElementById("achievement-modal").style.display = "none";
+      }, 3000);
+    }
+    
+    function renderAchievements() {
+      const grid = document.getElementById("achievements-grid");
+      grid.innerHTML = "";
+      
+      ACHIEVEMENTS.forEach(achievement => {
+        const isUnlocked = gameStats.achievements.includes(achievement.id);
+        const achievementEl = document.createElement("div");
+        achievementEl.className = `achievement ${isUnlocked ? 'unlocked' : 'locked'}`;
+        achievementEl.innerHTML = `
+          <i class="fas ${achievement.icon}"></i>
+          <h4>${achievement.name}</h4>
+          <p>${achievement.description}</p>
+          <small>Reward: ${achievement.reward} SA</small>
+        `;
+        grid.appendChild(achievementEl);
+      });
+    }
+    
+    // --- DAILY CHALLENGE ---
+    function completeDailyChallenge() {
+      gameState.dailyChallenge.completed = true;
+      const reward = 200; // Bonus for daily challenge
+      
+      const balance = getMainMinedCoins();
+      setMainMinedCoins(balance + reward);
+      
+      gameState.history.push({
+        type: "daily-challenge",
+        amount: reward,
+        timestamp: Date.now()
+      });
+      
+      showPopup(`Daily Challenge Completed! +${reward} SA`, "success");
+      saveGame();
+    }
+    
+    // --- STATISTICS ---
+    function showStats() {
+      document.getElementById("history-list").style.display = "none";
+      document.getElementById("leaderboard").style.display = "none";
+      document.getElementById("stats-panel").style.display = "block";
+      
+      // Update stats display
+      document.getElementById("stat-words-solved").textContent = gameStats.wordsSolved;
+      document.getElementById("stat-coins-earned").textContent = gameStats.coinsEarned;
+      document.getElementById("stat-streak").textContent = gameState.streak;
+      document.getElementById("stat-longest-streak").textContent = gameStats.longestStreak;
+      
+      const accuracy = gameStats.totalAttempts > 0 
+        ? Math.round((gameStats.correctAttempts / gameStats.totalAttempts) * 100) 
+        : 0;
+      document.getElementById("stat-accuracy").textContent = `${accuracy}%`;
+      
+      renderAchievements();
+    }
+    
+    // --- LEADERBOARD ---
+    function showLeaderboard() {
+      document.getElementById("history-list").style.display = "none";
+      document.getElementById("stats-panel").style.display = "none";
+      document.getElementById("leaderboard").style.display = "block";
+      
+      // For now, we'll use a simple local leaderboard
+      // In a real app, this would connect to a backend
+      const leaderboardList = document.getElementById("leaderboard-list");
+      leaderboardList.innerHTML = "";
+      
+      // Sample data - in a real app, this would come from a server
+      const sampleData = [
+        { name: "WordMaster", score: 12500 },
+        { name: "CryptoKing", score: 9800 },
+        { name: "LexiLover", score: 7600 },
+        { name: "You", score: gameStats.coinsEarned },
+        { name: "PuzzlePro", score: 5400 },
+        { name: "Brainiac", score: 3200 }
+      ];
+      
+      // Sort by score (descending)
+      sampleData.sort((a, b) => b.score - a.score);
+      
+      sampleData.forEach((item, index) => {
+        const itemEl = document.createElement("div");
+        itemEl.className = `leaderboard-item ${item.name === "You" ? "you" : ""}`;
+        itemEl.innerHTML = `
+          <span>${index + 1}. ${item.name}</span>
+          <span>${item.score} SA</span>
+        `;
+        leaderboardList.appendChild(itemEl);
+      });
+    }
+    
     // --- HISTORY ---
     function showHistory() {
       const list = document.getElementById("history-list");
@@ -825,11 +1694,95 @@
                   +${tx.amount} SA (Streak: ${tx.streak})
                 </span>
               </div>`;
+          } else if (tx.type === "achievement") {
+            list.innerHTML += `
+              <div class="history-item">
+                <i class="fas fa-trophy"></i> 
+                [${date}] Achievement: ${tx.achievement}<br>
+                <span style="color:#fdc500;">
+                  +${tx.amount} SA
+                </span>
+              </div>`;
+          } else if (tx.type === "daily-challenge") {
+            list.innerHTML += `
+              <div class="history-item">
+                <i class="fas fa-calendar-day"></i> 
+                [${date}] Daily Challenge<br>
+                <span style="color:#3498db;">
+                  +${tx.amount} SA
+                </span>
+              </div>`;
           }
         });
       }
       
+      document.getElementById("stats-panel").style.display = "none";
+      document.getElementById("leaderboard").style.display = "none";
       list.style.display = "block";
+    }
+    
+    // --- SETTINGS ---
+    function showSettings() {
+      document.getElementById("settings-modal").style.display = "flex";
+      
+      // Set current values
+      document.getElementById("sound-toggle").checked = gameSettings.soundEnabled;
+      document.getElementById("timer-toggle").checked = gameSettings.timerEnabled;
+      document.getElementById("daily-challenge-toggle").checked = gameSettings.dailyChallengesEnabled;
+      document.getElementById("difficulty-select").value = gameState.difficulty;
+    }
+    
+    function applySettings() {
+      gameSettings.soundEnabled = document.getElementById("sound-toggle").checked;
+      gameSettings.timerEnabled = document.getElementById("timer-toggle").checked;
+      gameSettings.dailyChallengesEnabled = document.getElementById("daily-challenge-toggle").checked;
+      gameState.difficulty = document.getElementById("difficulty-select").value;
+      
+      saveGame();
+      renderGame();
+    }
+    
+    function resetStatistics() {
+      if (confirm("Are you sure you want to reset all statistics? This cannot be undone.")) {
+        gameStats = {
+          wordsSolved: 0,
+          coinsEarned: 0,
+          longestStreak: 0,
+          totalAttempts: 0,
+          correctAttempts: 0,
+          playDays: [],
+          achievements: [],
+          powerUpsUsed: 0
+        };
+        saveGame();
+        showStats();
+      }
+    }
+    
+    // --- THEMES ---
+    function changeTheme(themeName) {
+      const root = document.documentElement;
+      
+      switch(themeName) {
+        case 'purple':
+          root.style.setProperty('--primary', '#9c27b0');
+          root.style.setProperty('--secondary', '#ba68c8');
+          break;
+        case 'blue':
+          root.style.setProperty('--primary', '#2196f3');
+          root.style.setProperty('--secondary', '#64b5f6');
+          break;
+        case 'green':
+          root.style.setProperty('--primary', '#4caf50');
+          root.style.setProperty('--secondary', '#81c784');
+          break;
+        default: // default/orange
+          root.style.setProperty('--primary', '#ff9800');
+          root.style.setProperty('--secondary', '#fdc500');
+      }
+      
+      gameSettings.theme = themeName;
+      saveGame();
     }
     
     // --- BUTTON EVENTS ---
@@ -837,8 +1790,28 @@
       showHistory();
     };
     
+    document.getElementById("stats-btn").onclick = function() {
+      showStats();
+    };
+    
     document.getElementById("restart-btn").onclick = function() {
       resetGame();
+    };
+    
+    document.getElementById("hint-btn").onclick = function() {
+      useHint();
+    };
+    
+    document.getElementById("shuffle-btn").onclick = function() {
+      shuffleLetters();
+    };
+    
+    document.getElementById("solve-btn").onclick = function() {
+      solveWord();
+    };
+    
+    document.getElementById("settings-btn").onclick = function() {
+      showSettings();
     };
     
     // --- UTILITY ---
@@ -855,6 +1828,7 @@
       const popup = document.createElement("div");
       popup.className = `popup ${type}`;
       popup.innerHTML = msg;
+      popup.style.background = type === 'success' ? 'var(--success)' : 'var(--error)';
       document.body.appendChild(popup);
       
       setTimeout(() => {
@@ -905,6 +1879,24 @@
       loadGame();
       renderGame();
       
+      // Apply saved theme
+      changeTheme(gameSettings.theme);
+      
+      // Set theme selector active state
+      document.querySelectorAll('.theme').forEach(theme => {
+        if (theme.dataset.theme === gameSettings.theme) {
+          theme.classList.add('active');
+        } else {
+          theme.classList.remove('active');
+        }
+        
+        theme.addEventListener('click', function() {
+          document.querySelectorAll('.theme').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          changeTheme(this.dataset.theme);
+        });
+      });
+      
       // Listen for mining balance updates
       window.addEventListener("minedCoins_update", function() {
         updateBalanceDisplay();
@@ -912,6 +1904,25 @@
       
       // Check for daily bonus
       checkDailyBonus();
+      
+      // Modal close events
+      document.querySelector('.close-modal').addEventListener('click', function() {
+        document.getElementById('settings-modal').style.display = 'none';
+        applySettings();
+      });
+      
+      document.getElementById('reset-stats-btn').addEventListener('click', resetStatistics);
+      
+      // Close modal when clicking outside
+      window.addEventListener('click', function(event) {
+        if (event.target === document.getElementById('settings-modal')) {
+          document.getElementById('settings-modal').style.display = 'none';
+          applySettings();
+        }
+        if (event.target === document.getElementById('achievement-modal')) {
+          document.getElementById('achievement-modal').style.display = 'none';
+        }
+      });
     };
     
     function checkDailyBonus() {
