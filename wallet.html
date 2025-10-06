@@ -232,71 +232,47 @@
         font-weight: 500;
     }
 
-    /* Tabs */
-    .tabs-container {
-        background: var(--dark-card);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        overflow: hidden;
-        margin-bottom: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    body.light .tabs-container {
-        background: var(--light-card);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .tabs-header {
-        display: flex;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        overflow-x: auto;
-    }
-
-    body.light .tabs-header {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .tab {
-        flex: 1;
-        padding: 16px;
-        text-align: center;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        position: relative;
-        white-space: nowrap;
-        min-width: 80px;
-    }
-
-    .tab.active {
-        color: var(--primary);
-    }
-
-    .tab.active::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 20%;
-        right: 20%;
-        height: 3px;
-        background: var(--primary);
-        border-radius: 3px 3px 0 0;
-    }
-
-    .tab-content {
+    /* Pages */
+    .page {
         display: none;
-        padding: 24px;
+        width: 100%;
+        animation: fadeIn 0.3s ease;
     }
 
-    .tab-content.active {
+    .page.active {
         display: block;
-        animation: fadeIn 0.3s ease;
     }
 
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(-10px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Page Headers */
+    .page-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-top: 10px;
+    }
+
+    .back-btn {
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-size: 1.2rem;
+        cursor: pointer;
+        margin-right: 15px;
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        transform: translateX(-3px);
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 700;
     }
 
     /* Forms */
@@ -1074,6 +1050,11 @@
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
+    /* Import Token Section */
+    .import-token-section {
+        margin-top: 20px;
+    }
+
     /* Responsive */
     @media (max-width: 480px) {
         .container {
@@ -1118,109 +1099,81 @@
     
     <!-- Main Container -->
     <div class="container">
-        <!-- Wallet Card -->
-        <div class="wallet-card" id="walletCard">
-            <div class="wallet-header">
-                <div class="wallet-title">My Wallet</div>
-                <div class="network-badge" id="networkBadge">
-                    <i class="fas fa-circle"></i>
-                    <span id="networkName">Not Connected</span>
+        <!-- Home Page -->
+        <div class="page active" id="home-page">
+            <!-- Wallet Card -->
+            <div class="wallet-card" id="walletCard">
+                <div class="wallet-header">
+                    <div class="wallet-title">My Wallet</div>
+                    <div class="network-badge" id="networkBadge">
+                        <i class="fas fa-circle"></i>
+                        <span id="networkName">Not Connected</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="balance-section">
-                <div class="balance-amount" id="walletBalance">0 ETH</div>
-                <div class="balance-label">Total Balance</div>
-            </div>
-            
-            <div class="wallet-address" id="walletAddressSection" style="display: none;">
-                <div class="address-text" id="walletAddress">0x0000...0000</div>
-                <button class="copy-btn" id="copyAddressBtn">
-                    <i class="fas fa-copy"></i>
-                </button>
-            </div>
-            
-            <div class="wallet-actions" id="walletActions" style="display: none;">
-                <div class="action-btn" id="sendBtn">
-                    <i class="fas fa-paper-plane"></i>
-                    <span>Send</span>
+                
+                <div class="balance-section">
+                    <div class="balance-amount" id="walletBalance">0 ETH</div>
+                    <div class="balance-label">Total Balance</div>
                 </div>
-                <div class="action-btn" id="receiveBtn">
-                    <i class="fas fa-qrcode"></i>
-                    <span>Receive</span>
+                
+                <div class="wallet-address" id="walletAddressSection" style="display: none;">
+                    <div class="address-text" id="walletAddress">0x0000...0000</div>
+                    <button class="copy-btn" id="copyAddressBtn">
+                        <i class="fas fa-copy"></i>
+                    </button>
                 </div>
-                <div class="action-btn" id="swapBtn">
-                    <i class="fas fa-exchange-alt"></i>
-                    <span>Swap</span>
+                
+                <div class="wallet-actions" id="walletActions" style="display: none;">
+                    <div class="action-btn" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Send</span>
+                    </div>
+                    <div class="action-btn" id="receiveBtn">
+                        <i class="fas fa-qrcode"></i>
+                        <span>Receive</span>
+                    </div>
+                    <div class="action-btn" id="swapBtn">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Swap</span>
+                    </div>
+                    <div class="action-btn" id="importBtn">
+                        <i class="fas fa-download"></i>
+                        <span>Import</span>
+                    </div>
                 </div>
-                <div class="action-btn" id="importBtn">
-                    <i class="fas fa-download"></i>
-                    <span>Import</span>
-                </div>
-            </div>
-            
-            <!-- Connect Wallet Screen -->
-            <div class="connect-screen" id="connectScreen">
-                <div class="connect-icon">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <div class="connect-title">Connect Your Wallet</div>
-                <div class="connect-description">Connect your MetaMask wallet to manage your assets and make transactions</div>
-                <button class="btn btn-primary" id="connectWalletBtn">
-                    <i class="fas fa-plug"></i>
-                    Connect MetaMask
-                </button>
-                <div class="import-export-options">
-                    <div class="import-option" id="importWalletOption">
-                        <i class="fas fa-file-import"></i>
-                        <div class="option-details">
-                            <div class="option-title">Import Wallet</div>
-                            <div class="option-description">Import using private key or seed phrase</div>
+                
+                <!-- Connect Wallet Screen -->
+                <div class="connect-screen" id="connectScreen">
+                    <div class="connect-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="connect-title">Connect Your Wallet</div>
+                    <div class="connect-description">Connect your MetaMask wallet to manage your assets and make transactions</div>
+                    <button class="btn btn-primary" id="connectWalletBtn">
+                        <i class="fas fa-plug"></i>
+                        Connect MetaMask
+                    </button>
+                    <div class="import-export-options">
+                        <div class="import-option" id="importWalletOption">
+                            <i class="fas fa-file-import"></i>
+                            <div class="option-details">
+                                <div class="option-title">Import Wallet</div>
+                                <div class="option-description">Import using private key or seed phrase</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Tabs Container -->
-        <div class="tabs-container">
-            <div class="tabs-header">
-                <div class="tab active" data-tab="assets">Assets</div>
-                <div class="tab" data-tab="market">Market</div>
-                <div class="tab" data-tab="activity">Activity</div>
-                <div class="tab" data-tab="withdraw">Withdraw</div>
-                <div class="tab" data-tab="settings">Settings</div>
-            </div>
             
-            <!-- Assets Tab -->
-            <div class="tab-content active" id="assets-tab">
+            <!-- Assets Section -->
+            <div class="assets-section">
                 <div class="token-list" id="tokenList">
                     <!-- Token items will be added here dynamically -->
                 </div>
             </div>
             
-            <!-- Market Tab -->
-            <div class="tab-content" id="market-tab">
-                <div class="search-bar">
-                    <input type="text" class="search-input" id="marketSearch" placeholder="Search cryptocurrencies...">
-                </div>
-                <div class="market-list" id="marketList">
-                    <!-- Market data will be populated here -->
-                </div>
-            </div>
-            
-            <!-- Activity Tab -->
-            <div class="tab-content" id="activity-tab">
-                <div class="transaction-list" id="transactionList">
-                    <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
-                        <i class="fas fa-receipt" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                        <div>No transactions yet</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Withdraw Tab -->
-            <div class="tab-content" id="withdraw-tab">
+            <!-- Withdraw Section -->
+            <div class="withdraw-section">
                 <form id="withdrawForm">
                     <div class="form-group">
                         <label class="form-label" for="withdrawAmount">Amount to Withdraw (SA)</label>
@@ -1256,90 +1209,139 @@
                 <div class="status-message" id="withdrawMessage"></div>
             </div>
             
-            <!-- Settings Tab -->
-            <div class="tab-content" id="settings-tab">
-                <div class="settings-section">
-                    <div class="settings-title">Profile</div>
-                    <div class="security-item">
-                        <div class="security-info">
-                            <div class="security-title" id="profileName">User Profile</div>
-                            <div class="security-description" id="profileEmail">user@example.com</div>
-                        </div>
-                        <div class="security-status status-enabled">Connected</div>
-                    </div>
-                </div>
-                
-                <div class="settings-section">
-                    <div class="settings-title">Security</div>
-                    <div class="security-item">
-                        <div class="security-info">
-                            <div class="security-title">PIN Protection</div>
-                            <div class="security-description">Require PIN for transactions</div>
-                        </div>
-                        <div class="security-status status-enabled" id="pinStatus">Enabled</div>
-                    </div>
-                    <div class="security-item">
-                        <div class="security-info">
-                            <div class="security-title">Biometric Authentication</div>
-                            <div class="security-description">Use fingerprint or face ID</div>
-                        </div>
-                        <div class="security-status status-disabled" id="biometricStatus">Disabled</div>
-                    </div>
-                    <div class="security-item">
-                        <div class="security-info">
-                            <div class="security-title">Auto-Lock</div>
-                            <div class="security-description">Lock wallet after 5 minutes</div>
-                        </div>
-                        <div class="security-status status-enabled" id="autolockStatus">Enabled</div>
-                    </div>
-                    
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label class="form-label" for="changePin">Change PIN</label>
-                        <input type="password" class="form-input" id="changePin" placeholder="Enter new 6-digit PIN" maxlength="6" pattern="[0-9]{6}">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="confirmPin">Confirm New PIN</label>
-                        <input type="password" class="form-input" id="confirmPin" placeholder="Confirm new PIN" maxlength="6" pattern="[0-9]{6}">
-                    </div>
-                    
-                    <button class="btn btn-secondary btn-block" id="updatePinBtn">
-                        <i class="fas fa-key"></i>
-                        Update PIN
-                    </button>
-                </div>
-                
-                <div class="settings-section">
-                    <div class="settings-title">Wallet</div>
-                    <button class="btn btn-secondary btn-block" id="exportWalletBtn" style="margin-bottom: 10px;">
-                        <i class="fas fa-file-export"></i>
-                        Export Wallet
-                    </button>
-                    <button class="btn btn-secondary btn-block" id="importWalletSettingsBtn">
-                        <i class="fas fa-file-import"></i>
-                        Import Wallet
-                    </button>
-                </div>
-                
-                <div class="settings-section">
-                    <div class="settings-title">Appearance</div>
-                    <button class="btn btn-secondary btn-block" id="themeToggleSettingsBtn">
-                        <i class="fas fa-moon"></i>
-                        <span id="themeToggleSettingsText">Switch to Light Mode</span>
-                    </button>
-                </div>
-                
-                <div class="settings-section">
-                    <button class="btn btn-primary btn-block" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
+            <!-- Status Messages -->
+            <div class="status-message" id="walletMessage"></div>
+        </div>
+        
+        <!-- Market Page -->
+        <div class="page" id="market-page">
+            <div class="page-header">
+                <button class="back-btn" id="marketBackBtn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="page-title">Market</div>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" class="search-input" id="marketSearch" placeholder="Search cryptocurrencies...">
+            </div>
+            <div class="market-list" id="marketList">
+                <!-- Market data will be populated here -->
+            </div>
+        </div>
+        
+        <!-- Activity Page -->
+        <div class="page" id="activity-page">
+            <div class="page-header">
+                <button class="back-btn" id="activityBackBtn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="page-title">Activity</div>
+            </div>
+            
+            <div class="transaction-list" id="transactionList">
+                <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                    <i class="fas fa-receipt" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <div>No transactions yet</div>
                 </div>
             </div>
         </div>
         
-        <!-- Status Messages -->
-        <div class="status-message" id="walletMessage"></div>
+        <!-- Settings Page -->
+        <div class="page" id="settings-page">
+            <div class="page-header">
+                <button class="back-btn" id="settingsBackBtn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="page-title">Settings</div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-title">Profile</div>
+                <div class="security-item">
+                    <div class="security-info">
+                        <div class="security-title" id="profileName">User Profile</div>
+                        <div class="security-description" id="profileEmail">user@example.com</div>
+                    </div>
+                    <div class="security-status status-enabled">Connected</div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-title">Security</div>
+                <div class="security-item">
+                    <div class="security-info">
+                        <div class="security-title">PIN Protection</div>
+                        <div class="security-description">Require PIN for transactions</div>
+                    </div>
+                    <div class="security-status status-enabled" id="pinStatus">Enabled</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-info">
+                        <div class="security-title">Biometric Authentication</div>
+                        <div class="security-description">Use fingerprint or face ID</div>
+                    </div>
+                    <div class="security-status status-disabled" id="biometricStatus">Disabled</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-info">
+                        <div class="security-title">Auto-Lock</div>
+                        <div class="security-description">Lock wallet after 5 minutes</div>
+                    </div>
+                    <div class="security-status status-enabled" id="autolockStatus">Enabled</div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label class="form-label" for="changePin">Change PIN</label>
+                    <input type="password" class="form-input" id="changePin" placeholder="Enter new 6-digit PIN" maxlength="6" pattern="[0-9]{6}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="confirmPin">Confirm New PIN</label>
+                    <input type="password" class="form-input" id="confirmPin" placeholder="Confirm new PIN" maxlength="6" pattern="[0-9]{6}">
+                </div>
+                
+                <button class="btn btn-secondary btn-block" id="updatePinBtn">
+                    <i class="fas fa-key"></i>
+                    Update PIN
+                </button>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-title">Wallet</div>
+                <button class="btn btn-secondary btn-block" id="exportWalletBtn" style="margin-bottom: 10px;">
+                    <i class="fas fa-file-export"></i>
+                    Export Wallet
+                </button>
+                <button class="btn btn-secondary btn-block" id="importWalletSettingsBtn">
+                    <i class="fas fa-file-import"></i>
+                    Import Wallet
+                </button>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-title">Tokens</div>
+                <button class="btn btn-secondary btn-block" id="importTokenBtn">
+                    <i class="fas fa-plus-circle"></i>
+                    Import Token
+                </button>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-title">Appearance</div>
+                <button class="btn btn-secondary btn-block" id="themeToggleSettingsBtn">
+                    <i class="fas fa-moon"></i>
+                    <span id="themeToggleSettingsText">Switch to Light Mode</span>
+                </button>
+            </div>
+            
+            <div class="settings-section">
+                <button class="btn btn-primary btn-block" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
     </div>
     
     <!-- Receive Modal -->
@@ -1360,7 +1362,7 @@
         </div>
     </div>
     
-    <!-- Import Modal -->
+    <!-- Import Wallet Modal -->
     <div class="modal" id="importModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1412,6 +1414,37 @@
         </div>
     </div>
     
+    <!-- Import Token Modal -->
+    <div class="modal" id="importTokenModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Import Token</div>
+                <button class="close-modal" id="closeImportTokenModal">&times;</button>
+            </div>
+            <form id="importTokenForm">
+                <div class="form-group">
+                    <label class="form-label" for="tokenContractAddress">Token Contract Address</label>
+                    <input type="text" class="form-input" id="tokenContractAddress" placeholder="Enter token contract address" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="tokenSymbol">Token Symbol</label>
+                    <input type="text" class="form-input" id="tokenSymbol" placeholder="Enter token symbol (e.g., UNI)" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="tokenDecimals">Token Decimals</label>
+                    <input type="number" class="form-input" id="tokenDecimals" placeholder="Enter token decimals (usually 18)" value="18" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-plus"></i>
+                    Import Token
+                </button>
+            </form>
+        </div>
+    </div>
+    
     <!-- Chart Modal -->
     <div class="modal" id="chartModal">
         <div class="modal-content" style="max-width: 500px;">
@@ -1446,19 +1479,19 @@
     
     <!-- Footer Navigation -->
     <div class="footer">
-        <button class="footer-btn active" data-tab="assets">
+        <button class="footer-btn active" data-page="home">
             <i class="fas fa-home"></i>
             <span>Home</span>
         </button>
-        <button class="footer-btn" data-tab="market">
+        <button class="footer-btn" data-page="market">
             <i class="fas fa-chart-line"></i>
             <span>Market</span>
         </button>
-        <button class="footer-btn" data-tab="activity">
+        <button class="footer-btn" data-page="activity">
             <i class="fas fa-wallet"></i>
             <span>Activity</span>
         </button>
-        <button class="footer-btn" data-tab="settings">
+        <button class="footer-btn" data-page="settings">
             <i class="fas fa-cog"></i>
             <span>Settings</span>
         </button>
@@ -1484,6 +1517,7 @@
     let currentBalance = "0";
     let marketData = [];
     let tokens = [];
+    let customTokens = [];
     let appwriteInitialized = false;
     let priceChart = null;
     let currentChartCoin = null;
@@ -1496,12 +1530,12 @@
     // Initialize the application
     function initializeApp() {
         setupEventListeners();
-        setupTabs();
         checkWalletConnection();
         setInitialTheme();
         generateReferralCode();
         loadMarketData();
         setupDefaultTokens();
+        loadCustomTokens();
         initializeAppwrite();
     }
 
@@ -1620,17 +1654,22 @@
         // Wallet connection
         document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
         
-        // Footer navigation
+        // Page navigation
         document.querySelectorAll('.footer-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const tabId = this.getAttribute('data-tab');
-                switchTab(tabId);
+                const pageId = this.getAttribute('data-page');
+                switchPage(pageId);
                 
                 // Update active state
                 document.querySelectorAll('.footer-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
             });
         });
+        
+        // Back buttons
+        document.getElementById('marketBackBtn').addEventListener('click', () => switchPage('home'));
+        document.getElementById('activityBackBtn').addEventListener('click', () => switchPage('home'));
+        document.getElementById('settingsBackBtn').addEventListener('click', () => switchPage('home'));
         
         // Theme toggle
         document.getElementById('themeToggleSettingsBtn').addEventListener('click', toggleTheme);
@@ -1653,10 +1692,12 @@
         // Import options
         document.getElementById('importWalletOption').addEventListener('click', openImportModal);
         document.getElementById('importWalletSettingsBtn').addEventListener('click', openImportModal);
+        document.getElementById('importTokenBtn').addEventListener('click', openImportTokenModal);
         
         // Form submission
         document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
         document.getElementById('importForm').addEventListener('submit', importWallet);
+        document.getElementById('importTokenForm').addEventListener('submit', importToken);
         
         // Market search
         document.getElementById('marketSearch').addEventListener('input', filterMarketData);
@@ -1665,6 +1706,7 @@
         document.getElementById('closeReceiveModal').addEventListener('click', closeReceiveModal);
         document.getElementById('copyQrAddressBtn').addEventListener('click', copyQrAddress);
         document.getElementById('closeImportModal').addEventListener('click', closeImportModal);
+        document.getElementById('closeImportTokenModal').addEventListener('click', closeImportTokenModal);
         document.getElementById('closeChartModal').addEventListener('click', closeChartModal);
         
         // Chart controls
@@ -1693,6 +1735,12 @@
             }
         });
         
+        document.getElementById('importTokenModal').addEventListener('click', function(e) {
+            if (e.target.id === 'importTokenModal') {
+                closeImportTokenModal();
+            }
+        });
+        
         document.getElementById('chartModal').addEventListener('click', function(e) {
             if (e.target.id === 'chartModal') {
                 closeChartModal();
@@ -1709,36 +1757,20 @@
         }
     }
 
-    // Set up tabs
-    function setupTabs() {
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
+    // Switch between pages
+    function switchPage(pageId) {
+        const pages = document.querySelectorAll('.page');
         
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.getAttribute('data-tab');
-                switchTab(tabId);
-            });
-        });
-    }
-
-    // Switch between tabs
-    function switchTab(tabId) {
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
+        // Hide all pages
+        pages.forEach(page => page.classList.remove('active'));
         
-        // Update active tab
-        tabs.forEach(t => t.classList.remove('active'));
-        document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
-        
-        // Show active tab content
-        tabContents.forEach(content => content.classList.remove('active'));
-        document.getElementById(`${tabId}-tab`).classList.add('active');
+        // Show selected page
+        document.getElementById(`${pageId}-page`).classList.add('active');
         
         // Refresh data if needed
-        if (tabId === 'activity') {
+        if (pageId === 'activity') {
             updateTransactionList();
-        } else if (tabId === 'market') {
+        } else if (pageId === 'market') {
             loadMarketData();
         }
     }
@@ -2151,13 +2183,24 @@
         document.getElementById('importForm').reset();
     }
 
+    // Open import token modal
+    function openImportTokenModal() {
+        document.getElementById('importTokenModal').style.display = 'flex';
+    }
+
+    // Close import token modal
+    function closeImportTokenModal() {
+        document.getElementById('importTokenModal').style.display = 'none';
+        document.getElementById('importTokenForm').reset();
+    }
+
     // Open chart modal
     function openChartModal(coin) {
         currentChartCoin = coin;
         document.getElementById('chartCoinTitle').textContent = `${coin.name} (${coin.symbol.toUpperCase()})`;
         document.getElementById('chartPrice').textContent = `$${coin.current_price.toLocaleString()}`;
         
-        // Generate chart
+        // Generate chart with real data
         generatePriceChart(coin);
         
         // Show modal
@@ -2262,6 +2305,73 @@
         } catch (error) {
             console.error('Error importing wallet:', error);
             showMessage('walletMessage', 'Error importing wallet: ' + error.message, 'error');
+        }
+    }
+
+    // Import token
+    async function importToken(e) {
+        e.preventDefault();
+        
+        const contractAddress = document.getElementById('tokenContractAddress').value;
+        const symbol = document.getElementById('tokenSymbol').value;
+        const decimals = parseInt(document.getElementById('tokenDecimals').value);
+        
+        if (!contractAddress || !symbol) {
+            showMessage('walletMessage', 'Please fill in all required fields', 'error');
+            return;
+        }
+        
+        if (!ethers.isAddress(contractAddress)) {
+            showMessage('walletMessage', 'Please enter a valid contract address', 'error');
+            return;
+        }
+        
+        try {
+            // Check if token already exists
+            const existingToken = customTokens.find(token => 
+                token.contractAddress.toLowerCase() === contractAddress.toLowerCase()
+            );
+            
+            if (existingToken) {
+                showMessage('walletMessage', 'Token already imported', 'error');
+                return;
+            }
+            
+            // Create token object
+            const newToken = {
+                name: symbol,
+                symbol: symbol,
+                contractAddress: contractAddress,
+                decimals: decimals,
+                balance: '0',
+                value: '0',
+                icon: 'fas fa-coins',
+                isCustom: true
+            };
+            
+            // Add to custom tokens
+            customTokens.push(newToken);
+            
+            // Save to localStorage
+            localStorage.setItem('customTokens', JSON.stringify(customTokens));
+            
+            // Update token list
+            updateTokenBalances();
+            
+            showMessage('walletMessage', `Token ${symbol} imported successfully!`, 'success');
+            closeImportTokenModal();
+            
+        } catch (error) {
+            console.error('Error importing token:', error);
+            showMessage('walletMessage', 'Error importing token: ' + error.message, 'error');
+        }
+    }
+
+    // Load custom tokens from localStorage
+    function loadCustomTokens() {
+        const savedTokens = localStorage.getItem('customTokens');
+        if (savedTokens) {
+            customTokens = JSON.parse(savedTokens);
         }
     }
 
@@ -2425,8 +2535,8 @@
         return iconMap[symbol] || 'ethereum';
     }
 
-    // Generate price chart
-    function generatePriceChart(coin) {
+    // Generate price chart with real historical data
+    async function generatePriceChart(coin) {
         const ctx = document.getElementById('priceChart').getContext('2d');
         
         // Destroy existing chart if it exists
@@ -2434,81 +2544,165 @@
             priceChart.destroy();
         }
         
-        // Generate sample price data (in a real app, you would fetch historical data)
-        const timeframes = {
-            '1D': generateSampleData(24, 0.1),
-            '1W': generateSampleData(7, 0.5),
-            '1M': generateSampleData(30, 2),
-            '1Y': generateSampleData(12, 10)
-        };
-        
-        const data = timeframes['1D']; // Default to 1D
-        
-        priceChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    label: `${coin.symbol.toUpperCase()} Price`,
-                    data: data.prices,
-                    borderColor: coin.price_change_percentage_24h >= 0 ? 'rgba(35, 209, 96, 1)' : 'rgba(255, 56, 96, 1)',
-                    backgroundColor: coin.price_change_percentage_24h >= 0 ? 'rgba(35, 209, 96, 0.1)' : 'rgba(255, 56, 96, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 0,
-                    pointHoverRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        callbacks: {
-                            label: function(context) {
-                                return `$${context.parsed.y.toFixed(2)}`;
+        try {
+            // Fetch historical data from CoinGecko
+            const response = await fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart?vs_currency=usd&days=365&interval=daily`);
+            const data = await response.json();
+            
+            // Process the data for the chart
+            const prices = data.prices.map(price => price[1]);
+            const labels = data.prices.map((price, index) => {
+                const date = new Date(price[0]);
+                return date.toLocaleDateString();
+            });
+            
+            // Create the chart
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${coin.symbol.toUpperCase()} Price`,
+                        data: prices,
+                        borderColor: coin.price_change_percentage_24h >= 0 ? 'rgba(35, 209, 96, 1)' : 'rgba(255, 56, 96, 1)',
+                        backgroundColor: coin.price_change_percentage_24h >= 0 ? 'rgba(35, 209, 96, 0.1)' : 'rgba(255, 56, 96, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `$${context.parsed.y.toFixed(2)}`;
+                                }
                             }
                         }
-                    }
-                },
-                scales: {
-                    x: {
-                        display: false
                     },
-                    y: {
-                        display: false
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            display: false
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'nearest'
                     }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'nearest'
                 }
-            }
-        });
+            });
+        } catch (error) {
+            console.error('Error fetching historical data:', error);
+            
+            // Fallback to sample data if API fails
+            const timeframes = {
+                '1D': generateSampleData(24, coin.current_price * 0.1),
+                '1W': generateSampleData(7, coin.current_price * 0.5),
+                '1M': generateSampleData(30, coin.current_price * 2),
+                '1Y': generateSampleData(12, coin.current_price * 10)
+            };
+            
+            const data = timeframes['1D']; // Default to 1D
+            
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: `${coin.symbol.toUpperCase()} Price`,
+                        data: data.prices,
+                        borderColor: coin.price_change_percentage_24h >= 0 ? 'rgba(35, 209, 96, 1)' : 'rgba(255, 56, 96, 1)',
+                        backgroundColor: coin.price_change_percentage_24h >= 0 ? 'rgba(35, 209, 96, 0.1)' : 'rgba(255, 56, 96, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `$${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            display: false
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'nearest'
+                    }
+                }
+            });
+            
+            showMessage('walletMessage', 'Using sample chart data due to API limits', 'info');
+        }
     }
 
     // Update chart based on timeframe
-    function updateChart(timeframe) {
+    async function updateChart(timeframe) {
         if (!currentChartCoin || !priceChart) return;
         
-        const timeframes = {
-            '1D': generateSampleData(24, 0.1),
-            '1W': generateSampleData(7, 0.5),
-            '1M': generateSampleData(30, 2),
-            '1Y': generateSampleData(12, 10)
-        };
-        
-        const data = timeframes[timeframe];
-        
-        priceChart.data.labels = data.labels;
-        priceChart.data.datasets[0].data = data.prices;
-        priceChart.update();
+        try {
+            // Convert timeframe to days
+            let days = 1;
+            if (timeframe === '1W') days = 7;
+            else if (timeframe === '1M') days = 30;
+            else if (timeframe === '1Y') days = 365;
+            
+            // Fetch historical data for the selected timeframe
+            const response = await fetch(`https://api.coingecko.com/api/v3/coins/${currentChartCoin.id}/market_chart?vs_currency=usd&days=${days}&interval=${days <= 7 ? 'hourly' : 'daily'}`);
+            const data = await response.json();
+            
+            // Process the data for the chart
+            const prices = data.prices.map(price => price[1]);
+            const labels = data.prices.map((price, index) => {
+                const date = new Date(price[0]);
+                if (days <= 7) {
+                    return date.toLocaleTimeString();
+                } else {
+                    return date.toLocaleDateString();
+                }
+            });
+            
+            // Update the chart
+            priceChart.data.labels = labels;
+            priceChart.data.datasets[0].data = prices;
+            priceChart.update();
+        } catch (error) {
+            console.error('Error updating chart:', error);
+            // Keep the current chart data if API fails
+        }
     }
 
     // Generate sample price data
@@ -2644,14 +2838,17 @@
     function renderTokenList() {
         const tokenList = document.getElementById('tokenList');
         
-        if (!tokens || tokens.length === 0) {
+        // Combine default tokens and custom tokens
+        const allTokens = [...tokens, ...customTokens];
+        
+        if (!allTokens || allTokens.length === 0) {
             tokenList.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">No tokens found</div>';
             return;
         }
         
         let tokenHTML = '';
         
-        tokens.forEach(token => {
+        allTokens.forEach(token => {
             tokenHTML += `
                 <div class="token-item">
                     <div class="token-info">
@@ -2696,6 +2893,20 @@
             tokens[3].balance = (Math.random() * 1000).toFixed(2);
             tokens[3].value = tokens[3].balance; // USDT is 1:1 with USD
             
+            // Update custom token balances (for demo, using random values)
+            customTokens.forEach(token => {
+                token.balance = (Math.random() * 1000).toFixed(2);
+                // Try to find price in market data, otherwise use random value
+                const marketToken = marketData.find(coin => 
+                    coin.symbol.toLowerCase() === token.symbol.toLowerCase()
+                );
+                if (marketToken) {
+                    token.value = (parseFloat(token.balance) * marketToken.current_price).toFixed(2);
+                } else {
+                    token.value = (parseFloat(token.balance) * (Math.random() * 10)).toFixed(2);
+                }
+            });
+            
             renderTokenList();
         } catch (error) {
             console.error('Error updating token balances:', error);
@@ -2705,6 +2916,11 @@
     // Reset token balances when disconnecting
     function resetTokenBalances() {
         tokens.forEach(token => {
+            token.balance = '0';
+            token.value = '0';
+        });
+        
+        customTokens.forEach(token => {
             token.balance = '0';
             token.value = '0';
         });
