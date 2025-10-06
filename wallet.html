@@ -1,119 +1,1306 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SupremeAmer Wallet V2</title>
-  <script src="https:                                                                     
-  <script src="https://unpkg.com/@walletconnect/web3modal@2.5.0/dist/index.umd.js"></script>
-  <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupremeAmer Wallet | MetaMask Integration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.4.0/dist/ethers.umd.min.js"></script>
+    <style>
+    :root {
+        --primary: #FFB800;
+        --primary-dark: #E6A600;
+        --secondary: #FF8A00;
+        --accent: #FF3860;
+        --success: #23D160;
+        --warning: #FFDD57;
+        --dark-bg: #121212;
+        --dark-card: #1E1E1E;
+        --dark-surface: #2D2D2D;
+        --light-bg: #F8F9FA;
+        --light-card: #FFFFFF;
+        --light-surface: #F1F3F4;
+        --text-dark: #FFFFFF;
+        --text-light: #333333;
+        --text-secondary: #888888;
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        --radius: 16px;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
     body {
-      background: #111;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
+        font-family: 'Montserrat', sans-serif;
+        min-height: 100vh;
+        background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a1a 100%);
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+        padding-bottom: 90px;
     }
+
+    body.light {
+        background: linear-gradient(135deg, var(--light-bg) 0%, #e9ecef 100%);
+        color: var(--text-light);
+    }
+
+    /* Header Styles */
+    .header {
+        width: 100%;
+        padding: 20px 0 15px 0;
+        text-align: center;
+        background: rgba(30, 30, 30, 0.8);
+        font-size: 1.8rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        box-shadow: 0 2px 20px rgba(255, 184, 0, 0.15);
+        position: relative;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 184, 0, 0.1);
+    }
+
+    body.light .header {
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .header-actions {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    /* Profile Dropdown */
+    .profile-btn {
+        background: rgba(255, 184, 0, 0.1);
+        border: 1px solid rgba(255, 184, 0, 0.2);
+        color: var(--primary);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .profile-btn:hover {
+        background: rgba(255, 184, 0, 0.2);
+        transform: scale(1.05);
+    }
+
+    .profile-dropdown {
+        display: none;
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        background: var(--dark-card);
+        min-width: 220px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        z-index: 1001;
+        color: var(--text-dark);
+        animation: fadeIn 0.25s ease;
+        text-align: left;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+    }
+
+    body.light .profile-dropdown {
+        background: var(--light-card);
+        color: var(--text-light);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .profile-dropdown .user-info {
+        padding: 16px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    body.light .profile-dropdown .user-info {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .profile-dropdown .user-info .name {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .profile-dropdown .user-info .email {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .profile-dropdown .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-family: 'Montserrat', sans-serif;
+        color: inherit;
+        font-size: 0.95rem;
+    }
+
+    .profile-dropdown .menu-item i {
+        margin-right: 12px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .profile-dropdown .menu-item:hover {
+        background: rgba(255, 184, 0, 0.1);
+    }
+
+    /* Main Container */
+    .container {
+        width: 100%;
+        max-width: 500px;
+        padding: 0 20px;
+        margin-top: 20px;
+    }
+
+    /* Wallet Card */
+    .wallet-card {
+        background: var(--dark-card);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: var(--shadow);
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    body.light .wallet-card {
+        background: var(--light-card);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .wallet-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .wallet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .wallet-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .network-badge {
+        background: rgba(255, 184, 0, 0.1);
+        color: var(--primary);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .balance-section {
+        text-align: center;
+        margin: 25px 0;
+    }
+
+    .balance-amount {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .balance-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .wallet-address {
+        background: var(--dark-surface);
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-family: monospace;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    body.light .wallet-address {
+        background: var(--light-surface);
+    }
+
+    .address-text {
+        word-break: break-all;
+    }
+
+    .copy-btn {
+        background: none;
+        border: none;
+        color: var(--primary);
+        cursor: pointer;
+        font-size: 1rem;
+        margin-left: 10px;
+        transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+        color: var(--secondary);
+    }
+
+    .wallet-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .action-btn {
+        background: var(--dark-surface);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    body.light .action-btn {
+        background: var(--light-surface);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 184, 0, 0.05);
+    }
+
+    .action-btn i {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        color: var(--primary);
+    }
+
+    .action-btn span {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    /* Tabs */
+    .tabs-container {
+        background: var(--dark-card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    body.light .tabs-container {
+        background: var(--light-card);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .tabs-header {
+        display: flex;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    body.light .tabs-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .tab {
+        flex: 1;
+        padding: 16px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .tab.active {
+        color: var(--primary);
+    }
+
+    .tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 20%;
+        right: 20%;
+        height: 3px;
+        background: var(--primary);
+        border-radius: 3px 3px 0 0;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 24px;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    /* Forms */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--dark-surface);
+        color: var(--text-dark);
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    body.light .form-input {
+        background: var(--light-surface);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        color: var(--text-light);
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(255, 184, 0, 0.2);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* Buttons */
     .btn {
-      background: linear-gradient(90deg, #ffb800, #ff8a00);
-      color: #111;
-      border: none;
-      border-radius: 10px;
-      padding: 14px 26px;
-      font-weight: bold;
-      font-size: 1.1em;
-      margin: 10px;
-      cursor: pointer;
-      transition: 0.2s;
+        padding: 14px 24px;
+        border-radius: 12px;
+        border: none;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
-    .btn:hover {
-      transform: scale(1.05);
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #000;
+        box-shadow: 0 4px 14px rgba(255, 152, 0, 0.4);
     }
-    #walletAddress {
-      margin-top: 20px;
-      font-family: monospace;
-      background: rgba(255,255,255,0.1);
-      display: inline-block;
-      padding: 8px 14px;
-      border-radius: 6px;
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 152, 0, 0.5);
     }
-  </style>
+
+    .btn-block {
+        width: 100%;
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Status Messages */
+    .status-message {
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin: 16px 0;
+        font-size: 0.9rem;
+        display: none;
+    }
+
+    .status-success {
+        background: rgba(35, 209, 96, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(35, 209, 96, 0.2);
+    }
+
+    .status-error {
+        background: rgba(255, 56, 96, 0.1);
+        color: var(--accent);
+        border: 1px solid rgba(255, 56, 96, 0.2);
+    }
+
+    .status-info {
+        background: rgba(255, 184, 0, 0.1);
+        color: var(--primary);
+        border: 1px solid rgba(255, 184, 0, 0.2);
+    }
+
+    /* Transaction History */
+    .transaction-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .transaction-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.2s ease;
+    }
+
+    body.light .transaction-item {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .transaction-item:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    body.light .transaction-item:hover {
+        background: rgba(0, 0, 0, 0.02);
+    }
+
+    .transaction-details {
+        flex: 1;
+    }
+
+    .transaction-amount {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .transaction-date {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .transaction-status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: rgba(255, 221, 87, 0.1);
+        color: var(--warning);
+    }
+
+    .status-completed {
+        background: rgba(35, 209, 96, 0.1);
+        color: var(--success);
+    }
+
+    .status-failed {
+        background: rgba(255, 56, 96, 0.1);
+        color: var(--accent);
+    }
+
+    /* Footer */
+    .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--dark-card);
+        padding: 15px 0;
+        display: flex;
+        justify-content: space-around;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        z-index: 999;
+    }
+
+    body.light .footer {
+        background: var(--light-card);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .footer-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 8px 16px;
+        border-radius: 12px;
+    }
+
+    .footer-btn i {
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+    }
+
+    .footer-btn span {
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .footer-btn.active {
+        color: var(--primary);
+    }
+
+    .footer-btn:hover {
+        color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    /* Connect Wallet Screen */
+    .connect-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .connect-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: var(--primary);
+    }
+
+    .connect-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .connect-description {
+        color: var(--text-secondary);
+        margin-bottom: 30px;
+        max-width: 300px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+        .container {
+            padding: 0 15px;
+        }
+        
+        .header {
+            font-size: 1.5rem;
+            padding: 18px 0 14px 0;
+        }
+        
+        .balance-amount {
+            font-size: 2rem;
+        }
+        
+        .wallet-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+    </style>
 </head>
 <body>
+    <!-- Header -->
+    <div class="header">
+        SUPREMEAMER WALLET
+        <div class="header-actions">
+            <button class="profile-btn" id="profileDropdownBtn">
+                <i class="fas fa-user"></i>
+            </button>
+        </div>
+        
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" id="profileDropdown">
+            <div class="user-info">
+                <div class="name" id="dropdownUsername">User</div>
+                <div class="email" id="dropdownEmail">user@example.com</div>
+            </div>
+            <button class="menu-item" id="themeToggleBtn">
+                <i class="fas fa-moon"></i>
+                <span id="themeToggleText">Dark Mode</span>
+            </button>
+            <button class="menu-item" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Wallet Card -->
+        <div class="wallet-card" id="walletCard">
+            <div class="wallet-header">
+                <div class="wallet-title">My Wallet</div>
+                <div class="network-badge" id="networkBadge">
+                    <i class="fas fa-circle"></i>
+                    <span id="networkName">Not Connected</span>
+                </div>
+            </div>
+            
+            <div class="balance-section">
+                <div class="balance-amount" id="walletBalance">0 ETH</div>
+                <div class="balance-label">Total Balance</div>
+            </div>
+            
+            <div class="wallet-address" id="walletAddressSection" style="display: none;">
+                <div class="address-text" id="walletAddress">0x0000...0000</div>
+                <button class="copy-btn" id="copyAddressBtn">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            
+            <div class="wallet-actions" id="walletActions" style="display: none;">
+                <div class="action-btn" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Send</span>
+                </div>
+                <div class="action-btn" id="receiveBtn">
+                    <i class="fas fa-qrcode"></i>
+                    <span>Receive</span>
+                </div>
+                <div class="action-btn" id="swapBtn">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Swap</span>
+                </div>
+                <div class="action-btn" id="buyBtn">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Buy</span>
+                </div>
+            </div>
+            
+            <!-- Connect Wallet Screen -->
+            <div class="connect-screen" id="connectScreen">
+                <div class="connect-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="connect-title">Connect Your Wallet</div>
+                <div class="connect-description">Connect your MetaMask wallet to manage your assets and make transactions</div>
+                <button class="btn btn-primary" id="connectWalletBtn">
+                    <i class="fas fa-plug"></i>
+                    Connect MetaMask
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <div class="tab active" data-tab="assets">Assets</div>
+                <div class="tab" data-tab="activity">Activity</div>
+                <div class="tab" data-tab="withdraw">Withdraw</div>
+            </div>
+            
+            <!-- Assets Tab -->
+            <div class="tab-content active" id="assets-tab">
+                <div class="token-list" id="tokenList">
+                    <!-- Token items will be added here dynamically -->
+                    <div class="transaction-item">
+                        <div class="transaction-details">
+                            <div class="transaction-amount">Ethereum (ETH)</div>
+                            <div class="transaction-date">Balance: 0.00</div>
+                        </div>
+                        <div class="transaction-amount">$0.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Activity Tab -->
+            <div class="tab-content" id="activity-tab">
+                <div class="transaction-list" id="transactionList">
+                    <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                        <i class="fas fa-receipt" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <div>No transactions yet</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Withdraw Tab -->
+            <div class="tab-content" id="withdraw-tab">
+                <form id="withdrawForm">
+                    <div class="form-group">
+                        <label class="form-label" for="withdrawAmount">Amount to Withdraw (SA)</label>
+                        <input type="number" class="form-input" id="withdrawAmount" placeholder="Enter amount" min="50000" step="1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="recipientAddress">Your SA Token Address</label>
+                        <input type="text" class="form-input" id="recipientAddress" placeholder="Enter your SA token address" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="userEmail">Email Address</label>
+                        <input type="email" class="form-input" id="userEmail" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="referralCode">Referral Code (Optional)</label>
+                        <input type="text" class="form-input" id="referralCode" placeholder="Enter referral code">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="additionalNotes">Additional Notes (Optional)</label>
+                        <textarea class="form-input form-textarea" id="additionalNotes" placeholder="Any additional information"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block" id="submitWithdrawBtn" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Withdrawal Request
+                    </button>
+                </form>
+                
+                <div class="status-message" id="withdrawMessage"></div>
+            </div>
+        </div>
+        
+        <!-- Status Messages -->
+        <div class="status-message" id="walletMessage"></div>
+    </div>
+    
+    <!-- Footer Navigation -->
+    <div class="footer">
+        <button class="footer-btn active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </button>
+        <button class="footer-btn">
+            <i class="fas fa-chart-line"></i>
+            <span>Markets</span>
+        </button>
+        <button class="footer-btn">
+            <i class="fas fa-wallet"></i>
+            <span>Wallet</span>
+        </button>
+        <button class="footer-btn">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </button>
+    </div>
 
-  <h1>🚀 SupremeAmer Wallet V2</h1>
-  <p>Connect using MetaMask or any WalletConnect-supported wallet.</p>
+    <script>
+    // Configuration
+    const INFURA_ID = "YOUR_INFURA_ID_HERE"; // Replace with your Infura ID
+    const WITHDRAW_FEE_BNB = "0.0017";
+    const WITHDRAW_MIN_SA = 50000;
 
-  <button id="connectWalletBtn" class="btn">🔗 Connect Wallet</button>
-  <button id="disconnectWalletBtn" class="btn" style="display:none;">❌ Disconnect</button>
+    // Wallet state
+    let walletConnected = false;
+    let currentAccount = null;
+    let provider = null;
+    let signer = null;
+    let currentBalance = "0";
 
-  <div id="walletAddress"></div>
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeApp();
+    });
 
-  <script>
-    const projectId = "a7ee9b08cbb15f7e318b5bfe1a2b3c79"; // Replace with your WalletConnect Project ID
+    // Initialize the application
+    function initializeApp() {
+        setupEventListeners();
+        setupTabs();
+        checkWalletConnection();
+        setInitialTheme();
+        generateReferralCode();
+    }
 
-    let provider, signer, walletAddress;
-    let web3Modal;
-
-    // Initialize WalletConnect Modal
-    const { EthereumProvider, Web3Modal } = window.WalletConnectWeb3Modal;
-    const config = {
-      projectId,
-      themeMode: "dark",
-      walletImages: {},
-      chains: [
-        {
-          chainId: 56, // BSC Mainnet
-          name: "BNB Smart Chain",
-          currency: "BNB",
-          rpcUrl: "https:                             
-          explorerUrl: "https://bscscan.com",
+    // Set up event listeners
+    function setupEventListeners() {
+        // Wallet connection
+        document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
+        
+        // Profile dropdown
+        document.getElementById('profileDropdownBtn').addEventListener('click', toggleProfileDropdown);
+        document.addEventListener('click', closeProfileDropdown);
+        
+        // Theme toggle
+        document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        
+        // Copy address
+        document.getElementById('copyAddressBtn').addEventListener('click', copyAddress);
+        
+        // Wallet actions
+        document.getElementById('sendBtn').addEventListener('click', sendTokens);
+        document.getElementById('receiveBtn').addEventListener('click', receiveTokens);
+        document.getElementById('swapBtn').addEventListener('click', swapTokens);
+        document.getElementById('buyBtn').addEventListener('click', buyTokens);
+        
+        // Form submission
+        document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
+        
+        // MetaMask event listeners
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', handleAccountsChanged);
+            window.ethereum.on('chainChanged', handleChainChanged);
         }
-      ]
-    };
-    web3Modal = new Web3Modal(config);
+    }
 
+    // Set up tabs
+    function setupTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show active tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Refresh transaction list if activity tab is selected
+                if (tabId === 'activity') {
+                    updateTransactionList();
+                }
+            });
+        });
+    }
+
+    // Check if wallet is already connected
+    async function checkWalletConnection() {
+        if (window.ethereum) {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length > 0) {
+                    currentAccount = accounts[0];
+                    await setupProvider();
+                    updateWalletUI();
+                }
+            } catch (error) {
+                console.error('Error checking wallet connection:', error);
+            }
+        }
+    }
+
+    // Connect to MetaMask wallet
     async function connectWallet() {
-      try {
-        const instance = await web3Modal.openModal();
-        provider = new ethers.BrowserProvider(instance);
+        if (!window.ethereum) {
+            showMessage('walletMessage', 'MetaMask is not installed. Please install MetaMask to use this wallet.', 'error');
+            return;
+        }
+
+        try {
+            showMessage('walletMessage', 'Connecting to MetaMask...', 'info');
+            document.getElementById('connectWalletBtn').disabled = true;
+            document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
+
+            // Request account access
+            const accounts = await window.ethereum.request({ 
+                method: 'eth_requestAccounts' 
+            });
+
+            currentAccount = accounts[0];
+            await setupProvider();
+            updateWalletUI();
+            
+            showMessage('walletMessage', 'Wallet connected successfully!', 'success');
+            
+        } catch (error) {
+            console.error('Error connecting wallet:', error);
+            if (error.code === 4001) {
+                showMessage('walletMessage', 'Connection rejected by user.', 'error');
+            } else {
+                showMessage('walletMessage', 'Error connecting wallet: ' + error.message, 'error');
+            }
+        } finally {
+            document.getElementById('connectWalletBtn').disabled = false;
+            document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-plug"></i> Connect MetaMask';
+        }
+    }
+
+    // Set up provider and signer
+    async function setupProvider() {
+        // Use MetaMask provider
+        provider = new ethers.BrowserProvider(window.ethereum);
         signer = await provider.getSigner();
-        walletAddress = await signer.getAddress();
-
-        updateUI(walletAddress);
-      } catch (err) {
-        console.error("Connection Error:", err);
-        alert("Connection failed: " + err.message);
-      }
+        
+        // Get initial balance
+        await updateBalance();
+        
+        // Get network info
+        const network = await provider.getNetwork();
+        updateNetworkInfo(network);
     }
 
-    async function disconnectWallet() {
-      try {
-        await web3Modal.disconnect();
-      } catch (err) {
-        console.warn("Disconnect Error:", err);
-      }
-      resetUI();
+    // Update wallet balance
+    async function updateBalance() {
+        if (!provider || !currentAccount) return;
+        
+        try {
+            const balance = await provider.getBalance(currentAccount);
+            currentBalance = ethers.formatEther(balance);
+            document.getElementById('walletBalance').textContent = `${parseFloat(currentBalance).toFixed(4)} ETH`;
+        } catch (error) {
+            console.error('Error fetching balance:', error);
+        }
     }
 
-    function updateUI(address) {
-      document.getElementById("walletAddress").innerText = "Connected: " + address;
-      document.getElementById("connectWalletBtn").style.display = "none";
-      document.getElementById("disconnectWalletBtn").style.display = "inline-block";
+    // Update network information
+    function updateNetworkInfo(network) {
+        let networkName = 'Unknown';
+        
+        switch (network.chainId) {
+            case 1n:
+                networkName = 'Ethereum Mainnet';
+                break;
+            case 5n:
+                networkName = 'Goerli Testnet';
+                break;
+            case 11155111n:
+                networkName = 'Sepolia Testnet';
+                break;
+            case 56n:
+                networkName = 'BNB Smart Chain';
+                break;
+            case 137n:
+                networkName = 'Polygon';
+                break;
+            default:
+                networkName = `Chain ID: ${network.chainId}`;
+        }
+        
+        document.getElementById('networkName').textContent = networkName;
     }
 
-    function resetUI() {
-      provider = null;
-      signer = null;
-      walletAddress = null;
-      document.getElementById("walletAddress").innerText = "";
-      document.getElementById("connectWalletBtn").style.display = "inline-block";
-      document.getElementById("disconnectWalletBtn").style.display = "none";
+    // Update wallet UI after connection
+    function updateWalletUI() {
+        // Show wallet info
+        document.getElementById('connectScreen').style.display = 'none';
+        document.getElementById('walletAddressSection').style.display = 'flex';
+        document.getElementById('walletActions').style.display = 'grid';
+        
+        // Update address
+        document.getElementById('walletAddress').textContent = 
+            `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
+        
+        // Enable withdraw button
+        document.getElementById('submitWithdrawBtn').disabled = false;
+        document.getElementById('recipientAddress').value = currentAccount;
+        
+        walletConnected = true;
     }
 
-    document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
-    document.getElementById("disconnectWalletBtn").addEventListener("click", disconnectWallet);
-  </script>
+    // Handle account changes
+    function handleAccountsChanged(accounts) {
+        if (accounts.length === 0) {
+            // User disconnected their wallet
+            disconnectWallet();
+        } else if (accounts[0] !== currentAccount) {
+            // User switched accounts
+            currentAccount = accounts[0];
+            if (walletConnected) {
+                updateWalletUI();
+                updateBalance();
+            }
+        }
+    }
 
+    // Handle chain changes
+    function handleChainChanged(chainId) {
+        // Reload the page when the chain changes
+        window.location.reload();
+    }
+
+    // Disconnect wallet
+    function disconnectWallet() {
+        currentAccount = null;
+        provider = null;
+        signer = null;
+        walletConnected = false;
+        
+        // Reset UI
+        document.getElementById('connectScreen').style.display = 'flex';
+        document.getElementById('walletAddressSection').style.display = 'none';
+        document.getElementById('walletActions').style.display = 'none';
+        document.getElementById('walletBalance').textContent = '0 ETH';
+        document.getElementById('networkName').textContent = 'Not Connected';
+        document.getElementById('submitWithdrawBtn').disabled = true;
+        
+        showMessage('walletMessage', 'Wallet disconnected', 'info');
+    }
+
+    // Show status message
+    function showMessage(elementId, message, type = 'info') {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = `status-message status-${type}`;
+        element.style.display = 'block';
+        
+        // Auto-hide success and info messages after 5 seconds
+        if (type !== 'error') {
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    // Toggle profile dropdown
+    function toggleProfileDropdown(e) {
+        e.stopPropagation();
+        const dropdown = document.getElementById('profileDropdown');
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Close profile dropdown when clicking outside
+    function closeProfileDropdown(e) {
+        if (!e.target.closest('.profile-dropdown') && !e.target.closest('#profileDropdownBtn')) {
+            document.getElementById('profileDropdown').style.display = 'none';
+        }
+    }
+
+    // Toggle theme
+    function toggleTheme() {
+        const isLight = document.body.classList.contains('light');
+        setTheme(!isLight);
+    }
+
+    // Set theme
+    function setTheme(light) {
+        if (light) {
+            document.body.classList.add('light');
+            localStorage.setItem('theme', 'light');
+            document.getElementById('themeToggleText').textContent = 'Dark Mode';
+            document.getElementById('themeToggleBtn').innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+        } else {
+            document.body.classList.remove('light');
+            localStorage.setItem('theme', 'dark');
+            document.getElementById('themeToggleText').textContent = 'Light Mode';
+            document.getElementById('themeToggleBtn').innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+        }
+    }
+
+    // Set initial theme
+    function setInitialTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            setTheme(true);
+        } else {
+            setTheme(false);
+        }
+    }
+
+    // Copy address to clipboard
+    function copyAddress() {
+        navigator.clipboard.writeText(currentAccount).then(() => {
+            showMessage('walletMessage', 'Address copied to clipboard!', 'success');
+        }).catch(err => {
+            console.error('Failed to copy address: ', err);
+            showMessage('walletMessage', 'Failed to copy address', 'error');
+        });
+    }
+
+    // Generate referral code
+    function generateReferralCode() {
+        if (!localStorage.getItem('userReferralCode')) {
+            const refCode = 'SA-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+            localStorage.setItem('userReferralCode', refCode);
+        }
+    }
+
+    // Update transaction list
+    function updateTransactionList() {
+        const transactionList = document.getElementById('transactionList');
+        const withdrawals = JSON.parse(localStorage.getItem('withdrawals') || '[]');
+        
+        if (withdrawals.length === 0) {
+            transactionList.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                    <i class="fas fa-receipt" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <div>No transactions yet</div>
+                </div>
+            `;
+            return;
+        }
+        
+        // Sort by date (newest first)
+        withdrawals.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        let transactionsHTML = '';
+        withdrawals.forEach(tx => {
+            const date = new Date(tx.date);
+            const formattedDate = date.toLocaleDateString();
+            
+            let statusClass = 'status-pending';
+            if (tx.status === 'completed') statusClass = 'status-completed';
+            if (tx.status === 'failed') statusClass = 'status-failed';
+            
+            transactionsHTML += `
+                <div class="transaction-item">
+                    <div class="transaction-details">
+                        <div class="transaction-amount">${tx.amount} SA</div>
+                        <div class="transaction-date">${formattedDate}</div>
+                    </div>
+                    <div class="transaction-status ${statusClass}">${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}</div>
+                </div>
+            `;
+        });
+        
+        transactionList.innerHTML = transactionsHTML;
+    }
+
+    // Submit withdrawal request
+    async function submitWithdrawal(e) {
+        e.preventDefault();
+        
+        if (!walletConnected) {
+            showMessage('withdrawMessage', 'Please connect your wallet first', 'error');
+            return;
+        }
+        
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        const recipientAddress = document.getElementById('recipientAddress').value;
+        const userEmail = document.getElementById('userEmail').value;
+        const referralCode = document.getElementById('referralCode').value;
+        const notes = document.getElementById('additionalNotes').value;
+        
+        // Validation
+        if (!amount || amount < WITHDRAW_MIN_SA) {
+            showMessage('withdrawMessage', `Minimum withdrawal amount is ${WITHDRAW_MIN_SA} SA`, 'error');
+            return;
+        }
+        
+        if (!ethers.isAddress(recipientAddress)) {
+            showMessage('withdrawMessage', 'Please enter a valid wallet address', 'error');
+            return;
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(userEmail)) {
+            showMessage('withdrawMessage', 'Please enter a valid email address', 'error');
+            return;
+        }
+        
+        try {
+            document.getElementById('submitWithdrawBtn').disabled = true;
+            document.getElementById('submitWithdrawBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            showMessage('withdrawMessage', 'Processing withdrawal request...', 'info');
+            
+            // Simulate processing delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Create withdrawal record
+            const withdrawalData = {
+                amount: amount,
+                recipientAddress: recipientAddress,
+                userEmail: userEmail,
+                referralCode: referralCode || null,
+                notes: notes,
+                txHash: '0x' + Math.random().toString(36).substring(2, 66),
+                status: 'pending',
+                date: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            let withdrawals = JSON.parse(localStorage.getItem('withdrawals') || '[]');
+            withdrawals.push(withdrawalData);
+            localStorage.setItem('withdrawals', JSON.stringify(withdrawals));
+            
+            // Update UI
+            updateTransactionList();
+            document.getElementById('withdrawForm').reset();
+            document.getElementById('recipientAddress').value = currentAccount;
+            
+            showMessage('withdrawMessage', `Withdrawal request submitted successfully! You'll receive an email confirmation. Processing takes 2-5 working days.`, 'success');
+            
+        } catch (error) {
+            console.error('Withdrawal error:', error);
+            showMessage('withdrawMessage', 'Withdrawal failed: ' + (error.message || 'Unknown error'), 'error');
+        } finally {
+            document.getElementById('submitWithdrawBtn').disabled = false;
+            document.getElementById('submitWithdrawBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Submit Withdrawal Request';
+        }
+    }
+
+    // Wallet action functions
+    function sendTokens() {
+        showMessage('walletMessage', 'Send functionality would open here', 'info');
+    }
+    
+    function receiveTokens() {
+        showMessage('walletMessage', 'Receive functionality would open here', 'info');
+    }
+    
+    function swapTokens() {
+        showMessage('walletMessage', 'Swap functionality would open here', 'info');
+    }
+    
+    function buyTokens() {
+        showMessage('walletMessage', 'Buy functionality would open here', 'info');
+    }
+    
+    // Logout function
+    function logout() {
+        disconnectWallet();
+        document.getElementById('profileDropdown').style.display = 'none';
+        showMessage('walletMessage', 'Logged out successfully', 'success');
+    }
+    </script>
 </body>
 </html>
