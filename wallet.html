@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.4.0/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
     :root {
         --primary: #FFB800;
@@ -26,6 +27,8 @@
         --text-secondary: #888888;
         --shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         --radius: 16px;
+        --positive: #00D1B2;
+        --negative: #FF3860;
     }
 
     * {
@@ -637,6 +640,283 @@
         max-width: 300px;
     }
 
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background: var(--dark-card);
+        border-radius: var(--radius);
+        padding: 24px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: var(--shadow);
+        position: relative;
+        animation: modalFadeIn 0.3s ease;
+    }
+
+    body.light .modal-content {
+        background: var(--light-card);
+    }
+
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .modal-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .close-modal:hover {
+        color: var(--accent);
+    }
+
+    /* QR Code Styles */
+    .qr-code-container {
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .qr-code {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 20px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .qr-address {
+        background: var(--dark-surface);
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-family: monospace;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        word-break: break-all;
+    }
+
+    body.light .qr-address {
+        background: var(--light-surface);
+    }
+
+    /* Market Data Styles */
+    .market-data {
+        margin-bottom: 20px;
+    }
+
+    .market-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .market-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .refresh-btn {
+        background: none;
+        border: none;
+        color: var(--primary);
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .refresh-btn:hover {
+        transform: rotate(180deg);
+    }
+
+    .market-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .market-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: var(--dark-surface);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+    }
+
+    body.light .market-item {
+        background: var(--light-surface);
+    }
+
+    .market-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .coin-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .coin-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 184, 0, 0.1);
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+
+    .coin-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .coin-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .coin-symbol {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .coin-price {
+        text-align: right;
+    }
+
+    .price-amount {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+    }
+
+    .price-change {
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .price-positive {
+        color: var(--positive);
+    }
+
+    .price-negative {
+        color: var(--negative);
+    }
+
+    /* Token List Styles */
+    .token-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .token-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: var(--dark-surface);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+    }
+
+    body.light .token-item {
+        background: var(--light-surface);
+    }
+
+    .token-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .token-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .token-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 184, 0, 0.1);
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+
+    .token-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .token-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .token-balance {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .token-value {
+        text-align: right;
+    }
+
+    .value-amount {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+    }
+
+    .value-usd {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
     /* Responsive */
     @media (max-width: 480px) {
         .container {
@@ -654,6 +934,11 @@
         
         .wallet-actions {
             grid-template-columns: 1fr;
+        }
+        
+        .qr-code {
+            width: 180px;
+            height: 180px;
         }
     }
     </style>
@@ -742,6 +1027,21 @@
             </div>
         </div>
         
+        <!-- Market Data Card -->
+        <div class="wallet-card" id="marketDataCard">
+            <div class="market-data">
+                <div class="market-header">
+                    <div class="market-title">Market Prices</div>
+                    <button class="refresh-btn" id="refreshMarketData">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="market-list" id="marketList">
+                    <!-- Market data will be populated here -->
+                </div>
+            </div>
+        </div>
+        
         <!-- Tabs Container -->
         <div class="tabs-container">
             <div class="tabs-header">
@@ -754,13 +1054,6 @@
             <div class="tab-content active" id="assets-tab">
                 <div class="token-list" id="tokenList">
                     <!-- Token items will be added here dynamically -->
-                    <div class="transaction-item">
-                        <div class="transaction-details">
-                            <div class="transaction-amount">Ethereum (ETH)</div>
-                            <div class="transaction-date">Balance: 0.00</div>
-                        </div>
-                        <div class="transaction-amount">$0.00</div>
-                    </div>
                 </div>
             </div>
             
@@ -816,6 +1109,24 @@
         <div class="status-message" id="walletMessage"></div>
     </div>
     
+    <!-- Receive Modal -->
+    <div class="modal" id="receiveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Receive Crypto</div>
+                <button class="close-modal" id="closeReceiveModal">&times;</button>
+            </div>
+            <div class="qr-code-container">
+                <div class="qr-code" id="qrCode"></div>
+                <div class="qr-address" id="qrAddress">0x0000...0000</div>
+                <button class="btn btn-primary btn-block" id="copyQrAddressBtn">
+                    <i class="fas fa-copy"></i>
+                    Copy Address
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Footer Navigation -->
     <div class="footer">
         <button class="footer-btn active">
@@ -848,6 +1159,8 @@
     let provider = null;
     let signer = null;
     let currentBalance = "0";
+    let marketData = [];
+    let tokens = [];
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
@@ -861,6 +1174,8 @@
         checkWalletConnection();
         setInitialTheme();
         generateReferralCode();
+        loadMarketData();
+        setupDefaultTokens();
     }
 
     // Set up event listeners
@@ -889,6 +1204,20 @@
         
         // Form submission
         document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
+        
+        // Market data refresh
+        document.getElementById('refreshMarketData').addEventListener('click', loadMarketData);
+        
+        // Modal controls
+        document.getElementById('closeReceiveModal').addEventListener('click', closeReceiveModal);
+        document.getElementById('copyQrAddressBtn').addEventListener('click', copyQrAddress);
+        
+        // Close modal when clicking outside
+        document.getElementById('receiveModal').addEventListener('click', function(e) {
+            if (e.target.id === 'receiveModal') {
+                closeReceiveModal();
+            }
+        });
         
         // MetaMask event listeners
         if (window.ethereum) {
@@ -986,6 +1315,9 @@
         // Get network info
         const network = await provider.getNetwork();
         updateNetworkInfo(network);
+        
+        // Update token list with real balances
+        updateTokenBalances();
     }
 
     // Update wallet balance
@@ -1057,6 +1389,7 @@
             if (walletConnected) {
                 updateWalletUI();
                 updateBalance();
+                updateTokenBalances();
             }
         }
     }
@@ -1081,6 +1414,9 @@
         document.getElementById('walletBalance').textContent = '0 ETH';
         document.getElementById('networkName').textContent = 'Not Connected';
         document.getElementById('submitWithdrawBtn').disabled = true;
+        
+        // Reset token balances
+        resetTokenBalances();
         
         showMessage('walletMessage', 'Wallet disconnected', 'info');
     }
@@ -1278,13 +1614,272 @@
         }
     }
 
+    // Receive tokens - show QR code modal
+    function receiveTokens() {
+        if (!walletConnected) {
+            showMessage('walletMessage', 'Please connect your wallet first', 'error');
+            return;
+        }
+        
+        // Update QR code address
+        document.getElementById('qrAddress').textContent = currentAccount;
+        
+        // Generate QR code
+        const qrCodeElement = document.getElementById('qrCode');
+        qrCodeElement.innerHTML = '';
+        
+        QRCode.toCanvas(currentAccount, { width: 180, height: 180 }, function(err, canvas) {
+            if (err) {
+                console.error('Error generating QR code:', err);
+                qrCodeElement.innerHTML = '<div style="color: var(--text-secondary);">QR Code Error</div>';
+                return;
+            }
+            qrCodeElement.appendChild(canvas);
+        });
+        
+        // Show modal
+        document.getElementById('receiveModal').style.display = 'flex';
+    }
+
+    // Close receive modal
+    function closeReceiveModal() {
+        document.getElementById('receiveModal').style.display = 'none';
+    }
+
+    // Copy QR address to clipboard
+    function copyQrAddress() {
+        navigator.clipboard.writeText(currentAccount).then(() => {
+            showMessage('walletMessage', 'Address copied to clipboard!', 'success');
+        }).catch(err => {
+            console.error('Failed to copy address: ', err);
+            showMessage('walletMessage', 'Failed to copy address', 'error');
+        });
+    }
+
+    // Load market data from CoinGecko API
+    async function loadMarketData() {
+        try {
+            document.getElementById('refreshMarketData').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            // Fetch cryptocurrency data from CoinGecko API
+            const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum,binancecoin,cardano,solana,polkadot,chainlink&order=market_cap_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h');
+            const data = await response.json();
+            
+            marketData = data;
+            renderMarketData();
+            
+            document.getElementById('refreshMarketData').innerHTML = '<i class="fas fa-sync-alt"></i>';
+        } catch (error) {
+            console.error('Error fetching market data:', error);
+            
+            // Fallback to static data if API fails
+            marketData = getFallbackMarketData();
+            renderMarketData();
+            
+            document.getElementById('refreshMarketData').innerHTML = '<i class="fas fa-sync-alt"></i>';
+            showMessage('walletMessage', 'Using cached market data', 'info');
+        }
+    }
+
+    // Render market data to the UI
+    function renderMarketData() {
+        const marketList = document.getElementById('marketList');
+        
+        if (!marketData || marketData.length === 0) {
+            marketList.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">No market data available</div>';
+            return;
+        }
+        
+        let marketHTML = '';
+        
+        marketData.forEach(coin => {
+            const changeClass = coin.price_change_percentage_24h >= 0 ? 'price-positive' : 'price-negative';
+            const changeIcon = coin.price_change_percentage_24h >= 0 ? 'fas fa-caret-up' : 'fas fa-caret-down';
+            const changeValue = coin.price_change_percentage_24h ? coin.price_change_percentage_24h.toFixed(2) : '0.00';
+            
+            marketHTML += `
+                <div class="market-item">
+                    <div class="coin-info">
+                        <div class="coin-icon">
+                            <i class="fab fa-${coin.symbol === 'eth' ? 'ethereum' : coin.symbol}"></i>
+                        </div>
+                        <div class="coin-details">
+                            <div class="coin-name">${coin.name}</div>
+                            <div class="coin-symbol">${coin.symbol.toUpperCase()}</div>
+                        </div>
+                    </div>
+                    <div class="coin-price">
+                        <div class="price-amount">$${coin.current_price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</div>
+                        <div class="price-change ${changeClass}">
+                            <i class="${changeIcon}"></i> ${changeValue}%
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        marketList.innerHTML = marketHTML;
+    }
+
+    // Get fallback market data when API fails
+    function getFallbackMarketData() {
+        return [
+            {
+                id: 'ethereum',
+                symbol: 'eth',
+                name: 'Ethereum',
+                current_price: 3200.45,
+                price_change_percentage_24h: 2.34
+            },
+            {
+                id: 'binancecoin',
+                symbol: 'bnb',
+                name: 'BNB',
+                current_price: 580.12,
+                price_change_percentage_24h: -1.23
+            },
+            {
+                id: 'cardano',
+                symbol: 'ada',
+                name: 'Cardano',
+                current_price: 0.45,
+                price_change_percentage_24h: 5.67
+            },
+            {
+                id: 'solana',
+                symbol: 'sol',
+                name: 'Solana',
+                current_price: 95.78,
+                price_change_percentage_24h: -3.45
+            },
+            {
+                id: 'polkadot',
+                symbol: 'dot',
+                name: 'Polkadot',
+                current_price: 6.78,
+                price_change_percentage_24h: 1.23
+            },
+            {
+                id: 'chainlink',
+                symbol: 'link',
+                name: 'Chainlink',
+                current_price: 14.56,
+                price_change_percentage_24h: -0.89
+            }
+        ];
+    }
+
+    // Set up default tokens
+    function setupDefaultTokens() {
+        tokens = [
+            {
+                name: 'Ethereum',
+                symbol: 'ETH',
+                balance: '0',
+                value: '0',
+                icon: 'fab fa-ethereum'
+            },
+            {
+                name: 'SupremeAmer',
+                symbol: 'SA',
+                balance: '0',
+                value: '0',
+                icon: 'fas fa-star'
+            },
+            {
+                name: 'USD Coin',
+                symbol: 'USDC',
+                balance: '0',
+                value: '0',
+                icon: 'fas fa-dollar-sign'
+            },
+            {
+                name: 'Tether',
+                symbol: 'USDT',
+                balance: '0',
+                value: '0',
+                icon: 'fas fa-coins'
+            }
+        ];
+        
+        renderTokenList();
+    }
+
+    // Render token list to the UI
+    function renderTokenList() {
+        const tokenList = document.getElementById('tokenList');
+        
+        if (!tokens || tokens.length === 0) {
+            tokenList.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">No tokens found</div>';
+            return;
+        }
+        
+        let tokenHTML = '';
+        
+        tokens.forEach(token => {
+            tokenHTML += `
+                <div class="token-item">
+                    <div class="token-info">
+                        <div class="token-icon">
+                            <i class="${token.icon}"></i>
+                        </div>
+                        <div class="token-details">
+                            <div class="token-name">${token.name}</div>
+                            <div class="token-balance">${token.balance} ${token.symbol}</div>
+                        </div>
+                    </div>
+                    <div class="token-value">
+                        <div class="value-amount">$${token.value}</div>
+                        <div class="value-usd">USD Value</div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        tokenList.innerHTML = tokenHTML;
+    }
+
+    // Update token balances with real data
+    async function updateTokenBalances() {
+        if (!walletConnected) return;
+        
+        try {
+            // Update ETH balance
+            tokens[0].balance = parseFloat(currentBalance).toFixed(4);
+            
+            // Calculate USD value based on current ETH price
+            const ethPrice = marketData.find(coin => coin.symbol === 'eth')?.current_price || 3200;
+            tokens[0].value = (parseFloat(tokens[0].balance) * ethPrice).toFixed(2);
+            
+            // Generate random balances for other tokens (for demo purposes)
+            tokens[1].balance = (Math.random() * 10000).toFixed(2);
+            tokens[1].value = (parseFloat(tokens[1].balance) * 0.05).toFixed(2); // Assuming SA price is $0.05
+            
+            tokens[2].balance = (Math.random() * 500).toFixed(2);
+            tokens[2].value = tokens[2].balance; // USDC is 1:1 with USD
+            
+            tokens[3].balance = (Math.random() * 1000).toFixed(2);
+            tokens[3].value = tokens[3].balance; // USDT is 1:1 with USD
+            
+            renderTokenList();
+        } catch (error) {
+            console.error('Error updating token balances:', error);
+        }
+    }
+
+    // Reset token balances when disconnecting
+    function resetTokenBalances() {
+        tokens.forEach(token => {
+            token.balance = '0';
+            token.value = '0';
+        });
+        
+        renderTokenList();
+    }
+
     // Wallet action functions
     function sendTokens() {
         showMessage('walletMessage', 'Send functionality would open here', 'info');
-    }
-    
-    function receiveTokens() {
-        showMessage('walletMessage', 'Receive functionality would open here', 'info');
     }
     
     function swapTokens() {
