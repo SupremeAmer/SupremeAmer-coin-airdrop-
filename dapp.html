@@ -1,3153 +1,533 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SupremeAmer Word Connect - Ultimate Edition</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --primary: #ff9800;
-      --secondary: #fdc500;
-      --success: #2ecc71;
-      --error: #e74c3c;
-      --info: #3498db;
-      --warning: #f39c12;
-      --bg: #111;
-      --panel: rgba(30, 30, 40, 0.95);
-      --text: #fff;
-      --cell-bg: #333;
-      --cell-border: #fdc500;
-      --letter-bg: #fdc500;
-      --letter-border: #ff9800;
-      --letter-text: #222;
-      --history-bg: #232323;
-      --history-text: #fdc500;
-      --shadow: 0 8px 32px rgba(0, 0, 0, 0.38);
-      --pulse: 0 0 15px rgba(255, 152, 0, 0.7);
-    }
-    
-    body {
-      font-family: 'Montserrat', Arial, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(135deg, var(--bg) 70%, var(--primary) 100%);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      overflow-x: hidden;
-    }
-    
-    .header {
-      width: 100%;
-      padding: 25px 0 10px 0;
-      text-align: center;
-      background: rgba(0,0,0,0.7);
-      font-size: 2.4em;
-      font-weight: bold;
-      letter-spacing: 2px;
-      box-shadow: 0 2px 16px rgba(255, 235, 59, 0.2);
-      position: relative;
-    }
-    
-    .container {
-      background: var(--panel);
-      padding: 36px 22px 28px 22px;
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      text-align: center;
-      max-width: 400px;
-      width: 96%;
-      margin: 20px 0 90px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .container::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255, 184, 0, 0.1) 0%, transparent 70%);
-      z-index: -1;
-      animation: rotate 60s linear infinite;
-    }
-    
-    @keyframes rotate {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    #game-title {
-      font-size: 1.5em;
-      color: var(--secondary);
-      margin-bottom: 6px;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-    
-    #mining-balance {
-      background: #222;
-      color: var(--secondary);
-      font-size: 1.3em;
-      border-radius: 8px;
-      padding: 8px 18px;
-      font-weight: bold;
-      margin-bottom: 12px;
-      letter-spacing: 1px;
-      box-shadow: 0 1px 6px rgba(255, 185, 0, 0.27);
-      transition: all 0.3s;
-    }
-    
-    #mining-balance:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 185, 0, 0.4);
-    }
-    
-    #level {
-      color: var(--secondary);
-      font-weight: 700;
-      font-size: 1.1em;
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-    }
-    
-    #reward-msg {
-      min-height: 24px;
-      font-size: 1.1em;
-      color: var(--success);
-      font-weight: bold;
-      margin-bottom: 8px;
-      transition: all 0.3s;
-    }
-    
-    #grid {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      margin: 18px 0 14px 0;
-      flex-wrap: wrap;
-    }
-    
-    .cell {
-      width: 38px; 
-      height: 38px;
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
-      background: var(--cell-bg);
-      border: 2px solid var(--cell-border);
-      border-radius: 8px;
-      margin: 2px;
-      font-size: 26px;
-      font-weight: bold;
-      color: var(--text);
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .cell::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(
-        to bottom right,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0) 50%,
-        rgba(255, 255, 255, 0.1) 70%,
-        rgba(255, 255, 255, 0) 100%
-      );
-      transform: rotate(30deg);
-      transition: all 0.7s;
-      opacity: 0;
-    }
-    
-    .cell:hover::after {
-      opacity: 1;
-      top: -30%;
-      left: -30%;
-    }
-    
-    .cell.filled {
-      background: var(--letter-bg);
-      color: var(--letter-text);
-      transform: scale(1.05);
-    }
-    
-    #selector {
-      display: flex; 
-      justify-content: center; 
-      gap: 10px; 
-      flex-wrap: wrap;
-      margin: 0 0 14px 0;
-      min-height: 54px;
-    }
-    
-    .letter {
-      width: 48px; 
-      height: 48px;
-      background: var(--letter-bg);
-      border: 2px solid var(--letter-border);
-      border-radius: 50%;
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
-      font-size: 22px; 
-      font-weight: 700;
-      margin: 2px; 
-      cursor: pointer;
-      transition: all 0.3s;
-      user-select: none;
-      box-shadow: 0 1px 6px rgba(253, 197, 0, 0.2);
-      color: var(--letter-text);
-      position: relative;
-    }
-    
-    .letter::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: rgba(255, 255, 255, 0.1);
-      transform: rotate(45deg);
-      transition: all 0.5s;
-      pointer-events: none;
-    }
-    
-    .letter:hover::after {
-      left: 100%;
-    }
-    
-    .letter.selected {
-      background: var(--primary);
-      transform: scale(0.94);
-      opacity: 0.7;
-      color: var(--text);
-    }
-    
-    #input-word {
-      font-size: 26px;
-      letter-spacing: 3px;
-      margin-bottom: 8px;
-      min-height: 30px;
-      font-weight: bold;
-      color: var(--text);
-      text-align: center;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-    
-    #footer-buttons {
-      display: flex; 
-      justify-content: center; 
-      flex-wrap: wrap;
-      width: 100%; 
-      margin: 0 0 10px 0; 
-      gap: 10px;
-    }
-    
-    .main-btn {
-      background: linear-gradient(90deg, var(--secondary) 40%, var(--primary) 100%);
-      color: #111;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.12em;
-      padding: 13px 20px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s;
-      box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
-      margin: 0 2px;
-      min-width: 102px;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .main-btn::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: rgba(255, 255, 255, 0.1);
-      transform: rotate(45deg);
-      transition: all 0.5s;
-      pointer-events: none;
-    }
-    
-    .main-btn:hover::after {
-      left: 100%;
-    }
-    
-    .main-btn:hover {
-      background: linear-gradient(90deg, var(--primary) 40%, var(--secondary) 100%);
-      color: var(--text);
-      box-shadow: 0 4px 16px rgba(255, 152, 0, 0.6);
-      transform: translateY(-2px);
-    }
-    
-    .main-btn:disabled {
-      background: #444;
-      color: #bbb;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-    
-    .main-btn.pulse {
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
-    }
-    
-    #history-list {
-      margin-top: 18px;
-      width: 100%;
-      max-width: 320px;
-      min-height: 30px;
-      text-align: left;
-      font-size: 15px;
-      color: var(--text);
-      display: none;
-    }
-    
-    .history-item {
-      background: var(--history-bg);
-      border-radius: 7px;
-      margin-bottom: 8px;
-      padding: 8px 12px;
-      color: var(--history-text);
-      font-weight: bold;
-      transition: all 0.3s;
-    }
-    
-    .history-item:hover {
-      transform: translateX(5px);
-    }
-    
-    .footer {
-      width: 100%;
-      display: flex;
-      justify-content: space-evenly;
-      gap: 0;
-      padding: 18px 0;
-      background: rgba(255, 184, 0, 0.09);
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      border-radius: 18px 18px 0 0;
-      box-shadow: 0 -4px 24px rgba(255, 152, 0, 0.13);
-      z-index: 999;
-      backdrop-filter: blur(5px);
-    }
-    
-    .footer button {
-      background: #fff;
-      color: var(--primary);
-      border: none;
-      border-radius: 50%;
-      width: 52px;
-      height: 52px;
-      font-size: 1.5em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(34, 34, 34, 0.13);
-      transition: all 0.3s;
-      cursor: pointer;
-      position: relative;
-    }
-    
-    .footer button:hover {
-      background: var(--primary);
-      color: #fff;
-      transform: translateY(-5px);
-    }
-    
-    .footer button.active {
-      background: var(--primary);
-      color: #fff;
-    }
-    
-    .footer button .tooltip {
-      position: absolute;
-      bottom: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 0.8em;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.3s;
-    }
-    
-    .footer button:hover .tooltip {
-      opacity: 1;
-      bottom: 65px;
-    }
-    
-    /* Confetti */
-    .confetti {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background-color: #f00;
-      opacity: 0;
-      z-index: 2001;
-      animation: confetti-fall 3s linear forwards;
-    }
-    
-    @keyframes confetti-fall {
-      0% {
-        transform: translateY(-100vh) rotate(0deg);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(100vh) rotate(360deg);
-        opacity: 0;
-      }
-    }
-    
-    /* NEW FEATURES STYLES */
-    
-    /* Power-ups */
-    .power-ups {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 10px 0;
-      flex-wrap: wrap;
-    }
-    
-    .power-up {
-      background: var(--info);
-      color: white;
-      border: none;
-      border-radius: 50px;
-      padding: 8px 15px;
-      font-size: 0.9em;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    
-    .power-up:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    
-    .power-up:disabled {
-      background: #666;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-    
-    /* Timer */
-    #timer {
-      font-size: 1.2em;
-      font-weight: bold;
-      margin: 10px 0;
-      color: var(--secondary);
-    }
-    
-    /* Progress Bar */
-    .progress-container {
-      width: 100%;
-      background-color: #333;
-      border-radius: 10px;
-      margin: 10px 0;
-      overflow: hidden;
-    }
-    
-    .progress-bar {
-      height: 10px;
-      background: linear-gradient(90deg, var(--secondary), var(--primary));
-      width: 0%;
-      border-radius: 10px;
-      transition: width 0.5s ease;
-    }
-    
-    /* Stats Panel */
-    .stats-panel {
-      display: none;
-      background: var(--panel);
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 15px;
-      width: 100%;
-      text-align: left;
-    }
-    
-    .stat-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    /* Achievements */
-    .achievements-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 10px;
-      margin-top: 15px;
-    }
-    
-    .achievement {
-      background: #222;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      transition: all 0.3s;
-    }
-    
-    .achievement.unlocked {
-      background: var(--success);
-      color: white;
-    }
-    
-    .achievement.locked {
-      opacity: 0.5;
-    }
-    
-    /* Leaderboard */
-    .leaderboard {
-      display: none;
-      background: var(--panel);
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 15px;
-      width: 100%;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    
-    .leaderboard-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      padding: 8px;
-      background: #222;
-      border-radius: 5px;
-    }
-    
-    .leaderboard-item.you {
-      background: var(--primary);
-      color: white;
-    }
-    
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      z-index: 3000;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .modal-content {
-      background: var(--panel);
-      padding: 20px;
-      border-radius: 15px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: var(--shadow);
-    }
-    
-    .close-modal {
-      float: right;
-      font-size: 1.5em;
-      cursor: pointer;
-    }
-    
-    /* Word Definition */
-    .word-definition {
-      margin-top: 15px;
-      padding: 10px;
-      background: #222;
-      border-radius: 8px;
-      text-align: left;
-    }
-    
-    /* Daily Challenge */
-    .daily-challenge {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      padding: 10px;
-      border-radius: 10px;
-      margin: 10px 0;
-      font-weight: bold;
-    }
-    
-    /* Theme Selector */
-    .theme-selector {
-      display: flex;
-      gap: 10px;
-      margin: 10px 0;
-    }
-    
-    .theme {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
-    }
-    
-    .theme.active {
-      border-color: white;
-    }
-    
-    /* NEW: Mini-games */
-    .mini-game-container {
-      display: none;
-      background: var(--panel);
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 15px;
-      width: 100%;
-      text-align: center;
-    }
-    
-    .mini-game-btn {
-      background: var(--warning);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 15px;
-      margin: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s;
-    }
-    
-    .mini-game-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    
-    /* NEW: Spin Wheel */
-    .wheel-container {
-      margin: 20px 0;
-      position: relative;
-      width: 250px;
-      height: 250px;
-    }
-    
-    .wheel {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: conic-gradient(
-        #ff5722, #ff9800, #ffc107, #8bc34a, 
-        #4caf50, #009688, #03a9f4, #3f51b5
-      );
-      position: relative;
-      transition: transform 4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
-      transform: rotate(0deg);
-    }
-    
-    .wheel-pointer {
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 30px;
-      height: 30px;
-      background: var(--primary);
-      clip-path: polygon(50% 100%, 0 0, 100% 0);
-      z-index: 10;
-    }
-    
-    .wheel-section {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transform-origin: center;
-    }
-    
-    .wheel-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(90deg);
-      font-weight: bold;
-      color: white;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-    }
-    
-    /* NEW: Word Search */
-    .word-search-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 3px;
-      margin: 15px 0;
-    }
-    
-    .word-search-cell {
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--cell-bg);
-      border: 1px solid var(--cell-border);
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .word-search-cell.selected {
-      background: var(--primary);
-      color: white;
-    }
-    
-    /* NEW: Crypto Price Ticker */
-    .crypto-ticker {
-      background: rgba(0,0,0,0.7);
-      padding: 8px 0;
-      width: 100%;
-      overflow: hidden;
-      position: relative;
-      margin-bottom: 10px;
-    }
-    
-    .ticker-content {
-      display: inline-block;
-      white-space: nowrap;
-      animation: ticker 30s linear infinite;
-    }
-    
-    @keyframes ticker {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-    
-    .crypto-item {
-      display: inline-block;
-      margin: 0 20px;
-      font-weight: bold;
-    }
-    
-    .crypto-up {
-      color: var(--success);
-    }
-    
-    .crypto-down {
-      color: var(--error);
-    }
-    
-    /* NEW: NFT Gallery */
-    .nft-gallery {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 15px;
-    }
-    
-    .nft-item {
-      background: #222;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-    
-    .nft-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    
-    .nft-image {
-      width: 100%;
-      height: 80px;
-      background: linear-gradient(45deg, var(--primary), var(--secondary));
-      border-radius: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2em;
-      margin-bottom: 8px;
-    }
-    
-    /* NEW: Special Events */
-    .event-banner {
-      background: linear-gradient(90deg, #ff0080, #ff8c00);
-      padding: 8px 15px;
-      border-radius: 20px;
-      margin: 10px 0;
-      font-weight: bold;
-      animation: glow 2s infinite;
-    }
-    
-    /* NEW: Chat Box */
-    .chat-container {
-      display: none;
-      background: var(--panel);
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 15px;
-      width: 100%;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    
-    .chat-message {
-      background: #222;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      text-align: left;
-    }
-    
-    .chat-input {
-      width: 100%;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid var(--cell-border);
-      background: #222;
-      color: white;
-      margin-top: 10px;
-    }
-    
-    /* NEW: Avatar Customization */
-    .avatar-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 15px 0;
-      justify-content: center;
-    }
-    
-    .avatar-option {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5em;
-      cursor: pointer;
-      transition: all 0.3s;
-      border: 2px solid transparent;
-    }
-    
-    .avatar-option.selected {
-      border-color: var(--secondary);
-      transform: scale(1.1);
-    }
-    
-    /* NEW: Battle Royale */
-    .battle-royale {
-      display: none;
-      background: var(--panel);
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 15px;
-      width: 100%;
-      text-align: center;
-    }
-    
-    .player-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin: 15px 0;
-    }
-    
-    .player {
-      background: #222;
-      padding: 10px;
-      border-radius: 8px;
-      min-width: 100px;
-    }
-    
-    .player.you {
-      background: var(--primary);
-    }
-    
-    /* NEW: Particle Effects */
-    .particle {
-      position: absolute;
-      pointer-events: none;
-      z-index: 2000;
-    }
-    
-    /* Responsive */
-    @media (max-width: 600px) {
-      .container { 
-        padding: 24px 12px;
-        margin: 15px 0 80px 0;
-      }
-      
-      .header { 
-        font-size: 1.8em;
-        padding: 20px 0 8px 0;
-      }
-      
-      .footer button { 
-        width: 44px; 
-        height: 44px; 
-        font-size: 1.3em;
-      }
-      
-      .main-btn { 
-        padding: 12px 15px; 
-        font-size: 1em; 
-        min-width: 88px;
-      }
-      
-      .cell {
-        width: 32px;
-        height: 32px;
-        font-size: 22px;
-      }
-      
-      .letter {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-      }
-      
-      .wheel-container {
-        width: 200px;
-        height: 200px;
-      }
-      
-      .nft-gallery {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    
-    /* Animations */
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    
-    .bounce {
-      animation: bounce 1s;
-    }
-    
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-5px); }
-      40%, 80% { transform: translateX(5px); }
-    }
-    
-    .shake {
-      animation: shake 0.5s;
-    }
-    
-    @keyframes glow {
-      0%, 100% { box-shadow: 0 0 5px var(--success); }
-      50% { box-shadow: 0 0 20px var(--success); }
-    }
-    
-    .glow {
-      animation: glow 1.5s infinite;
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    
-    .float {
-      animation: float 3s ease-in-out infinite;
-    }
-    
-    /* Popup */
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: var(--panel);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: var(--shadow);
-      z-index: 2000;
-      text-align: center;
-      max-width: 300px;
-      width: 80%;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">SUPREMEAMER GAME 🎮</div>
-  
-  <!-- NEW: Crypto Price Ticker -->
-  <div class="crypto-ticker">
-    <div class="ticker-content" id="crypto-ticker-content">
-      <!-- Crypto prices will be populated by JS -->
-    </div>
-  </div>
-  
-  <div class="container">
-    <div id="game-title">Word Connect Challenge</div>
-    <div id="mining-balance">
-      <i class="fas fa-coins"></i> 
-      <span id="mining-balance-value">0</span> SA
-    </div>
-    
-    <!-- NEW: Event Banner -->
-    <div class="event-banner" id="event-banner" style="display:none;">
-      <i class="fas fa-calendar-star"></i> Special Event Active! Double Rewards This Week!
-    </div>
-    
-    <!-- Theme Selector -->
-    <div class="theme-selector">
-      <div class="theme active" style="background: #ff9800;" data-theme="default"></div>
-      <div class="theme" style="background: #9c27b0;" data-theme="purple"></div>
-      <div class="theme" style="background: #2196f3;" data-theme="blue"></div>
-      <div class="theme" style="background: #4caf50;" data-theme="green"></div>
-    </div>
-    
-    <!-- Timer -->
-    <div id="timer">Time: 60s</div>
-    
-    <!-- Progress Bar -->
-    <div class="progress-container">
-      <div class="progress-bar" id="progress-bar"></div>
-    </div>
-    
-    <div id="level"></div>
-    <div id="reward-msg"></div>
-    
-    <!-- Daily Challenge -->
-    <div id="daily-challenge" class="daily-challenge" style="display:none;">
-      <i class="fas fa-calendar-day"></i> Daily Challenge: <span id="daily-word"></span>
-    </div>
-    
-    <div id="grid"></div>
-    <div id="input-word"></div>
-    <div id="selector"></div>
-    
-    <!-- Power-ups -->
-    <div class="power-ups">
-      <button class="power-up" id="hint-btn" data-cost="50">
-        <i class="fas fa-lightbulb"></i> Hint (50 SA)
-      </button>
-      <button class="power-up" id="shuffle-btn" data-cost="30">
-        <i class="fas fa-random"></i> Shuffle (30 SA)
-      </button>
-      <button class="power-up" id="solve-btn" data-cost="100">
-        <i class="fas fa-bolt"></i> Solve (100 SA)
-      </button>
-      <!-- NEW: Extra Power-ups -->
-      <button class="power-up" id="freeze-btn" data-cost="75">
-        <i class="fas fa-snowflake"></i> Freeze Time (75 SA)
-      </button>
-      <button class="power-up" id="double-btn" data-cost="150">
-        <i class="fas fa-gem"></i> Double Reward (150 SA)
-      </button>
-    </div>
-    
-    <div id="footer-buttons">
-      <button class="main-btn" id="submit-btn">
-        <i class="fas fa-check"></i> SUBMIT
-      </button>
-      <button class="main-btn" id="history-btn">
-        <i class="fas fa-history"></i> History
-      </button>
-      <button class="main-btn" id="stats-btn">
-        <i class="fas fa-chart-bar"></i> Stats
-      </button>
-      <button class="main-btn" id="minigame-btn">
-        <i class="fas fa-dice"></i> Mini-Games
-      </button>
-      <button class="main-btn" id="restart-btn">
-        <i class="fas fa-redo"></i> Restart
-      </button>
-    </div>
-    
-    <!-- Word Definition -->
-    <div id="word-definition" class="word-definition" style="display:none;"></div>
-    
-    <div id="history-list" style="display:none;"></div>
-    
-    <!-- Stats Panel -->
-    <div id="stats-panel" class="stats-panel">
-      <h3>Game Statistics</h3>
-      <div class="stat-item">
-        <span>Total Words Solved:</span>
-        <span id="stat-words-solved">0</span>
-      </div>
-      <div class="stat-item">
-        <span>Total Coins Earned:</span>
-        <span id="stat-coins-earned">0</span>
-      </div>
-      <div class="stat-item">
-        <span>Current Streak:</span>
-        <span id="stat-streak">0</span>
-      </div>
-      <div class="stat-item">
-        <span>Longest Streak:</span>
-        <span id="stat-longest-streak">0</span>
-      </div>
-      <div class="stat-item">
-        <span>Accuracy:</span>
-        <span id="stat-accuracy">0%</span>
-      </div>
-      
-      <h3>Achievements</h3>
-      <div class="achievements-grid" id="achievements-grid">
-        <!-- Achievements will be populated by JS -->
-      </div>
-    </div>
-    
-    <!-- NEW: Mini-games Panel -->
-    <div id="minigame-panel" class="mini-game-container">
-      <h3>Mini-Games</h3>
-      <button class="mini-game-btn" id="wheel-game-btn">
-        <i class="fas fa-sync-alt"></i> Spin Wheel
-      </button>
-      <button class="mini-game-btn" id="wordsearch-btn">
-        <i class="fas fa-search"></i> Word Search
-      </button>
-      <button class="mini-game-btn" id="nft-btn">
-        <i class="fas fa-palette"></i> NFT Gallery
-      </button>
-      <button class="mini-game-btn" id="battle-btn">
-        <i class="fas fa-fist-raised"></i> Battle Royale
-      </button>
-    </div>
-    
-    <!-- NEW: Spin Wheel Game -->
-    <div id="wheel-game" class="mini-game-container">
-      <h3>Lucky Wheel</h3>
-      <p>Spin to win amazing prizes!</p>
-      <div class="wheel-container">
-        <div class="wheel-pointer"></div>
-        <div class="wheel" id="wheel"></div>
-      </div>
-      <button class="main-btn" id="spin-btn">
-        <i class="fas fa-sync-alt"></i> SPIN (50 SA)
-      </button>
-      <button class="main-btn" id="back-from-wheel">
-        <i class="fas fa-arrow-left"></i> Back
-      </button>
-    </div>
-    
-    <!-- NEW: Word Search Game -->
-    <div id="wordsearch-game" class="mini-game-container">
-      <h3>Word Search</h3>
-      <p>Find hidden words in the grid!</p>
-      <div class="word-search-grid" id="wordsearch-grid"></div>
-      <div id="wordsearch-words"></div>
-      <button class="main-btn" id="back-from-wordsearch">
-        <i class="fas fa-arrow-left"></i> Back
-      </button>
-    </div>
-    
-    <!-- NEW: NFT Gallery -->
-    <div id="nft-gallery" class="mini-game-container">
-      <h3>NFT Collection</h3>
-      <p>Collect rare NFTs by playing the game!</p>
-      <div class="nft-gallery" id="nft-collection">
-        <!-- NFTs will be populated by JS -->
-      </div>
-      <button class="main-btn" id="back-from-nft">
-        <i class="fas fa-arrow-left"></i> Back
-      </button>
-    </div>
-    
-    <!-- NEW: Battle Royale -->
-    <div id="battle-royale" class="battle-royale">
-      <h3>Battle Royale</h3>
-      <p>Compete against other players in real-time!</p>
-      <div class="player-list" id="battle-players">
-        <!-- Players will be populated by JS -->
-      </div>
-      <div id="battle-timer">Starting in: 10s</div>
-      <button class="main-btn" id="join-battle-btn">
-        <i class="fas fa-user-plus"></i> Join Battle (100 SA)
-      </button>
-      <button class="main-btn" id="back-from-battle">
-        <i class="fas fa-arrow-left"></i> Back
-      </button>
-    </div>
-    
-    <!-- Leaderboard -->
-    <div id="leaderboard" class="leaderboard">
-      <h3>Leaderboard</h3>
-      <div id="leaderboard-list">
-        <!-- Leaderboard items will be populated by JS -->
-      </div>
-    </div>
-    
-    <!-- NEW: Chat Box -->
-    <div id="chat-box" class="chat-container">
-      <h3>Community Chat</h3>
-      <div id="chat-messages">
-        <div class="chat-message">
-          <strong>System:</strong> Welcome to the chat! Be respectful to other players.
-        </div>
-      </div>
-      <input type="text" class="chat-input" id="chat-input" placeholder="Type your message...">
-      <button class="main-btn" id="send-chat-btn">Send</button>
-    </div>
-  </div>
-  
-  <div class="footer">
-    <button onclick="window.location.href='index.html'" title="Home">
-      <i class="fas fa-home"></i>
-      <span class="tooltip">Home</span>
-    </button>
-    <button onclick="window.location.href='Task.html'" title="Tasks">
-      <i class="fas fa-tasks"></i>
-      <span class="tooltip">Tasks</span>
-    </button>
-    <button onclick="window.location.href='wallet.html'" title="Wallet">
-      <i class="fas fa-wallet"></i>
-      <span class="tooltip">Wallet</span>
-    </button>
-    <button onclick="window.location.href='dapp.html'" title="DApp" class="active">
-      <i class="fas fa-gamepad"></i>
-      <span class="tooltip">Games</span>
-    </button>
-    <button id="settings-btn" title="Settings">
-      <i class="fas fa-cog"></i>
-      <span class="tooltip">Settings</span>
-    </button>
-    <button id="chat-toggle-btn" title="Chat">
-      <i class="fas fa-comments"></i>
-      <span class="tooltip">Chat</span>
-    </button>
-  </div>
-  
-  <!-- Settings Modal -->
-  <div id="settings-modal" class="modal">
-    <div class="modal-content">
-      <span class="close-modal">&times;</span>
-      <h2>Game Settings</h2>
-      
-      <div class="setting-item">
-        <label>
-          <input type="checkbox" id="sound-toggle" checked> Enable Sound Effects
-        </label>
-      </div>
-      
-      <div class="setting-item">
-        <label>
-          <input type="checkbox" id="timer-toggle" checked> Enable Timer
-        </label>
-      </div>
-      
-      <div class="setting-item">
-        <label>
-          <input type="checkbox" id="daily-challenge-toggle" checked> Show Daily Challenges
-        </label>
-      </div>
-      
-      <div class="setting-item">
-        <label>Difficulty:
-          <select id="difficulty-select">
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-        </label>
-      </div>
-      
-      <!-- NEW: Avatar Selection -->
-      <h3>Avatar Selection</h3>
-      <div class="avatar-container">
-        <div class="avatar-option selected" data-avatar="1">👨‍💻</div>
-        <div class="avatar-option" data-avatar="2">👩‍💻</div>
-        <div class="avatar-option" data-avatar="3">🦊</div>
-        <div class="avatar-option" data-avatar="4">🐱</div>
-        <div class="avatar-option" data-avatar="5">🤖</div>
-        <div class="avatar-option" data-avatar="6">👾</div>
-      </div>
-      
-      <button class="main-btn" id="reset-stats-btn">Reset Statistics</button>
-    </div>
-  </div>
-  
-  <!-- Achievement Unlocked Modal -->
-  <div id="achievement-modal" class="modal">
-    <div class="modal-content">
-      <h2>Achievement Unlocked!</h2>
-      <div id="achievement-content">
-        <!-- Content will be populated by JS -->
-      </div>
-    </div>
-  </div>
-  
-  <!-- NEW: Special Event Modal -->
-  <div id="event-modal" class="modal">
-    <div class="modal-content">
-      <h2>Special Event!</h2>
-      <div id="event-content">
-        <p>Double rewards are active for the next 24 hours!</p>
-        <p>Complete words to earn twice the SA coins!</p>
-        <div class="event-banner" style="margin: 15px 0;">
-          <i class="fas fa-gift"></i> Event Active: Double Rewards!
-        </div>
-      </div>
-      <button class="main-btn" id="close-event-modal">Got it!</button>
-    </div>
-  </div>
-  
-  <div id="confetti-container"></div>
-  
-  <!-- NEW: Particle Container -->
-  <div id="particle-container"></div>
-  
-  <script>
-    // --- CONFIGURATION ---
-    const OWNER_ETH_ADDRESS = '0xYourEthereumAddressHere'; // <<<<--- PUT YOUR ETH ADDRESS HERE
-    const BALANCE_KEY = 'minedCoins'; // Match mining game's key
-    const GAME_STATE_KEY = "supremeamer_wordgame";
-    const DAILY_BONUS_KEY = "supremeamer_daily_bonus";
-    const STATS_KEY = "supremeamer_wordgame_stats";
-    const SETTINGS_KEY = "supremeamer_wordgame_settings";
-    const LEADERBOARD_KEY = "supremeamer_wordgame_leaderboard";
-    const AVATAR_KEY = "supremeamer_wordgame_avatar";
-    const NFT_COLLECTION_KEY = "supremeamer_wordgame_nfts";
-    const EVENT_KEY = "supremeamer_wordgame_event";
-    
-    // --- WORD DATA ---
-    const WORDS = [
-      // Crypto & Tech Terms
-      "nft","defi","coin","token","blockchain","mining","bitcoin","ethereum","wallet","exchange",
-      "smartcontract","altcoin","stablecoin","gasfee","hashrate","nodes","whitepaper","airdrops","staking","yieldfarming",
-      
-      // General Words
-      "hide","veil","skin","stock","secret","furtive","covert","latent","conceal","hideout",
-      "secrete","stash","hider","hidden","exposed","anonymous","pseudonym","incognito","mask","pokerface",
-      "cloak","services","products","software","research","comments","national","internet","shipping","reserved",
-      "security","american","computer","download","pictures","personal","location","children","students","shopping",
-      
-      // Longer Challenge Words
-      "cryptocurrency","decentralized","authentication","confidentiality","infrastructure","biometrics","surveillance",
-      "encryption","firewall","malware","phishing","ransomware","vulnerability","cybersecurity","authentication",
-      "authorization","blockchain","confidential","cryptography","cyberattack","cybercrime","cyberwarfare",
-      "databreach","digitalfootprint","digitalidentity","endtoendencryption","ethicalhacking","fingerprintscanner",
-      "identitytheft","intrusiondetection","multi-factor-authentication","passwordmanager","privacypolicy",
-      "securityaudit","securityprotocol","socialengineering","twofactorauthentication","virtualprivatenetwork"
-    ];
-    
-    // Difficulty tiers (group words by length)
-    const WORD_TIERS = {
-      easy: WORDS.filter(word => word.length <= 5),
-      medium: WORDS.filter(word => word.length > 5 && word.length <= 8),
-      hard: WORDS.filter(word => word.length > 8)
-    };
-    
-    // Achievement definitions
-    const ACHIEVEMENTS = [
-      { id: "first_word", name: "First Word", description: "Solve your first word", icon: "fa-star", reward: 50 },
-      { id: "word_master", name: "Word Master", description: "Solve 50 words", icon: "fa-trophy", reward: 500 },
-      { id: "coin_collector", name: "Coin Collector", description: "Earn 1000 SA coins", icon: "fa-coins", reward: 100 },
-      { id: "streak_5", name: "Hot Streak", description: "Get a 5-word streak", icon: "fa-fire", reward: 200 },
-      { id: "streak_10", name: "Unstoppable", description: "Get a 10-word streak", icon: "fa-bolt", reward: 500 },
-      { id: "daily_player", name: "Daily Player", description: "Play for 7 consecutive days", icon: "fa-calendar", reward: 300 },
-      { id: "speed_runner", name: "Speed Runner", description: "Solve a word in under 10 seconds", icon: "fa-stopwatch", reward: 150 },
-      { id: "perfectionist", name: "Perfectionist", description: "Solve 10 words without any mistakes", icon: "fa-check-double", reward: 400 },
-      { id: "wheel_spinner", name: "Wheel Spinner", description: "Spin the wheel 10 times", icon: "fa-sync", reward: 250 },
-      { id: "nft_collector", name: "NFT Collector", description: "Collect 5 NFTs", icon: "fa-palette", reward: 600 }
-    ];
-    
-    // NFT Collection
-    const NFT_ITEMS = [
-      { id: 1, name: "Golden A", rarity: "common", icon: "🅰️", value: 100 },
-      { id: 2, name: "Crypto Coin", rarity: "common", icon: "🪙", value: 100 },
-      { id: 3, name: "Blockchain", rarity: "rare", icon: "⛓️", value: 250 },
-      { id: 4, name: "Diamond Word", rarity: "rare", icon: "💎", value: 250 },
-      { id: 5, name: "Bitcoin Legend", rarity: "epic", icon: "₿", value: 500 },
-      { id: 6, name: "Ethereum Master", rarity: "epic", icon: "Ξ", value: 500 },
-      { id: 7, name: "Supreme Word", rarity: "legendary", icon: "👑", value: 1000 },
-      { id: 8, name: "Golden Dictionary", rarity: "legendary", icon: "📖", value: 1000 }
-    ];
-    
-    // Wheel prizes
-    const WHEEL_PRIZES = [
-      { text: "50 SA", value: 50, type: "coins" },
-      { text: "100 SA", value: 100, type: "coins" },
-      { text: "200 SA", value: 200, type: "coins" },
-      { text: "Hint", value: 1, type: "hint" },
-      { text: "Shuffle", value: 1, type: "shuffle" },
-      { text: "NFT", value: 1, type: "nft" },
-      { text: "2x Multiplier", value: 2, type: "multiplier" },
-      { text: "500 SA", value: 500, type: "coins" }
-    ];
-    
-    // --- GAME STATE ---
-    let gameState = {
-      level: 0,
-      mining: 0,
-      foundLevels: [],
-      history: [],
-      difficulty: 'easy', // easy, medium, hard
-      streak: 0,
-      lastPlayed: null,
-      dailyChallenge: {
-        word: "",
-        completed: false,
-        date: null
-      },
-      wheelSpins: 0,
-      nfts: [],
-      activeMultiplier: 1,
-      activeEvent: null
-    };
-    
-    // Game statistics
-    let gameStats = {
-      wordsSolved: 0,
-      coinsEarned: 0,
-      longestStreak: 0,
-      totalAttempts: 0,
-      correctAttempts: 0,
-      playDays: [],
-      achievements: [],
-      powerUpsUsed: 0,
-      wheelSpins: 0,
-      nftsCollected: 0
-    };
-    
-    // Game settings
-    let gameSettings = {
-      soundEnabled: true,
-      timerEnabled: true,
-      dailyChallengesEnabled: true,
-      theme: 'default',
-      avatar: '1'
-    };
-    
-    // Timer variables
-    let timerInterval;
-    let timeLeft = 60;
-    
-    // Battle Royale state
-    let battleState = {
-      joined: false,
-      players: [],
-      timeLeft: 10,
-      battleActive: false
-    };
-    
-    // Chat state
-    let chatMessages = [];
-    
-    // --- UTILITIES FOR COIN CREDIT ---
-    function getMainMinedCoins() {
-      let coins = parseFloat(localStorage.getItem(BALANCE_KEY));
-      return isNaN(coins) ? 0 : coins;
-    }
-    
-    function setMainMinedCoins(amount) {
-      localStorage.setItem(BALANCE_KEY, amount);
-      window.dispatchEvent(new Event('minedCoins_update'));
-      updateBalanceDisplay();
-    }
-    
-    function updateBalanceDisplay() {
-      const balance = getMainMinedCoins();
-      document.getElementById("mining-balance-value").textContent = 
-        balance.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4});
-    }
-    
-    // --- SAVE/LOAD GAME ---
-    function saveGame() {
-      localStorage.setItem(GAME_STATE_KEY, JSON.stringify(gameState));
-      localStorage.setItem(STATS_KEY, JSON.stringify(gameStats));
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(gameSettings));
-      localStorage.setItem(AVATAR_KEY, gameSettings.avatar);
-      localStorage.setItem(NFT_COLLECTION_KEY, JSON.stringify(gameState.nfts));
-      
-      // Sync mining balance to global minedCoins
-      let totalMined = getMainMinedCoins();
-      let newBalance = Math.max(totalMined, 0) + gameState.mining;
-      setMainMinedCoins(newBalance);
-    }
-    
-    function loadGame() {
-      const data = localStorage.getItem(GAME_STATE_KEY);
-      if (data) {
-        try {
-          const obj = JSON.parse(data);
-          if (typeof obj === "object") {
-            gameState = {...gameState, ...obj};
-          }
-        } catch {}
-      }
-      
-      // Load stats
-      const statsData = localStorage.getItem(STATS_KEY);
-      if (statsData) {
-        try {
-          const obj = JSON.parse(statsData);
-          if (typeof obj === "object") {
-            gameStats = {...gameStats, ...obj};
-          }
-        } catch {}
-      }
-      
-      // Load settings
-      const settingsData = localStorage.getItem(SETTINGS_KEY);
-      if (settingsData) {
-        try {
-          const obj = JSON.parse(settingsData);
-          if (typeof obj === "object") {
-            gameSettings = {...gameSettings, ...obj};
-          }
-        } catch {}
-      }
-      
-      // Load avatar
-      const avatarData = localStorage.getItem(AVATAR_KEY);
-      if (avatarData) {
-        gameSettings.avatar = avatarData;
-      }
-      
-      // Load NFTs
-      const nftData = localStorage.getItem(NFT_COLLECTION_KEY);
-      if (nftData) {
-        try {
-          gameState.nfts = JSON.parse(nftData);
-        } catch {}
-      }
-      
-      // Check for daily reset
-      checkDailyReset();
-      
-      // Check for special events
-      checkSpecialEvents();
-    }
-    
-    function checkDailyReset() {
-      const today = new Date().toDateString();
-      if (gameState.lastPlayed !== today) {
-        // Reset streak if not played today
-        gameState.streak = 0;
-        gameState.lastPlayed = today;
-        
-        // Check for daily challenge reset
-        if (!gameState.dailyChallenge.date || gameState.dailyChallenge.date !== today) {
-          generateDailyChallenge();
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Spin Wheel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        saveGame();
-      }
-    }
-    
-    function generateDailyChallenge() {
-      const words = WORDS.filter(word => word.length >= 6 && word.length <= 10);
-      const randomWord = words[Math.floor(Math.random() * words.length)];
-      
-      gameState.dailyChallenge = {
-        word: randomWord,
-        completed: false,
-        date: new Date().toDateString()
-      };
-      
-      saveGame();
-    }
-    
-    function checkSpecialEvents() {
-      // Check if there's an active event
-      const today = new Date();
-      const eventData = localStorage.getItem(EVENT_KEY);
-      
-      // For demo purposes, let's create a random event
-      if (!eventData || Math.random() > 0.7) {
-        const eventTypes = ["double_rewards", "free_powerups", "bonus_coins"];
-        const randomEvent = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            padding: 20px;
+            color: #fff;
+        }
         
-        gameState.activeEvent = {
-          type: randomEvent,
-          endTime: today.getTime() + (24 * 60 * 60 * 1000) // 24 hours from now
-        };
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+        }
         
-        localStorage.setItem(EVENT_KEY, JSON.stringify(gameState.activeEvent));
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
         
-        // Show event banner
-        document.getElementById("event-banner").style.display = "block";
-        document.getElementById("event-banner").innerHTML = `
-          <i class="fas fa-calendar-star"></i> Special Event: ${getEventName(randomEvent)} Active!
-        `;
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            opacity: 0.9;
+        }
         
-        // Show event modal
-        document.getElementById("event-modal").style.display = "flex";
-      } else if (eventData) {
-        try {
-          gameState.activeEvent = JSON.parse(eventData);
-          if (gameState.activeEvent.endTime > today.getTime()) {
-            document.getElementById("event-banner").style.display = "block";
-            document.getElementById("event-banner").innerHTML = `
-              <i class="fas fa-calendar-star"></i> Special Event: ${getEventName(gameState.activeEvent.type)} Active!
-            `;
-          } else {
-            gameState.activeEvent = null;
-            localStorage.removeItem(EVENT_KEY);
-          }
-        } catch {}
-      }
-    }
-    
-    function getEventName(eventType) {
-      switch(eventType) {
-        case "double_rewards": return "Double Rewards";
-        case "free_powerups": return "Free Power-ups";
-        case "bonus_coins": return "Bonus Coins";
-        default: return "Special Event";
-      }
-    }
-    
-    function resetGame() {
-      if (confirm("Restart the game? All progress will be lost!")) {
-        gameState = {
-          level: 0,
-          mining: 0,
-          foundLevels: [],
-          history: [],
-          difficulty: 'easy',
-          streak: 0,
-          lastPlayed: new Date().toDateString(),
-          dailyChallenge: gameState.dailyChallenge,
-          wheelSpins: gameState.wheelSpins,
-          nfts: gameState.nfts,
-          activeMultiplier: 1,
-          activeEvent: gameState.activeEvent
-        };
-        saveGame();
-        renderGame();
-      }
-    }
-    
-    // --- REWARD RULES ---
-    function getLevelReward(level) {
-      // Base reward increases with level
-      const baseReward = 30 * (level + 1);
-      
-      // Difficulty multiplier
-      let multiplier = 1;
-      if (gameState.difficulty === 'medium') multiplier = 1.5;
-      if (gameState.difficulty === 'hard') multiplier = 2;
-      
-      // Streak bonus (up to 50% bonus for 5+ streak)
-      const streakBonus = Math.min(gameState.streak, 5) * 0.1;
-      
-      // Time bonus (faster completion = more reward)
-      const timeBonus = Math.max(0, (60 - timeLeft) / 60) * 0.5;
-      
-      // Active multiplier (from wheel or events)
-      const activeMultiplier = gameState.activeMultiplier;
-      
-      // Event bonus
-      let eventBonus = 1;
-      if (gameState.activeEvent && gameState.activeEvent.type === "double_rewards") {
-        eventBonus = 2;
-      }
-      
-      return Math.floor(baseReward * multiplier * (1 + streakBonus + timeBonus) * activeMultiplier * eventBonus);
-    }
-    
-    function getCurrentWord() {
-      const tier = WORD_TIERS[gameState.difficulty];
-      return tier[gameState.level % tier.length];
-    }
-    
-    // --- GAME LOGIC + UI ---
-    function renderGame() {
-      document.getElementById("history-list").style.display = "none";
-      document.getElementById("stats-panel").style.display = "none";
-      document.getElementById("leaderboard").style.display = "none";
-      document.getElementById("minigame-panel").style.display = "none";
-      document.getElementById("wheel-game").style.display = "none";
-      document.getElementById("wordsearch-game").style.display = "none";
-      document.getElementById("nft-gallery").style.display = "none";
-      document.getElementById("battle-royale").style.display = "none";
-      document.getElementById("chat-box").style.display = "none";
-      updateBalanceDisplay();
-      
-      // Update progress bar
-      const tier = WORD_TIERS[gameState.difficulty];
-      const progress = ((gameState.level % tier.length) / tier.length) * 100;
-      document.getElementById("progress-bar").style.width = `${progress}%`;
-      
-      // Update timer display
-      if (gameSettings.timerEnabled) {
-        document.getElementById("timer").style.display = "block";
-        resetTimer();
-      } else {
-        document.getElementById("timer").style.display = "none";
-      }
-      
-      // Show daily challenge if enabled
-      if (gameSettings.dailyChallengesEnabled && gameState.dailyChallenge.word && !gameState.dailyChallenge.completed) {
-        document.getElementById("daily-challenge").style.display = "block";
-        document.getElementById("daily-word").textContent = gameState.dailyChallenge.word.toUpperCase();
-      } else {
-        document.getElementById("daily-challenge").style.display = "none";
-      }
-      
-      const word = getCurrentWord();
-      if (!word) {
-        document.getElementById("level").innerHTML = `
-          <span style="color:#fdc500;font-size:1.3em;">
-            Congratulations!<br/>You finished all ${gameState.difficulty} levels!
-          </span>`;
-        document.getElementById("reward-msg").textContent = "";
-        document.getElementById("grid").innerHTML = "";
-        document.getElementById("selector").innerHTML = "";
-        document.getElementById("input-word").innerText = "";
-        document.getElementById("submit-btn").disabled = true;
-        return;
-      }
-      
-      document.getElementById("submit-btn").disabled = false;
-      document.getElementById("level").innerHTML = `
-        LEVEL ${gameState.level + 1} 
-        <span style="font-size:0.8em;color:#bbb;">(${gameState.difficulty})</span>
-        ${gameState.streak > 0 ? `<span style="color:#2ecc71;">Streak: ${gameState.streak}</span>` : ''}
-        ${gameState.activeMultiplier > 1 ? `<span style="color:#9b59b6;">${gameState.activeMultiplier}x Multiplier!</span>` : ''}
-      `;
-      
-      document.getElementById("reward-msg").textContent = "";
-      
-      // Render grid
-      const gridDiv = document.getElementById("grid");
-      gridDiv.innerHTML = "";
-      const grid = Array.from(word.replace(/ /g, '').toUpperCase());
-      
-      for (let i = 0; i < grid.length; i++) {
-        const cell = document.createElement("div");
-        cell.className = "cell";
-        cell.innerText = "";
-        cell.dataset.index = i;
-        gridDiv.appendChild(cell);
-      }
-      
-      // Render selector
-      const selectorDiv = document.getElementById("selector");
-      selectorDiv.innerHTML = "";
-      const letters = shuffle(Array.from(word.replace(/ /g, '').toUpperCase()));
-      let input = "";
-      
-      letters.forEach((letter, idx) => {
-        const div = document.createElement("div");
-        div.className = "letter";
-        div.innerText = letter;
-        div.dataset.index = idx;
-        div.onclick = () => {
-          if (!div.classList.contains("selected")) {
-            div.classList.add("selected");
-            input += letter;
-            document.getElementById("input-word").innerText = input;
-            
-            // Fill the corresponding grid cell
-            const cells = document.querySelectorAll('.cell');
-            const emptyCellIndex = Array.from(cells).findIndex(cell => cell.innerText === '');
-            if (emptyCellIndex !== -1) {
-              cells[emptyCellIndex].innerText = letter;
-              cells[emptyCellIndex].classList.add('filled');
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 350px;
+            height: 350px;
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ff6b6b 0deg 45deg,
+                #4ecdc4 45deg 90deg,
+                #45b7d1 90deg 135deg,
+                #96ceb4 135deg 180deg,
+                #feca57 180deg 225deg,
+                #ff9ff3 225deg 270deg,
+                #54a0ff 270deg 315deg,
+                #5f27cd 315deg 360deg
+            );
+            position: relative;
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.16, 0.99);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .wheel-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 60px;
+            background: #ff4757;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 5;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex: 1;
+            max-width: 300px;
+        }
+        
+        .btn {
+            background: linear-gradient(to bottom, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 0 #c23616;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 #c23616;
+        }
+        
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #c23616;
+        }
+        
+        .btn-spin {
+            background: linear-gradient(to bottom, #ff9f43, #ff7f00);
+            box-shadow: 0 5px 0 #cc6600;
+        }
+        
+        .btn-spin:hover {
+            box-shadow: 0 8px 0 #cc6600;
+        }
+        
+        .btn-spin:active {
+            box-shadow: 0 3px 0 #cc6600;
+        }
+        
+        .btn-reset {
+            background: linear-gradient(to bottom, #2ed573, #1dd1a1);
+            box-shadow: 0 5px 0 #009432;
+        }
+        
+        .btn-reset:hover {
+            box-shadow: 0 8px 0 #009432;
+        }
+        
+        .btn-reset:active {
+            box-shadow: 0 3px 0 #009432;
+        }
+        
+        .stats {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .stats h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 15px;
+        }
+        
+        .win-animation {
+            animation: winPulse 0.5s infinite alternate;
+        }
+        
+        @keyframes winPulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        
+        .history {
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .history h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .history-list {
+            max-height: 150px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .history-item {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+                align-items: center;
             }
             
-            // Create particle effect
-            createParticle(div);
-          }
-        };
-        selectorDiv.appendChild(div);
-      });
-      
-      document.getElementById("input-word").innerText = "";
-      
-      // Submit logic
-      document.getElementById("submit-btn").onclick = () => {
-        const currentWord = getCurrentWord().replace(/ /g, '').toLowerCase();
-        const userWord = input.replace(/ /g, '').toLowerCase();
-        
-        if (userWord === currentWord) {
-          // Correct answer
-          const reward = getLevelReward(gameState.level);
-          gameState.mining += reward;
-          gameState.foundLevels.push(gameState.level);
-          gameState.level += 1;
-          gameState.streak += 1;
-          gameState.lastPlayed = new Date().toDateString();
-          
-          // Update stats
-          gameStats.wordsSolved += 1;
-          gameStats.coinsEarned += reward;
-          gameStats.correctAttempts += 1;
-          gameStats.totalAttempts += 1;
-          
-          // Update longest streak
-          if (gameState.streak > gameStats.longestStreak) {
-            gameStats.longestStreak = gameState.streak;
-          }
-          
-          // Track play days
-          const today = new Date().toDateString();
-          if (!gameStats.playDays.includes(today)) {
-            gameStats.playDays.push(today);
-          }
-          
-          gameState.history.push({
-            type: "level-up",
-            level: gameState.level,
-            amount: reward,
-            difficulty: gameState.difficulty,
-            streak: gameState.streak,
-            timestamp: Date.now()
-          });
-          
-          // Check for achievements
-          checkAchievements();
-          
-          saveGame();
-          
-          // Visual feedback
-          document.getElementById("reward-msg").style.color = "var(--success)";
-          document.getElementById("reward-msg").innerHTML = `
-            <i class="fas fa-check"></i> Correct! +${reward} SA coins
-          `;
-          document.getElementById("reward-msg").classList.add("bounce");
-          
-          // Stop timer
-          if (gameSettings.timerEnabled) {
-            clearInterval(timerInterval);
-          }
-          
-          // Celebrate!
-          createConfetti();
-          createCoinRain(reward);
-          
-          // Check if daily challenge was completed
-          if (gameState.dailyChallenge.word && 
-              userWord === gameState.dailyChallenge.word.toLowerCase() && 
-              !gameState.dailyChallenge.completed) {
-            completeDailyChallenge();
-          }
-          
-          // Check difficulty progression
-          checkDifficultyProgression();
-          
-          setTimeout(() => {
-            document.getElementById("reward-msg").classList.remove("bounce");
-            renderGame();
-          }, 1500);
-        } else {
-          // Incorrect answer
-          gameState.streak = 0;
-          gameStats.totalAttempts += 1;
-          saveGame();
-          
-          document.getElementById("reward-msg").style.color = "var(--error)";
-          document.getElementById("reward-msg").innerHTML = `
-            <i class="fas fa-times"></i> Try again!
-          `;
-          document.getElementById("reward-msg").classList.add("shake");
-          
-          document.getElementById("input-word").innerText = "";
-          input = "";
-          
-          document.querySelectorAll(".letter").forEach(x => x.classList.remove("selected"));
-          document.querySelectorAll(".cell").forEach(cell => {
-            cell.innerText = "";
-            cell.classList.remove("filled");
-          });
-          
-          setTimeout(() => {
-            document.getElementById("reward-msg").classList.remove("shake");
-          }, 500);
+            .wheel-container {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .controls {
+                max-width: 100%;
+            }
         }
-      };
-    }
-    
-    function checkDifficultyProgression() {
-      // Automatically increase difficulty after completing easy levels
-      const easyLevels = WORD_TIERS.easy.length;
-      const mediumLevels = WORD_TIERS.medium.length;
-      
-      if (gameState.difficulty === 'easy' && gameState.level >= easyLevels) {
-        gameState.difficulty = 'medium';
-        showPopup("Difficulty increased to Medium!", "success");
-      } else if (gameState.difficulty === 'medium' && gameState.level >= easyLevels + mediumLevels) {
-        gameState.difficulty = 'hard';
-        showPopup("Difficulty increased to Hard!", "success");
-      }
-    }
-    
-    // --- PARTICLE EFFECTS ---
-    function createParticle(element) {
-      const particle = document.createElement("div");
-      particle.className = "particle";
-      
-      const rect = element.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-      
-      particle.style.left = `${x}px`;
-      particle.style.top = `${y}px`;
-      particle.style.width = "10px";
-      particle.style.height = "10px";
-      particle.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--primary');
-      particle.style.borderRadius = "50%";
-      
-      document.getElementById("particle-container").appendChild(particle);
-      
-      // Animate particle
-      const angle = Math.random() * Math.PI * 2;
-      const distance = 50 + Math.random() * 50;
-      const targetX = x + Math.cos(angle) * distance;
-      const targetY = y + Math.sin(angle) * distance;
-      
-      particle.animate([
-        { transform: `translate(0, 0)`, opacity: 1 },
-        { transform: `translate(${targetX - x}px, ${targetY - y}px)`, opacity: 0 }
-      ], {
-        duration: 1000,
-        easing: "ease-out"
-      });
-      
-      // Remove particle after animation
-      setTimeout(() => {
-        particle.remove();
-      }, 1000);
-    }
-    
-    function createCoinRain(amount) {
-      const coins = Math.min(amount, 20); // Limit to 20 coins max
-      
-      for (let i = 0; i < coins; i++) {
-        const coin = document.createElement("div");
-        coin.className = "particle";
-        coin.innerHTML = "🪙";
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Lucky Spin Wheel</h1>
+        <p class="subtitle">Spin the wheel and win amazing prizes!</p>
         
-        const startX = Math.random() * window.innerWidth;
+        <div class="game-area">
+            <div class="wheel-container">
+                <div class="pointer"></div>
+                <div class="wheel" id="wheel">
+                    <!-- Wheel sections will be generated by JavaScript -->
+                </div>
+                <div class="wheel-center">SPIN</div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-spin" id="spinBtn">
+                    <i class="fas fa-play"></i> SPIN WHEEL
+                </button>
+                <button class="btn btn-reset" id="resetBtn">
+                    <i class="fas fa-redo"></i> RESET GAME
+                </button>
+                
+                <div class="stats">
+                    <h2>Game Stats</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span>Spins:</span>
+                            <span id="spinCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Points:</span>
+                            <span id="points">100</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Wins:</span>
+                            <span id="winCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Losses:</span>
+                            <span id="lossCount">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result" id="result">
+                    Spin the wheel to play!
+                </div>
+            </div>
+        </div>
         
-        coin.style.left = `${startX}px`;
-        coin.style.top = "-50px";
-        coin.style.fontSize = "20px";
-        coin.style.zIndex = "2000";
-        
-        document.getElementById("particle-container").appendChild(coin);
-        
-        // Animate coin falling
-        const duration = 2000 + Math.random() * 1000;
-        const endX = startX + (Math.random() - 0.5) * 200;
-        
-        coin.animate([
-          { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
-          { transform: `translate(${endX - startX}px, ${window.innerHeight + 50}px) rotate(360deg)`, opacity: 0 }
-        ], {
-          duration: duration,
-          easing: "cubic-bezier(0.4, 0, 0.2, 1)"
+        <div class="history">
+            <h2>Spin History</h2>
+            <div class="history-list" id="historyList">
+                <!-- History items will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const wheel = document.getElementById('wheel');
+            const spinBtn = document.getElementById('spinBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const result = document.getElementById('result');
+            const spinCount = document.getElementById('spinCount');
+            const points = document.getElementById('points');
+            const winCount = document.getElementById('winCount');
+            const lossCount = document.getElementById('lossCount');
+            const historyList = document.getElementById('historyList');
+            
+            // Wheel sections data
+            const sections = [
+                { text: "100 Points", value: 100, type: "points" },
+                { text: "200 Points", value: 200, type: "points" },
+                { text: "Try Again", value: 0, type: "try" },
+                { text: "50 Points", value: 50, type: "points" },
+                { text: "Lose 50", value: -50, type: "loss" },
+                { text: "300 Points", value: 300, type: "points" },
+                { text: "Lose 100", value: -100, type: "loss" },
+                { text: "500 Points", value: 500, type: "points" }
+            ];
+            
+            // Game state
+            let gameState = {
+                spins: 0,
+                currentPoints: 100,
+                wins: 0,
+                losses: 0,
+                isSpinning: false
+            };
+            
+            // Create wheel sections
+            function createWheelSections() {
+                wheel.innerHTML = '';
+                const anglePerSection = 360 / sections.length;
+                
+                sections.forEach((section, index) => {
+                    const sectionEl = document.createElement('div');
+                    sectionEl.className = 'wheel-section';
+                    sectionEl.style.transform = `rotate(${index * anglePerSection}deg)`;
+                    
+                    const textEl = document.createElement('div');
+                    textEl.textContent = section.text;
+                    textEl.style.transform = `rotate(${anglePerSection/2}deg)`;
+                    textEl.style.textAlign = 'center';
+                    textEl.style.width = '80px';
+                    textEl.style.marginLeft = '30px';
+                    
+                    sectionEl.appendChild(textEl);
+                    wheel.appendChild(sectionEl);
+                });
+            }
+            
+            // Spin the wheel
+            function spinWheel() {
+                if (gameState.isSpinning) return;
+                
+                // Check if player has enough points to spin
+                if (gameState.currentPoints < 10) {
+                    result.textContent = "Not enough points to spin!";
+                    result.style.color = "#ff6b6b";
+                    return;
+                }
+                
+                gameState.isSpinning = true;
+                gameState.spins++;
+                gameState.currentPoints -= 10; // Cost to spin
+                
+                // Random rotation between 5 and 10 full rotations plus a random angle
+                const spinDegrees = 1800 + Math.floor(Math.random() * 1800);
+                const winningIndex = Math.floor(Math.random() * sections.length);
+                const anglePerSection = 360 / sections.length;
+                const adjustment = (winningIndex * anglePerSection) - (anglePerSection / 2);
+                const finalRotation = spinDegrees - adjustment;
+                
+                // Apply the spin
+                wheel.style.transform = `rotate(${finalRotation}deg)`;
+                
+                // Update UI during spin
+                spinBtn.disabled = true;
+                result.textContent = "Spinning...";
+                result.classList.remove('win-animation');
+                
+                // After spin completes
+                setTimeout(() => {
+                    gameState.isSpinning = false;
+                    spinBtn.disabled = false;
+                    
+                    const winningSection = sections[winningIndex];
+                    processResult(winningSection);
+                    
+                    // Update stats
+                    updateStats();
+                    addToHistory(winningSection);
+                }, 4000);
+            }
+            
+            // Process the result of a spin
+            function processResult(section) {
+                let message = "";
+                let color = "#fff";
+                
+                switch(section.type) {
+                    case "points":
+                        gameState.currentPoints += section.value;
+                        gameState.wins++;
+                        message = `Congratulations! You won ${section.value} points!`;
+                        color = "#2ed573";
+                        result.classList.add('win-animation');
+                        break;
+                    case "loss":
+                        gameState.currentPoints += section.value;
+                        gameState.losses++;
+                        message = `Oh no! You lost ${Math.abs(section.value)} points!`;
+                        color = "#ff6b6b";
+                        break;
+                    case "try":
+                        gameState.losses++;
+                        message = "Try again! No points won or lost.";
+                        color = "#ffa502";
+                        break;
+                }
+                
+                result.textContent = message;
+                result.style.color = color;
+            }
+            
+            // Reset the game
+            function resetGame() {
+                gameState = {
+                    spins: 0,
+                    currentPoints: 100,
+                    wins: 0,
+                    losses: 0,
+                    isSpinning: false
+                };
+                
+                wheel.style.transform = 'rotate(0deg)';
+                result.textContent = "Game reset! Spin the wheel to play!";
+                result.style.color = "#fff";
+                result.classList.remove('win-animation');
+                historyList.innerHTML = '';
+                
+                updateStats();
+            }
+            
+            // Update game statistics
+            function updateStats() {
+                spinCount.textContent = gameState.spins;
+                points.textContent = gameState.currentPoints;
+                winCount.textContent = gameState.wins;
+                lossCount.textContent = gameState.losses;
+            }
+            
+            // Add result to history
+            function addToHistory(section) {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const date = new Date().toLocaleTimeString();
+                historyItem.innerHTML = `
+                    <span>${date}</span>
+                    <span>${section.text}</span>
+                `;
+                
+                historyList.prepend(historyItem);
+            }
+            
+            // Event listeners
+            spinBtn.addEventListener('click', spinWheel);
+            resetBtn.addEventListener('click', resetGame);
+            
+            // Initialize the game
+            createWheelSections();
+            updateStats();
         });
-        
-        // Remove coin after animation
-        setTimeout(() => {
-          coin.remove();
-        }, duration);
-      }
-    }
-    
-    // --- POWER-UPS ---
-    function useHint() {
-      const cost = 50;
-      const balance = getMainMinedCoins();
-      
-      if (balance < cost) {
-        showPopup("Not enough SA coins for hint!", "error");
-        return;
-      }
-      
-      setMainMinedCoins(balance - cost);
-      gameStats.powerUpsUsed += 1;
-      
-      // Find an empty cell and reveal the correct letter
-      const word = getCurrentWord().toUpperCase();
-      const cells = document.querySelectorAll('.cell');
-      const emptyCells = Array.from(cells).filter(cell => cell.innerText === '');
-      
-      if (emptyCells.length > 0) {
-        const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        const cellIndex = parseInt(randomCell.dataset.index);
-        randomCell.innerText = word[cellIndex];
-        randomCell.classList.add('filled');
-        randomCell.classList.add('glow');
-        
-        // Update input
-        let input = "";
-        cells.forEach(cell => {
-          if (cell.innerText) input += cell.innerText;
-        });
-        document.getElementById("input-word").innerText = input;
-        
-        // Remove the used letter from selector
-        const selectorLetters = document.querySelectorAll('.letter');
-        selectorLetters.forEach(letter => {
-          if (letter.innerText === word[cellIndex] && !letter.classList.contains('selected')) {
-            letter.classList.add('selected');
-            break;
-          }
-        });
-        
-        setTimeout(() => {
-          randomCell.classList.remove('glow');
-        }, 2000);
-      }
-      
-      saveGame();
-    }
-    
-    function shuffleLetters() {
-      const cost = 30;
-      const balance = getMainMinedCoins();
-      
-      if (balance < cost) {
-        showPopup("Not enough SA coins for shuffle!", "error");
-        return;
-      }
-      
-      setMainMinedCoins(balance - cost);
-      gameStats.powerUpsUsed += 1;
-      
-      // Get current input
-      const currentInput = document.getElementById("input-word").innerText;
-      
-      // Clear grid and selector
-      document.querySelectorAll('.cell').forEach(cell => {
-        cell.innerText = "";
-        cell.classList.remove('filled');
-      });
-      
-      document.querySelectorAll('.letter').forEach(letter => {
-        letter.classList.remove('selected');
-      });
-      
-      // Reshuffle letters
-      const selectorDiv = document.getElementById("selector");
-      const letters = Array.from(selectorDiv.children);
-      const shuffled = shuffle(Array.from(letters).map(l => l.innerText));
-      
-      letters.forEach((letter, idx) => {
-        letter.innerText = shuffled[idx];
-      });
-      
-      document.getElementById("input-word").innerText = "";
-      
-      saveGame();
-    }
-    
-    function solveWord() {
-      const cost = 100;
-      const balance = getMainMinedCoins();
-      
-      if (balance < cost) {
-        showPopup("Not enough SA coins to solve!", "error");
-        return;
-      }
-      
-      setMainMinedCoins(balance - cost);
-      gameStats.powerUpsUsed += 1;
-      
-      const word = getCurrentWord().toUpperCase();
-      const cells = document.querySelectorAll('.cell');
-      const selectorLetters = document.querySelectorAll('.letter');
-      
-      // Fill all cells with correct letters
-      cells.forEach((cell, index) => {
-        cell.innerText = word[index];
-        cell.classList.add('filled');
-      });
-      
-      // Mark all letters as selected
-      selectorLetters.forEach(letter => {
-        letter.classList.add('selected');
-      });
-      
-      document.getElementById("input-word").innerText = word;
-      
-      saveGame();
-    }
-    
-    function freezeTime() {
-      const cost = 75;
-      const balance = getMainMinedCoins();
-      
-      if (balance < cost) {
-        showPopup("Not enough SA coins to freeze time!", "error");
-        return;
-      }
-      
-      setMainMinedCoins(balance - cost);
-      gameStats.powerUpsUsed += 1;
-      
-      // Stop the timer
-      clearInterval(timerInterval);
-      
-      // Show frozen effect
-      document.getElementById("timer").style.color = "var(--info)";
-      document.getElementById("timer").innerHTML = `<i class="fas fa-snowflake"></i> Time Frozen!`;
-      
-      // Resume timer after 10 seconds
-      setTimeout(() => {
-        if (timeLeft > 0) {
-          startTimer();
-        }
-      }, 10000);
-      
-      saveGame();
-    }
-    
-    function activateDoubleReward() {
-      const cost = 150;
-      const balance = getMainMinedCoins();
-      
-      if (balance < cost) {
-        showPopup("Not enough SA coins for double reward!", "error");
-        return;
-      }
-      
-      setMainMinedCoins(balance - cost);
-      gameStats.powerUpsUsed += 1;
-      
-      // Activate double reward for next word
-      gameState.activeMultiplier = 2;
-      
-      // Show visual feedback
-      document.getElementById("reward-msg").style.color = "var(--warning)";
-      document.getElementById("reward-msg").innerHTML = `
-        <i class="fas fa-gem"></i> Double Reward Activated for Next Word!
-      `;
-      
-      saveGame();
-    }
-    
-    // --- TIMER FUNCTIONS ---
-    function startTimer() {
-      if (!gameSettings.timerEnabled) return;
-      
-      clearInterval(timerInterval);
-      timeLeft = 60;
-      updateTimerDisplay();
-      
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay();
-        
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          timeUp();
-        }
-      }, 1000);
-    }
-    
-    function resetTimer() {
-      clearInterval(timerInterval);
-      timeLeft = 60;
-      updateTimerDisplay();
-      startTimer();
-    }
-    
-    function updateTimerDisplay() {
-      document.getElementById("timer").textContent = `Time: ${timeLeft}s`;
-      
-      // Change color when time is running out
-      if (timeLeft <= 10) {
-        document.getElementById("timer").style.color = "var(--error)";
-        document.getElementById("timer").classList.add("pulse");
-      } else {
-        document.getElementById("timer").style.color = "var(--secondary)";
-        document.getElementById("timer").classList.remove("pulse");
-      }
-    }
-    
-    function timeUp() {
-      document.getElementById("reward-msg").style.color = "var(--error)";
-      document.getElementById("reward-msg").innerHTML = `
-        <i class="fas fa-clock"></i> Time's up! Try again.
-      `;
-      document.getElementById("reward-msg").classList.add("shake");
-      
-      gameState.streak = 0;
-      gameStats.totalAttempts += 1;
-      saveGame();
-      
-      setTimeout(() => {
-        document.getElementById("reward-msg").classList.remove("shake");
-        renderGame();
-      }, 2000);
-    }
-    
-    // --- ACHIEVEMENTS ---
-    function checkAchievements() {
-      ACHIEVEMENTS.forEach(achievement => {
-        // Skip if already unlocked
-        if (gameStats.achievements.includes(achievement.id)) return;
-        
-        let unlocked = false;
-        
-        switch(achievement.id) {
-          case "first_word":
-            unlocked = gameStats.wordsSolved >= 1;
-            break;
-          case "word_master":
-            unlocked = gameStats.wordsSolved >= 50;
-            break;
-          case "coin_collector":
-            unlocked = gameStats.coinsEarned >= 1000;
-            break;
-          case "streak_5":
-            unlocked = gameState.streak >= 5;
-            break;
-          case "streak_10":
-            unlocked = gameState.streak >= 10;
-            break;
-          case "daily_player":
-            unlocked = gameStats.playDays.length >= 7;
-            break;
-          case "speed_runner":
-            unlocked = timeLeft >= 50; // Solved in under 10 seconds
-            break;
-          case "perfectionist":
-            // This would need additional tracking
-            break;
-          case "wheel_spinner":
-            unlocked = gameState.wheelSpins >= 10;
-            break;
-          case "nft_collector":
-            unlocked = gameState.nfts.length >= 5;
-            break;
-        }
-        
-        if (unlocked) {
-          unlockAchievement(achievement);
-        }
-      });
-    }
-    
-    function unlockAchievement(achievement) {
-      gameStats.achievements.push(achievement.id);
-      
-      // Add reward coins
-      const balance = getMainMinedCoins();
-      setMainMinedCoins(balance + achievement.reward);
-      
-      // Show achievement popup
-      document.getElementById("achievement-content").innerHTML = `
-        <h3>${achievement.name}</h3>
-        <p>${achievement.description}</p>
-        <p>Reward: +${achievement.reward} SA</p>
-        <i class="fas ${achievement.icon} fa-3x" style="color: var(--secondary); margin: 15px 0;"></i>
-      `;
-      
-      document.getElementById("achievement-modal").style.display = "flex";
-      
-      // Add to history
-      gameState.history.push({
-        type: "achievement",
-        achievement: achievement.name,
-        amount: achievement.reward,
-        timestamp: Date.now()
-      });
-      
-      saveGame();
-      
-      // Auto-close after 3 seconds
-      setTimeout(() => {
-        document.getElementById("achievement-modal").style.display = "none";
-      }, 3000);
-    }
-    
-    function renderAchievements() {
-      const grid = document.getElementById("achievements-grid");
-      grid.innerHTML = "";
-      
-      ACHIEVEMENTS.forEach(achievement => {
-        const isUnlocked = gameStats.achievements.includes(achievement.id);
-        const achievementEl = document.createElement("div");
-        achievementEl.className = `achievement ${isUnlocked ? 'unlocked' : 'locked'}`;
-        achievementEl.innerHTML = `
-          <i class="fas ${achievement.icon}"></i>
-          <h4>${achievement.name}</h4>
-          <p>${achievement.description}</p>
-          <small>Reward: ${achievement.reward} SA</small>
-        `;
-        grid.appendChild(achievementEl);
-      });
-    }
-    
-    // --- DAILY CHALLENGE ---
-    function completeDailyChallenge() {
-      gameState.dailyChallenge.completed = true;
-      const reward = 200; // Bonus for daily challenge
-      
-      const balance = getMainMinedCoins();
-      setMainMinedCoins(balance + reward);
-      
-      gameState.history.push({
-        type: "daily-challenge",
-        amount: reward,
-        timestamp: Date.now()
-      });
-      
-      showPopup(`Daily Challenge Completed! +${reward} SA`, "success");
-      saveGame();
-    }
-    
-    // --- STATISTICS ---
-    function showStats() {
-      document.getElementById("history-list").style.display = "none";
-      document.getElementById("leaderboard").style.display = "none";
-      document.getElementById("minigame-panel").style.display = "none";
-      document.getElementById("chat-box").style.display = "none";
-      document.getElementById("stats-panel").style.display = "block";
-      
-      // Update stats display
-      document.getElementById("stat-words-solved").textContent = gameStats.wordsSolved;
-      document.getElementById("stat-coins-earned").textContent = gameStats.coinsEarned;
-      document.getElementById("stat-streak").textContent = gameState.streak;
-      document.getElementById("stat-longest-streak").textContent = gameStats.longestStreak;
-      
-      const accuracy = gameStats.totalAttempts > 0 
-        ? Math.round((gameStats.correctAttempts / gameStats.totalAttempts) * 100) 
-        : 0;
-      document.getElementById("stat-accuracy").textContent = `${accuracy}%`;
-      
-      renderAchievements();
-    }
-    
-    // --- LEADERBOARD ---
-    function showLeaderboard() {
-      document.getElementById("history-list").style.display = "none";
-      document.getElementById("stats-panel").style.display = "none";
-      document.getElementById("minigame-panel").style.display = "none";
-      document.getElementById("chat-box").style.display = "none";
-      document.getElementById("leaderboard").style.display = "block";
-      
-      // For now, we'll use a simple local leaderboard
-      // In a real app, this would connect to a backend
-      const leaderboardList = document.getElementById("leaderboard-list");
-      leaderboardList.innerHTML = "";
-      
-      // Sample data - in a real app, this would come from a server
-      const sampleData = [
-        { name: "WordMaster", score: 12500 },
-        { name: "CryptoKing", score: 9800 },
-        { name: "LexiLover", score: 7600 },
-        { name: "You", score: gameStats.coinsEarned },
-        { name: "PuzzlePro", score: 5400 },
-        { name: "Brainiac", score: 3200 }
-      ];
-      
-      // Sort by score (descending)
-      sampleData.sort((a, b) => b.score - a.score);
-      
-      sampleData.forEach((item, index) => {
-        const itemEl = document.createElement("div");
-        itemEl.className = `leaderboard-item ${item.name === "You" ? "you" : ""}`;
-        itemEl.innerHTML = `
-          <span>${index + 1}. ${item.name}</span>
-          <span>${item.score} SA</span>
-        `;
-        leaderboardList.appendChild(itemEl);
-      });
-    }
-    
-    // --- HISTORY ---
-    function showHistory() {
-      const list = document.getElementById("history-list");
-      list.innerHTML = "";
-      
-      if (!gameState.history.length) {
-        list.innerHTML = "<div style='text-align:center;color:#bbb;'>No transactions yet.</div>";
-      } else {
-        gameState.history.slice().reverse().forEach(tx => {
-          const date = new Date(tx.timestamp).toLocaleString();
-          if (tx.type === "level-up") {
-            list.innerHTML += `
-              <div class="history-item">
-                <i class="fas fa-level-up-alt"></i> 
-                [${date}] Level ${tx.level} (${tx.difficulty})<br>
-                <span style="color:#2ecc71;">
-                  +${tx.amount} SA (Streak: ${tx.streak})
-                </span>
-              </div>`;
-          } else if (tx.type === "achievement") {
-            list.innerHTML += `
-              <div class="history-item">
-                <i class="fas fa-trophy"></i> 
-                [${date}] Achievement: ${tx.achievement}<br>
-                <span style="color:#fdc500;">
-                  +${tx.amount} SA
-                </span>
-              </div>`;
-          } else if (tx.type === "daily-challenge") {
-            list.innerHTML += `
-              <div class="history-item">
-                <i class="fas fa-calendar-day"></i> 
-                [${date}] Daily Challenge<br>
-                <span style="color:#3498db;">
-                  +${tx.amount} SA
-                </span>
-              </div>`;
-          }
-        });
-      }
-      
-      document.getElementById("stats-panel").style.display = "none";
-      document.getElementById("leaderboard").style.display = "none";
-      document.getElementById("minigame-panel").style.display = "none";
-      document.getElementById("chat-box").style.display = "none";
-      list.style.display = "block";
-    }
-    
-    // --- MINI-GAMES ---
-    function showMiniGames() {
-      document.getElementById("history-list").style.display = "none";
-      document.getElementById("stats-panel").style.display = "none";
-      document.getElementById("leaderboard").style.display = "none";
-      document.getElementById("chat-box").style.display = "none";
-      document.getElementById("minigame-panel").style.display = "block";
-    }
-    
-    function showWheelGame() {
-      document.getElementById("minigame-panel").style.display = "none";
-      document.getElementById("wheel-game").style.display = "block";
-      renderWheel();
-    }
-    
-    function renderWheel() {
-      const wheel = document.getElementById("wheel");
-      wheel.innerHTML = "";
-      wheel.style.transform = "rotate(0deg)";
-      
-      const sectionAngle = 360 / WHEEL_PRIZES.length;
-      
-      WHEEL_PRIZES.forEach((prize, index) => {
-        const section = document.createElement("div");
-        section.className = "wheel-section";
-        section.style.transform = `rotate(${index * sectionAngle}deg)`;
-        
-        const text = document.createElement("div");
-        text.className = "wheel-text";
-        text.textContent = prize.text;
-        text.style.transform = `translate(-50%, -50%) rotate(${index * sectionAngle + sectionAngle/2}deg)`;
-        
-        section.appendChild(text);
-        wheel.appendChild(section);
-      });
-    }
-    
-    function spinWheel() {
-      const cost = 50;
-      const balance = getMainMinedCoins();
-      
-      if (balance < cost) {
-        showPopup("Not enough SA coins to spin the wheel!", "error");
-        return;
-      }
-      
-      setMainMinedCoins(balance - cost);
-      gameState.wheelSpins += 1;
-      gameStats.wheelSpins += 1;
-      
-      const wheel = document.getElementById("wheel");
-      const spinBtn = document.getElementById("spin-btn");
-      spinBtn.disabled = true;
-      
-      // Random rotation (at least 2 full rotations)
-      const spins = 2 + Math.floor(Math.random() * 3);
-      const extraDegrees = Math.floor(Math.random() * 360);
-      const totalRotation = spins * 360 + extraDegrees;
-      
-      wheel.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.83, 0.67)";
-      wheel.style.transform = `rotate(${totalRotation}deg)`;
-      
-      // Determine the prize
-      setTimeout(() => {
-        const normalizedRotation = totalRotation % 360;
-        const sectionAngle = 360 / WHEEL_PRIZES.length;
-        const prizeIndex = Math.floor((360 - normalizedRotation) / sectionAngle) % WHEEL_PRIZES.length;
-        const prize = WHEEL_PRIZES[prizeIndex];
-        
-        // Award the prize
-        awardWheelPrize(prize);
-        spinBtn.disabled = false;
-      }, 4000);
-      
-      saveGame();
-    }
-    
-    function awardWheelPrize(prize) {
-      let message = "";
-      
-      switch(prize.type) {
-        case "coins":
-          const balance = getMainMinedCoins();
-          setMainMinedCoins(balance + prize.value);
-          message = `You won ${prize.value} SA coins!`;
-          break;
-        case "hint":
-          // Add hint power-up
-          message = "You won a free Hint power-up!";
-          break;
-        case "shuffle":
-          // Add shuffle power-up
-          message = "You won a free Shuffle power-up!";
-          break;
-        case "nft":
-          awardRandomNFT();
-          message = "You won a rare NFT!";
-          break;
-        case "multiplier":
-          gameState.activeMultiplier = prize.value;
-          message = `You won a ${prize.value}x reward multiplier!`;
-          break;
-      }
-      
-      showPopup(message, "success");
-      createConfetti();
-    }
-    
-    function awardRandomNFT() {
-      const availableNFTs = NFT_ITEMS.filter(nft => !gameState.nfts.includes(nft.id));
-      
-      if (availableNFTs.length > 0) {
-        const randomNFT = availableNFTs[Math.floor(Math.random() * availableNFTs.length)];
-        gameState.nfts.push(randomNFT.id);
-        gameStats.nftsCollected += 1;
-        saveGame();
-        
-        // Show NFT unlock animation
-        showPopup(`Unlocked: ${randomNFT.name} NFT!`, "success");
-      } else {
-        // All NFTs collected, award coins instead
-        const balance = getMainMinedCoins();
-        setMainMinedCoins(balance + 500);
-        showPopup("All NFTs collected! Awarded 500 SA instead!", "success");
-      }
-    }
-    
-    function showNFTGallery() {
-      document.getElementById("minigame-panel").style.display = "none";
-      document.getElementById("nft-gallery").style.display = "block";
-      renderNFTGallery();
-    }
-    
-    function renderNFTGallery() {
-      const gallery = document.getElementById("nft-collection");
-      gallery.innerHTML = "";
-      
-      NFT_ITEMS.forEach(nft => {
-        const isCollected = gameState.nfts.includes(nft.id);
-        const nftEl = document.createElement("div");
-        nftEl.className = `nft-item ${isCollected ? '' : 'locked'}`;
-        nftEl.innerHTML = `
-          <div class="nft-image">
-            ${nft.icon}
-          </div>
-          <h4>${nft.name}</h4>
-          <p>Rarity: ${nft.rarity}</p>
-          <p>Value: ${nft.value} SA</p>
-          ${isCollected ? '<span style="color: var(--success);"><i class="fas fa-check"></i> Collected</span>' : '<span style="color: var(--error);"><i class="fas fa-lock"></i> Locked</span>'}
-        `;
-        gallery.appendChild(nftEl);
-      });
-    }
-    
-    function showWordSearch() {
-      document.getElementById("minigame-panel").style.display = "none";
-      document.getElementById("wordsearch-game").style.display = "block";
-      renderWordSearch();
-    }
-    
-    function renderWordSearch() {
-      // Simple word search implementation
-      const grid = document.getElementById("wordsearch-grid");
-      grid.innerHTML = "";
-      
-      const words = ["CRYPTO", "BLOCKCHAIN", "TOKEN", "COIN", "NFT"];
-      const gridSize = 8;
-      
-      // Create empty grid
-      for (let i = 0; i < gridSize * gridSize; i++) {
-        const cell = document.createElement("div");
-        cell.className = "word-search-cell";
-        cell.textContent = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        cell.dataset.index = i;
-        
-        cell.addEventListener("click", function() {
-          this.classList.toggle("selected");
-        });
-        
-        grid.appendChild(cell);
-      }
-      
-      // Display words to find
-      const wordsContainer = document.getElementById("wordsearch-words");
-      wordsContainer.innerHTML = "<h4>Find these words:</h4>" + words.map(word => `<div>${word}</div>`).join("");
-    }
-    
-    function showBattleRoyale() {
-      document.getElementById("minigame-panel").style.display = "none";
-      document.getElementById("battle-royale").style.display = "block";
-      renderBattleRoyale();
-    }
-    
-    function renderBattleRoyale() {
-      // Simulated battle royale
-      const playersContainer = document.getElementById("battle-players");
-      playersContainer.innerHTML = "";
-      
-      // Add some sample players
-      const samplePlayers = [
-        { name: "CryptoWarrior", score: 1200, avatar: "🦸" },
-        { name: "WordMaster", score: 1100, avatar: "👨‍💻" },
-        { name: "LexiKing", score: 950, avatar: "🤴" }
-      ];
-      
-      samplePlayers.forEach(player => {
-        const playerEl = document.createElement("div");
-        playerEl.className = "player";
-        playerEl.innerHTML = `
-          <div>${player.avatar}</div>
-          <div>${player.name}</div>
-          <div>${player.score} SA</div>
-        `;
-        playersContainer.appendChild(playerEl);
-      });
-      
-      // Add current player
-      const playerEl = document.createElement("div");
-      playerEl.className = "player you";
-      playerEl.innerHTML = `
-        <div>${getAvatarEmoji()}</div>
-        <div>You</div>
-        <div>${gameStats.coinsEarned} SA</div>
-      `;
-      playersContainer.appendChild(playerEl);
-    }
-    
-    function joinBattle() {
-      const cost = 100;
-      const balance = getMainMinedCoins();
-      
-      if (balance < cost) {
-        showPopup("Not enough SA coins to join battle!", "error");
-        return;
-      }
-      
-      setMainMinedCoins(balance - cost);
-      battleState.joined = true;
-      
-      document.getElementById("join-battle-btn").disabled = true;
-      document.getElementById("join-battle-btn").textContent = "Joined!";
-      
-      // Start battle countdown
-      let countdown = 10;
-      const battleTimer = document.getElementById("battle-timer");
-      battleTimer.textContent = `Starting in: ${countdown}s`;
-      
-      const countdownInterval = setInterval(() => {
-        countdown--;
-        battleTimer.textContent = `Starting in: ${countdown}s`;
-        
-        if (countdown <= 0) {
-          clearInterval(countdownInterval);
-          startBattle();
-        }
-      }, 1000);
-    }
-    
-    function startBattle() {
-      // Simulate battle results
-      const players = [
-        { name: "You", score: gameStats.coinsEarned + Math.floor(Math.random() * 500) },
-        { name: "CryptoWarrior", score: 1200 + Math.floor(Math.random() * 500) },
-        { name: "WordMaster", score: 1100 + Math.floor(Math.random() * 500) },
-        { name: "LexiKing", score: 950 + Math.floor(Math.random() * 500) }
-      ];
-      
-      // Sort by score (descending)
-      players.sort((a, b) => b.score - a.score);
-      
-      // Award prizes based on placement
-      const placement = players.findIndex(p => p.name === "You") + 1;
-      let reward = 0;
-      
-      switch(placement) {
-        case 1: reward = 500; break;
-        case 2: reward = 300; break;
-        case 3: reward = 200; break;
-        case 4: reward = 100; break;
-      }
-      
-      const balance = getMainMinedCoins();
-      setMainMinedCoins(balance + reward);
-      
-      showPopup(`Battle finished! You placed ${placement} and won ${reward} SA!`, "success");
-      
-      // Reset battle state
-      battleState.joined = false;
-      document.getElementById("join-battle-btn").disabled = false;
-      document.getElementById("join-battle-btn").textContent = "Join Battle (100 SA)";
-    }
-    
-    // --- CHAT FUNCTIONALITY ---
-    function toggleChat() {
-      const chatBox = document.getElementById("chat-box");
-      if (chatBox.style.display === "block") {
-        chatBox.style.display = "none";
-      } else {
-        chatBox.style.display = "block";
-        loadChatMessages();
-      }
-    }
-    
-    function loadChatMessages() {
-      const chatMessages = document.getElementById("chat-messages");
-      chatMessages.innerHTML = "";
-      
-      // Sample chat messages
-      const sampleMessages = [
-        { user: "System", message: "Welcome to the chat! Be respectful to other players.", time: "12:00" },
-        { user: "CryptoLover", message: "Just won 500 SA from the wheel! 🎉", time: "12:05" },
-        { user: "WordMaster", message: "Anyone completed the daily challenge yet?", time: "12:10" },
-        { user: "NFTCollector", message: "Trading rare NFTs, DM me if interested! 🖼️", time: "12:15" }
-      ];
-      
-      sampleMessages.forEach(msg => {
-        const messageEl = document.createElement("div");
-        messageEl.className = "chat-message";
-        messageEl.innerHTML = `
-          <strong>${msg.user}:</strong> ${msg.message}
-          <span style="float: right; font-size: 0.8em; color: #bbb;">${msg.time}</span>
-        `;
-        chatMessages.appendChild(messageEl);
-      });
-      
-      // Scroll to bottom
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-    
-    function sendChatMessage() {
-      const input = document.getElementById("chat-input");
-      const message = input.value.trim();
-      
-      if (message) {
-        const chatMessages = document.getElementById("chat-messages");
-        const messageEl = document.createElement("div");
-        messageEl.className = "chat-message";
-        
-        const now = new Date();
-        const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-        
-        messageEl.innerHTML = `
-          <strong>You:</strong> ${message}
-          <span style="float: right; font-size: 0.8em; color: #bbb;">${time}</span>
-        `;
-        
-        chatMessages.appendChild(messageEl);
-        input.value = "";
-        
-        // Scroll to bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        // Simulate a response
-        setTimeout(() => {
-          const responses = [
-            "Nice!",
-            "I agree!",
-            "That's awesome!",
-            "Has anyone tried the new mini-games?",
-            "The wheel game is so fun!",
-            "I just collected all NFTs! 🎉"
-          ];
-          
-          const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-          const randomUsers = ["CryptoFan", "WordWizard", "GameMaster", "NFTHunter"];
-          const randomUser = randomUsers[Math.floor(Math.random() * randomUsers.length)];
-          
-          const responseEl = document.createElement("div");
-          responseEl.className = "chat-message";
-          responseEl.innerHTML = `
-            <strong>${randomUser}:</strong> ${randomResponse}
-            <span style="float: right; font-size: 0.8em; color: #bbb;">${time}</span>
-          `;
-          
-          chatMessages.appendChild(responseEl);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-        }, 1000 + Math.random() * 2000);
-      }
-    }
-    
-    // --- SETTINGS ---
-    function showSettings() {
-      document.getElementById("settings-modal").style.display = "flex";
-      
-      // Set current values
-      document.getElementById("sound-toggle").checked = gameSettings.soundEnabled;
-      document.getElementById("timer-toggle").checked = gameSettings.timerEnabled;
-      document.getElementById("daily-challenge-toggle").checked = gameSettings.dailyChallengesEnabled;
-      document.getElementById("difficulty-select").value = gameState.difficulty;
-      
-      // Set avatar selection
-      document.querySelectorAll('.avatar-option').forEach(option => {
-        option.classList.remove('selected');
-        if (option.dataset.avatar === gameSettings.avatar) {
-          option.classList.add('selected');
-        }
-      });
-    }
-    
-    function applySettings() {
-      gameSettings.soundEnabled = document.getElementById("sound-toggle").checked;
-      gameSettings.timerEnabled = document.getElementById("timer-toggle").checked;
-      gameSettings.dailyChallengesEnabled = document.getElementById("daily-challenge-toggle").checked;
-      gameState.difficulty = document.getElementById("difficulty-select").value;
-      
-      // Update avatar
-      const selectedAvatar = document.querySelector('.avatar-option.selected');
-      if (selectedAvatar) {
-        gameSettings.avatar = selectedAvatar.dataset.avatar;
-      }
-      
-      saveGame();
-      renderGame();
-    }
-    
-    function resetStatistics() {
-      if (confirm("Are you sure you want to reset all statistics? This cannot be undone.")) {
-        gameStats = {
-          wordsSolved: 0,
-          coinsEarned: 0,
-          longestStreak: 0,
-          totalAttempts: 0,
-          correctAttempts: 0,
-          playDays: [],
-          achievements: [],
-          powerUpsUsed: 0,
-          wheelSpins: 0,
-          nftsCollected: 0
-        };
-        saveGame();
-        showStats();
-      }
-    }
-    
-    // --- THEMES ---
-    function changeTheme(themeName) {
-      const root = document.documentElement;
-      
-      switch(themeName) {
-        case 'purple':
-          root.style.setProperty('--primary', '#9c27b0');
-          root.style.setProperty('--secondary', '#ba68c8');
-          break;
-        case 'blue':
-          root.style.setProperty('--primary', '#2196f3');
-          root.style.setProperty('--secondary', '#64b5f6');
-          break;
-        case 'green':
-          root.style.setProperty('--primary', '#4caf50');
-          root.style.setProperty('--secondary', '#81c784');
-          break;
-        default: // default/orange
-          root.style.setProperty('--primary', '#ff9800');
-          root.style.setProperty('--secondary', '#fdc500');
-      }
-      
-      gameSettings.theme = themeName;
-      saveGame();
-    }
-    
-    function getAvatarEmoji() {
-      switch(gameSettings.avatar) {
-        case '1': return '👨‍💻';
-        case '2': return '👩‍💻';
-        case '3': return '🦊';
-        case '4': return '🐱';
-        case '5': return '🤖';
-        case '6': return '👾';
-        default: return '👤';
-      }
-    }
-    
-    // --- UTILITY FUNCTIONS ---
-    function shuffle(array) {
-      let a = array.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-    
-    function showPopup(msg, type) {
-      const popup = document.createElement("div");
-      popup.className = `popup ${type}`;
-      popup.innerHTML = msg;
-      popup.style.background = type === 'success' ? 'var(--success)' : 'var(--error)';
-      document.body.appendChild(popup);
-      
-      setTimeout(() => {
-        popup.remove();
-      }, 3000);
-    }
-    
-    // --- Confetti Effect ---
-    function createConfetti() {
-      const container = document.getElementById("confetti-container");
-      const colors = ['#ff9800', '#fdc500', '#ff3333', '#4CAF50', '#2196F3'];
-      
-      for (let i = 0; i < 100; i++) {
-        const confetti = document.createElement("div");
-        confetti.className = 'confetti';
-        
-        // Random position
-        confetti.style.left = `${Math.random() * 100}vw`;
-        
-        // Random size
-        const size = Math.random() * 10 + 5;
-        confetti.style.width = `${size}px`;
-        confetti.style.height = `${size}px`;
-        
-        // Random shape
-        if (Math.random() > 0.5) {
-          confetti.style.borderRadius = '50%';
-        }
-        
-        // Random color
-        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        
-        // Random animation duration
-        const duration = Math.random() * 3 + 2;
-        confetti.style.animationDuration = `${duration}s`;
-        
-        container.appendChild(confetti);
-        
-        // Remove after animation
-        setTimeout(() => {
-          confetti.remove();
-        }, duration * 1000);
-      }
-    }
-    
-    // --- CRYPTO TICKER ---
-    function updateCryptoTicker() {
-      const tickerContent = document.getElementById("crypto-ticker-content");
-      const cryptos = [
-        { name: "BTC", price: Math.random() * 10000 + 30000, change: (Math.random() - 0.5) * 10 },
-        { name: "ETH", price: Math.random() * 1000 + 2000, change: (Math.random() - 0.5) * 8 },
-        { name: "SA", price: 0.05, change: 2.5 }, // Our token
-        { name: "ADA", price: Math.random() * 1 + 0.4, change: (Math.random() - 0.5) * 6 },
-        { name: "DOT", price: Math.random() * 10 + 5, change: (Math.random() - 0.5) * 7 }
-      ];
-      
-      let html = "";
-      cryptos.forEach(crypto => {
-        const isPositive = crypto.change >= 0;
-        html += `
-          <span class="crypto-item">
-            ${crypto.name}: $${crypto.price.toFixed(2)} 
-            <span class="${isPositive ? 'crypto-up' : 'crypto-down'}">
-              ${isPositive ? '↗' : '↘'} ${Math.abs(crypto.change).toFixed(2)}%
-            </span>
-          </span>
-        `;
-      });
-      
-      tickerContent.innerHTML = html;
-    }
-    
-    // --- INIT ---
-    window.onload = function() {
-      loadGame();
-      renderGame();
-      
-      // Apply saved theme
-      changeTheme(gameSettings.theme);
-      
-      // Set theme selector active state
-      document.querySelectorAll('.theme').forEach(theme => {
-        if (theme.dataset.theme === gameSettings.theme) {
-          theme.classList.add('active');
-        } else {
-          theme.classList.remove('active');
-        }
-        
-        theme.addEventListener('click', function() {
-          document.querySelectorAll('.theme').forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          changeTheme(this.dataset.theme);
-        });
-      });
-      
-      // Initialize crypto ticker
-      updateCryptoTicker();
-      setInterval(updateCryptoTicker, 5000);
-      
-      // Listen for mining balance updates
-      window.addEventListener("minedCoins_update", function() {
-        updateBalanceDisplay();
-      });
-      
-      // Check for daily bonus
-      checkDailyBonus();
-      
-      // Modal close events
-      document.querySelector('.close-modal').addEventListener('click', function() {
-        document.getElementById('settings-modal').style.display = 'none';
-        applySettings();
-      });
-      
-      document.getElementById('close-event-modal').addEventListener('click', function() {
-        document.getElementById('event-modal').style.display = 'none';
-      });
-      
-      // Close modal when clicking outside
-      window.addEventListener('click', function(event) {
-        if (event.target === document.getElementById('settings-modal')) {
-          document.getElementById('settings-modal').style.display = 'none';
-          applySettings();
-        }
-        if (event.target === document.getElementById('achievement-modal')) {
-          document.getElementById('achievement-modal').style.display = 'none';
-        }
-        if (event.target === document.getElementById('event-modal')) {
-          document.getElementById('event-modal').style.display = 'none';
-        }
-      });
-      
-      // Button event listeners
-      document.getElementById("history-btn").addEventListener('click', showHistory);
-      document.getElementById("stats-btn").addEventListener('click', showStats);
-      document.getElementById("minigame-btn").addEventListener('click', showMiniGames);
-      document.getElementById("restart-btn").addEventListener('click', resetGame);
-      
-      // Power-up buttons
-      document.getElementById("hint-btn").addEventListener('click', useHint);
-      document.getElementById("shuffle-btn").addEventListener('click', shuffleLetters);
-      document.getElementById("solve-btn").addEventListener('click', solveWord);
-      document.getElementById("freeze-btn").addEventListener('click', freezeTime);
-      document.getElementById("double-btn").addEventListener('click', activateDoubleReward);
-      
-      // Mini-game buttons
-      document.getElementById("wheel-game-btn").addEventListener('click', showWheelGame);
-      document.getElementById("wordsearch-btn").addEventListener('click', showWordSearch);
-      document.getElementById("nft-btn").addEventListener('click', showNFTGallery);
-      document.getElementById("battle-btn").addEventListener('click', showBattleRoyale);
-      
-      // Wheel game
-      document.getElementById("spin-btn").addEventListener('click', spinWheel);
-      document.getElementById("back-from-wheel").addEventListener('click', showMiniGames);
-      
-      // Word search
-      document.getElementById("back-from-wordsearch").addEventListener('click', showMiniGames);
-      
-      // NFT gallery
-      document.getElementById("back-from-nft").addEventListener('click', showMiniGames);
-      
-      // Battle royale
-      document.getElementById("join-battle-btn").addEventListener('click', joinBattle);
-      document.getElementById("back-from-battle").addEventListener('click', showMiniGames);
-      
-      // Settings
-      document.getElementById("settings-btn").addEventListener('click', showSettings);
-      document.getElementById("reset-stats-btn").addEventListener('click', resetStatistics);
-      
-      // Avatar selection
-      document.querySelectorAll('.avatar-option').forEach(option => {
-        option.addEventListener('click', function() {
-          document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
-          this.classList.add('selected');
-        });
-      });
-      
-      // Chat
-      document.getElementById("chat-toggle-btn").addEventListener('click', toggleChat);
-      document.getElementById("send-chat-btn").addEventListener('click', sendChatMessage);
-      document.getElementById("chat-input").addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          sendChatMessage();
-        }
-      });
-    };
-    
-    function checkDailyBonus() {
-      const today = new Date().toDateString();
-      const lastBonus = localStorage.getItem(DAILY_BONUS_KEY);
-      
-      if (lastBonus !== today) {
-        const bonusAmount = 100; // Daily bonus amount
-        let balance = getMainMinedCoins();
-        setMainMinedCoins(balance + bonusAmount);
-        
-        localStorage.setItem(DAILY_BONUS_KEY, today);
-        
-        gameState.history.push({
-          type: "daily-bonus",
-          amount: bonusAmount,
-          timestamp: Date.now()
-        });
-        
-        showPopup(`Daily bonus: +${bonusAmount} SA!`, "success");
-      }
-    }
-    
-    // --- DEBUG HELPERS ---
-    window.debugAddCoins = function(amount) {
-      let balance = getMainMinedCoins();
-      setMainMinedCoins(balance + amount);
-      showPopup(`Added ${amount} SA!`, "success");
-    };
-    
-    window.debugSetDifficulty = function(difficulty) {
-      if (['easy', 'medium', 'hard'].includes(difficulty)) {
-        gameState.difficulty = difficulty;
-        saveGame();
-        renderGame();
-        showPopup(`Difficulty set to ${difficulty}`, "success");
-      }
-    };
-  </script>
+    </script>
 </body>
 </html>
