@@ -1486,6 +1486,263 @@
         color: var(--text-secondary);
     }
 
+    /* New Enhanced Features */
+    
+    /* Portfolio Analytics */
+    .portfolio-section {
+        margin-top: 20px;
+    }
+    
+    .portfolio-chart {
+        height: 200px;
+        margin-bottom: 20px;
+    }
+    
+    .portfolio-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        background: var(--dark-surface);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+    }
+    
+    body.light .stat-card {
+        background: var(--light-surface);
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+    
+    /* Advanced Trading */
+    .trading-section {
+        margin-top: 20px;
+    }
+    
+    .trading-tabs {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .trading-tab {
+        padding: 12px 16px;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-bottom: 2px solid transparent;
+    }
+    
+    .trading-tab.active {
+        color: var(--primary);
+        border-bottom: 2px solid var(--primary);
+    }
+    
+    .order-book {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+    
+    .order-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .order-bid {
+        color: var(--success);
+    }
+    
+    .order-ask {
+        color: var(--accent);
+    }
+    
+    /* Bridge Section */
+    .bridge-section {
+        margin-top: 20px;
+    }
+    
+    .bridge-card {
+        background: var(--dark-surface);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    body.light .bridge-card {
+        background: var(--light-surface);
+    }
+    
+    .bridge-route {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    
+    .bridge-arrow {
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+    
+    /* Advanced Security */
+    .security-modal {
+        max-width: 500px;
+    }
+    
+    .security-features {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .security-feature {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--dark-surface);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    body.light .security-feature {
+        background: var(--light-surface);
+    }
+    
+    .security-feature:hover {
+        background: rgba(255, 184, 0, 0.05);
+    }
+    
+    /* Multi-Signature Wallet */
+    .multisig-section {
+        margin-top: 20px;
+    }
+    
+    .multisig-card {
+        background: var(--dark-surface);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    body.light .multisig-card {
+        background: var(--light-surface);
+    }
+    
+    .multisig-approvers {
+        margin-top: 16px;
+    }
+    
+    .approver-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Hardware Wallet Integration */
+    .hardware-wallet-section {
+        margin-top: 20px;
+    }
+    
+    .hardware-options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .hardware-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: var(--dark-surface);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    body.light .hardware-option {
+        background: var(--light-surface);
+    }
+    
+    .hardware-option:hover {
+        background: rgba(255, 184, 0, 0.05);
+        transform: translateY(-2px);
+    }
+    
+    /* WalletConnect Integration */
+    .walletconnect-section {
+        margin-top: 20px;
+    }
+    
+    .walletconnect-qr {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .walletconnect-sessions {
+        margin-top: 20px;
+    }
+    
+    .session-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        background: var(--dark-surface);
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+    
+    body.light .session-item {
+        background: var(--light-surface);
+    }
+    
+    /* Tax Reporting */
+    .tax-section {
+        margin-top: 20px;
+    }
+    
+    .tax-card {
+        background: var(--dark-surface);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    body.light .tax-card {
+        background: var(--light-surface);
+    }
+    
+    .tax-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 20px;
+    }
+    
     /* Responsive */
     @media (max-width: 480px) {
         .container {
@@ -1511,6 +1768,10 @@
         }
         
         .nft-gallery {
+            grid-template-columns: 1fr;
+        }
+        
+        .portfolio-stats, .tax-actions {
             grid-template-columns: 1fr;
         }
     }
@@ -1584,6 +1845,32 @@
                     <div class="quick-action-btn" id="earnBtn">
                         <i class="fas fa-chart-line"></i>
                         <span>Earn</span>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Portfolio Section -->
+                <div class="portfolio-section" id="portfolioSection" style="display: none;">
+                    <div class="settings-title">Portfolio Analytics</div>
+                    <div class="portfolio-chart">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                    <div class="portfolio-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalValue">$0.00</div>
+                            <div class="stat-label">Total Value</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="dayChange">+0.00%</div>
+                            <div class="stat-label">24h Change</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="profitLoss">$0.00</div>
+                            <div class="stat-label">P&L</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="topAsset">ETH</div>
+                            <div class="stat-label">Top Asset</div>
+                        </div>
                     </div>
                 </div>
                 
@@ -1769,6 +2056,20 @@
                                 <div class="option-description">Import using private key or seed phrase</div>
                             </div>
                         </div>
+                        <div class="import-option" id="hardwareWalletOption">
+                            <i class="fas fa-shield-alt"></i>
+                            <div class="option-details">
+                                <div class="option-title">Hardware Wallet</div>
+                                <div class="option-description">Connect Ledger or Trezor device</div>
+                            </div>
+                        </div>
+                        <div class="import-option" id="walletConnectOption">
+                            <i class="fas fa-mobile-alt"></i>
+                            <div class="option-details">
+                                <div class="option-title">WalletConnect</div>
+                                <div class="option-description">Connect with QR code</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1951,6 +2252,250 @@
             </div>
         </div>
         
+        <!-- Trading Page -->
+        <div class="page" id="trading-page">
+            <div class="page-header">
+                <button class="back-btn" id="tradingBackBtn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="page-title">Advanced Trading</div>
+            </div>
+            
+            <div class="trading-section">
+                <div class="trading-tabs">
+                    <button class="trading-tab active" data-tab="spot">Spot</button>
+                    <button class="trading-tab" data-tab="limit">Limit</button>
+                    <button class="trading-tab" data-tab="stop">Stop-Limit</button>
+                </div>
+                
+                <div class="trading-content">
+                    <!-- Spot Trading -->
+                    <div class="trading-tab-content active" id="spot-tab">
+                        <form id="spotForm">
+                            <div class="form-group">
+                                <label class="form-label" for="spotPair">Trading Pair</label>
+                                <select class="form-input" id="spotPair">
+                                    <option value="ETH/USDT">ETH/USDT</option>
+                                    <option value="SA/USDT">SA/USDT</option>
+                                    <option value="BTC/USDT">BTC/USDT</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="spotSide">Side</label>
+                                <select class="form-input" id="spotSide">
+                                    <option value="buy">Buy</option>
+                                    <option value="sell">Sell</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="spotAmount">Amount</label>
+                                <input type="number" class="form-input" id="spotAmount" placeholder="Enter amount" step="0.0001" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-exchange-alt"></i>
+                                Place Order
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Limit Trading -->
+                    <div class="trading-tab-content" id="limit-tab" style="display: none;">
+                        <form id="limitForm">
+                            <div class="form-group">
+                                <label class="form-label" for="limitPair">Trading Pair</label>
+                                <select class="form-input" id="limitPair">
+                                    <option value="ETH/USDT">ETH/USDT</option>
+                                    <option value="SA/USDT">SA/USDT</option>
+                                    <option value="BTC/USDT">BTC/USDT</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="limitSide">Side</label>
+                                <select class="form-input" id="limitSide">
+                                    <option value="buy">Buy</option>
+                                    <option value="sell">Sell</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="limitPrice">Limit Price</label>
+                                <input type="number" class="form-input" id="limitPrice" placeholder="Enter limit price" step="0.0001" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="limitAmount">Amount</label>
+                                <input type="number" class="form-input" id="limitAmount" placeholder="Enter amount" step="0.0001" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-exchange-alt"></i>
+                                Place Limit Order
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Stop-Limit Trading -->
+                    <div class="trading-tab-content" id="stop-tab" style="display: none;">
+                        <form id="stopForm">
+                            <div class="form-group">
+                                <label class="form-label" for="stopPair">Trading Pair</label>
+                                <select class="form-input" id="stopPair">
+                                    <option value="ETH/USDT">ETH/USDT</option>
+                                    <option value="SA/USDT">SA/USDT</option>
+                                    <option value="BTC/USDT">BTC/USDT</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="stopSide">Side</label>
+                                <select class="form-input" id="stopSide">
+                                    <option value="buy">Buy</option>
+                                    <option value="sell">Sell</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="stopPrice">Stop Price</label>
+                                <input type="number" class="form-input" id="stopPrice" placeholder="Enter stop price" step="0.0001" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="stopLimitPrice">Limit Price</label>
+                                <input type="number" class="form-input" id="stopLimitPrice" placeholder="Enter limit price" step="0.0001" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="stopAmount">Amount</label>
+                                <input type="number" class="form-input" id="stopAmount" placeholder="Enter amount" step="0.0001" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-exchange-alt"></i>
+                                Place Stop-Limit Order
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="order-book">
+                    <div class="settings-title">Order Book</div>
+                    <div class="order-row">
+                        <span>Price (USDT)</span>
+                        <span>Amount</span>
+                        <span>Total</span>
+                    </div>
+                    <div class="order-row order-ask">
+                        <span>3250.50</span>
+                        <span>1.25</span>
+                        <span>4063.13</span>
+                    </div>
+                    <div class="order-row order-ask">
+                        <span>3249.75</span>
+                        <span>2.10</span>
+                        <span>6824.48</span>
+                    </div>
+                    <div class="order-row order-bid">
+                        <span>3248.20</span>
+                        <span>0.85</span>
+                        <span>2760.97</span>
+                    </div>
+                    <div class="order-row order-bid">
+                        <span>3247.50</span>
+                        <span>3.45</span>
+                        <span>11203.88</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bridge Page -->
+        <div class="page" id="bridge-page">
+            <div class="page-header">
+                <button class="back-btn" id="bridgeBackBtn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="page-title">Cross-Chain Bridge</div>
+            </div>
+            
+            <div class="bridge-section">
+                <div class="bridge-card">
+                    <div class="bridge-route">
+                        <div>
+                            <div class="form-label">From</div>
+                            <select class="form-input" id="bridgeFromChain">
+                                <option value="ethereum">Ethereum</option>
+                                <option value="bsc">BNB Chain</option>
+                                <option value="polygon">Polygon</option>
+                                <option value="arbitrum">Arbitrum</option>
+                            </select>
+                        </div>
+                        <div class="bridge-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <div>
+                            <div class="form-label">To</div>
+                            <select class="form-input" id="bridgeToChain">
+                                <option value="bsc">BNB Chain</option>
+                                <option value="ethereum">Ethereum</option>
+                                <option value="polygon">Polygon</option>
+                                <option value="arbitrum">Arbitrum</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <form id="bridgeForm">
+                        <div class="form-group">
+                            <label class="form-label" for="bridgeToken">Token</label>
+                            <select class="form-input" id="bridgeToken">
+                                <option value="ETH">ETH</option>
+                                <option value="SA">SA</option>
+                                <option value="USDC">USDC</option>
+                                <option value="USDT">USDT</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="bridgeAmount">Amount</label>
+                            <input type="number" class="form-input" id="bridgeAmount" placeholder="Enter amount" step="0.0001" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="bridgeRecipient">Recipient Address</label>
+                            <input type="text" class="form-input" id="bridgeRecipient" placeholder="Enter recipient address" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-secondary);">
+                                <span>Estimated Fee:</span>
+                                <span id="bridgeFee">0.001 ETH</span>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-link"></i>
+                            Bridge Tokens
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="status-message" id="bridgeMessage"></div>
+                
+                <div class="settings-section">
+                    <div class="settings-title">Bridge History</div>
+                    <div class="transaction-list" id="bridgeHistory">
+                        <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                            <i class="fas fa-link" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                            <div>No bridge transactions yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- Settings Page -->
         <div class="page" id="settings-page">
             <div class="page-header">
@@ -2012,6 +2557,13 @@
                     </div>
                     <div class="security-status status-enabled" id="autolockStatus">Enabled</div>
                 </div>
+                <div class="security-item">
+                    <div class="security-info">
+                        <div class="security-title">Multi-Signature</div>
+                        <div class="security-description">Require multiple approvals for large transactions</div>
+                    </div>
+                    <div class="security-status status-disabled" id="multisigStatus">Disabled</div>
+                </div>
                 
                 <div class="form-group" style="margin-top: 20px;">
                     <label class="form-label" for="changePin">Change PIN</label>
@@ -2038,6 +2590,10 @@
                 <button class="btn btn-secondary btn-block" id="importWalletSettingsBtn">
                     <i class="fas fa-file-import"></i>
                     Import Wallet
+                </button>
+                <button class="btn btn-secondary btn-block" id="createMultisigBtn" style="margin-top: 10px;">
+                    <i class="fas fa-users"></i>
+                    Create Multi-Sig Wallet
                 </button>
             </div>
             
@@ -2069,6 +2625,26 @@
                     <i class="fas fa-moon"></i>
                     <span id="themeToggleSettingsText">Switch to Light Mode</span>
                 </button>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-title">Tax Reporting</div>
+                <div class="tax-card">
+                    <div class="security-info">
+                        <div class="security-title">Generate Tax Reports</div>
+                        <div class="security-description">Export transaction history for tax purposes</div>
+                    </div>
+                    <div class="tax-actions">
+                        <button class="btn btn-secondary" id="generateTaxReportBtn">
+                            <i class="fas fa-file-pdf"></i>
+                            Generate Report
+                        </button>
+                        <button class="btn btn-secondary" id="exportTaxDataBtn">
+                            <i class="fas fa-download"></i>
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <div class="settings-section">
@@ -2237,6 +2813,134 @@
         </div>
     </div>
     
+    <!-- Advanced Security Modal -->
+    <div class="modal" id="securityModal">
+        <div class="modal-content security-modal">
+            <div class="modal-header">
+                <div class="modal-title">Advanced Security</div>
+                <button class="close-modal" id="closeSecurityModal">&times;</button>
+            </div>
+            <div class="security-features">
+                <div class="security-feature" id="multisigFeature">
+                    <i class="fas fa-users"></i>
+                    <div class="security-info">
+                        <div class="security-title">Multi-Signature Wallet</div>
+                        <div class="security-description">Require multiple approvals for transactions</div>
+                    </div>
+                </div>
+                <div class="security-feature" id="hardwareWalletFeature">
+                    <i class="fas fa-shield-alt"></i>
+                    <div class="security-info">
+                        <div class="security-title">Hardware Wallet Integration</div>
+                        <div class="security-description">Connect Ledger or Trezor for enhanced security</div>
+                    </div>
+                </div>
+                <div class="security-feature" id="socialRecoveryFeature">
+                    <i class="fas fa-user-friends"></i>
+                    <div class="security-info">
+                        <div class="security-title">Social Recovery</div>
+                        <div class="security-description">Set up trusted contacts for wallet recovery</div>
+                    </div>
+                </div>
+                <div class="security-feature" id="transactionWhitelistFeature">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="security-info">
+                        <div class="security-title">Address Whitelisting</div>
+                        <div class="security-description">Only allow transactions to approved addresses</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Multi-Signature Wallet Modal -->
+    <div class="modal" id="multisigModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Create Multi-Signature Wallet</div>
+                <button class="close-modal" id="closeMultisigModal">&times;</button>
+            </div>
+            <form id="multisigForm">
+                <div class="form-group">
+                    <label class="form-label" for="multisigName">Wallet Name</label>
+                    <input type="text" class="form-input" id="multisigName" placeholder="Enter wallet name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="multisigThreshold">Approval Threshold</label>
+                    <input type="number" class="form-input" id="multisigThreshold" placeholder="Number of approvals required" min="2" max="10" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="multisigOwners">Wallet Owners</label>
+                    <textarea class="form-input form-textarea" id="multisigOwners" placeholder="Enter wallet addresses (one per line)" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-users"></i>
+                    Create Multi-Sig Wallet
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Hardware Wallet Modal -->
+    <div class="modal" id="hardwareWalletModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Connect Hardware Wallet</div>
+                <button class="close-modal" id="closeHardwareWalletModal">&times;</button>
+            </div>
+            <div class="hardware-wallet-section">
+                <div class="hardware-options">
+                    <div class="hardware-option" id="ledgerOption">
+                        <i class="fas fa-shield-alt"></i>
+                        <div class="option-details">
+                            <div class="option-title">Ledger</div>
+                            <div class="option-description">Connect your Ledger device</div>
+                        </div>
+                    </div>
+                    <div class="hardware-option" id="trezorOption">
+                        <i class="fas fa-shield-alt"></i>
+                        <div class="option-details">
+                            <div class="option-title">Trezor</div>
+                            <div class="option-description">Connect your Trezor device</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- WalletConnect Modal -->
+    <div class="modal" id="walletConnectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">WalletConnect</div>
+                <button class="close-modal" id="closeWalletConnectModal">&times;</button>
+            </div>
+            <div class="walletconnect-section">
+                <div class="walletconnect-qr">
+                    <div class="qr-code" id="walletConnectQrCode"></div>
+                    <div class="balance-label">Scan this QR code with your mobile wallet</div>
+                </div>
+                <div class="walletconnect-sessions">
+                    <div class="settings-title">Active Sessions</div>
+                    <div class="session-item">
+                        <div class="security-info">
+                            <div class="security-title">Uniswap</div>
+                            <div class="security-description">Connected 2 hours ago</div>
+                        </div>
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Disconnect
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Footer Navigation -->
     <div class="footer">
         <button class="footer-btn active" data-page="home">
@@ -2247,13 +2951,13 @@
             <i class="fas fa-chart-line"></i>
             <span>Market</span>
         </button>
-        <button class="footer-btn" data-page="nfts">
-            <i class="fas fa-images"></i>
-            <span>NFTs</span>
+        <button class="footer-btn" data-page="trading">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Trading</span>
         </button>
-        <button class="footer-btn" data-page="dapps">
-            <i class="fas fa-globe"></i>
-            <span>DApps</span>
+        <button class="footer-btn" data-page="bridge">
+            <i class="fas fa-link"></i>
+            <span>Bridge</span>
         </button>
         <button class="footer-btn" data-page="settings">
             <i class="fas fa-cog"></i>
@@ -2295,6 +2999,7 @@
     let currentNetwork = "ethereum";
     let stakedAmount = 0;
     let stakingRewards = 0;
+    let portfolioChart = null;
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
@@ -2414,6 +3119,8 @@
         document.getElementById('dappsBackBtn').addEventListener('click', () => switchPage('home'));
         document.getElementById('stakingBackBtn').addEventListener('click', () => switchPage('home'));
         document.getElementById('activityBackBtn').addEventListener('click', () => switchPage('home'));
+        document.getElementById('tradingBackBtn').addEventListener('click', () => switchPage('home'));
+        document.getElementById('bridgeBackBtn').addEventListener('click', () => switchPage('home'));
         document.getElementById('settingsBackBtn').addEventListener('click', () => switchPage('home'));
         
         // Theme toggle
@@ -2444,15 +3151,32 @@
         document.getElementById('importWalletOption').addEventListener('click', openImportModal);
         document.getElementById('importWalletSettingsBtn').addEventListener('click', openImportModal);
         document.getElementById('importTokenBtn').addEventListener('click', openImportTokenModal);
+        document.getElementById('hardwareWalletOption').addEventListener('click', openHardwareWalletModal);
+        document.getElementById('walletConnectOption').addEventListener('click', openWalletConnectModal);
         
         // Form submission
-        document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
         document.getElementById('importForm').addEventListener('submit', importWallet);
         document.getElementById('importTokenForm').addEventListener('submit', importToken);
         document.getElementById('sendForm').addEventListener('submit', sendTokens);
         document.getElementById('swapForm').addEventListener('submit', swapTokens);
         document.getElementById('buyForm').addEventListener('submit', buyTokens);
         document.getElementById('stakingForm').addEventListener('submit', stakeTokens);
+        document.getElementById('spotForm').addEventListener('submit', placeSpotOrder);
+        document.getElementById('limitForm').addEventListener('submit', placeLimitOrder);
+        document.getElementById('stopForm').addEventListener('submit', placeStopOrder);
+        document.getElementById('bridgeForm').addEventListener('submit', bridgeTokens);
+        document.getElementById('multisigForm').addEventListener('submit', createMultisigWallet);
+        
+        // Trading tabs
+        document.querySelectorAll('.trading-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                switchTradingTab(tabId);
+                
+                document.querySelectorAll('.trading-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
         
         // Market search
         document.getElementById('marketSearch').addEventListener('input', filterMarketData);
@@ -2464,6 +3188,10 @@
         document.getElementById('closeImportTokenModal').addEventListener('click', closeImportTokenModal);
         document.getElementById('closeNetworkModal').addEventListener('click', closeNetworkModal);
         document.getElementById('closeChartModal').addEventListener('click', closeChartModal);
+        document.getElementById('closeSecurityModal').addEventListener('click', closeSecurityModal);
+        document.getElementById('closeMultisigModal').addEventListener('click', closeMultisigModal);
+        document.getElementById('closeHardwareWalletModal').addEventListener('click', closeHardwareWalletModal);
+        document.getElementById('closeWalletConnectModal').addEventListener('click', closeWalletConnectModal);
         
         // Chart controls
         document.querySelectorAll('.timeframe-btn').forEach(btn => {
@@ -2513,6 +3241,18 @@
         document.getElementById('chartModal').addEventListener('click', function(e) {
             if (e.target.id === 'chartModal') closeChartModal();
         });
+        document.getElementById('securityModal').addEventListener('click', function(e) {
+            if (e.target.id === 'securityModal') closeSecurityModal();
+        });
+        document.getElementById('multisigModal').addEventListener('click', function(e) {
+            if (e.target.id === 'multisigModal') closeMultisigModal();
+        });
+        document.getElementById('hardwareWalletModal').addEventListener('click', function(e) {
+            if (e.target.id === 'hardwareWalletModal') closeHardwareWalletModal();
+        });
+        document.getElementById('walletConnectModal').addEventListener('click', function(e) {
+            if (e.target.id === 'walletConnectModal') closeWalletConnectModal();
+        });
         
         // Import type change
         document.getElementById('importType').addEventListener('change', handleImportTypeChange);
@@ -2536,6 +3276,28 @@
         });
         document.getElementById('profileImageInput').addEventListener('change', handleProfileImageUpload);
         document.getElementById('removeImageBtn').addEventListener('click', removeProfileImage);
+        
+        // Security features
+        document.getElementById('multisigFeature').addEventListener('click', openMultisigModal);
+        document.getElementById('hardwareWalletFeature').addEventListener('click', openHardwareWalletModal);
+        document.getElementById('socialRecoveryFeature').addEventListener('click', setupSocialRecovery);
+        document.getElementById('transactionWhitelistFeature').addEventListener('click', setupAddressWhitelist);
+        
+        // Hardware wallet options
+        document.getElementById('ledgerOption').addEventListener('click', connectLedger);
+        document.getElementById('trezorOption').addEventListener('click', connectTrezor);
+        
+        // Tax reporting
+        document.getElementById('generateTaxReportBtn').addEventListener('click', generateTaxReport);
+        document.getElementById('exportTaxDataBtn').addEventListener('click', exportTaxData);
+        
+        // Multi-signature wallet creation
+        document.getElementById('createMultisigBtn').addEventListener('click', openMultisigModal);
+        
+        // Bridge fee calculation
+        document.getElementById('bridgeAmount').addEventListener('input', calculateBridgeFee);
+        document.getElementById('bridgeFromChain').addEventListener('change', calculateBridgeFee);
+        document.getElementById('bridgeToChain').addEventListener('change', calculateBridgeFee);
         
         // MetaMask event listeners
         if (window.ethereum) {
@@ -2570,7 +3332,19 @@
             showSendSection();
         } else if (pageId === 'staking') {
             updateStakingDisplay();
+        } else if (pageId === 'trading') {
+            switchTradingTab('spot');
+        } else if (pageId === 'bridge') {
+            calculateBridgeFee();
         }
+    }
+
+    // Switch trading tabs
+    function switchTradingTab(tabId) {
+        document.querySelectorAll('.trading-tab-content').forEach(content => {
+            content.style.display = 'none';
+        });
+        document.getElementById(`${tabId}-tab`).style.display = 'block';
     }
 
     // Show send section
@@ -2689,6 +3463,27 @@
         const cost = amount * price;
         
         document.getElementById('buyCost').textContent = `$${cost.toFixed(2)}`;
+    }
+
+    // Calculate bridge fee
+    function calculateBridgeFee() {
+        const amount = parseFloat(document.getElementById('bridgeAmount').value) || 0;
+        const fromChain = document.getElementById('bridgeFromChain').value;
+        const toChain = document.getElementById('bridgeToChain').value;
+        const token = document.getElementById('bridgeToken').value;
+        
+        // Simple fee calculation for demo
+        let fee = 0.001;
+        
+        if (fromChain === 'ethereum' && toChain === 'bsc') {
+            fee = 0.0005;
+        } else if (fromChain === 'bsc' && toChain === 'ethereum') {
+            fee = 0.002;
+        } else if (fromChain === 'ethereum' && toChain === 'polygon') {
+            fee = 0.0003;
+        }
+        
+        document.getElementById('bridgeFee').textContent = `${fee} ${token}`;
     }
 
     // Show earning options
@@ -2849,12 +3644,10 @@
         document.getElementById('walletActions').style.display = 'grid';
         document.getElementById('quickActions').style.display = 'grid';
         document.getElementById('gasTracker').style.display = 'block';
+        document.getElementById('portfolioSection').style.display = 'block';
         
         document.getElementById('walletAddress').textContent = 
             `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
-        
-        document.getElementById('submitWithdrawBtn').disabled = false;
-        document.getElementById('recipientAddress').value = currentAccount;
         
         document.getElementById('profileName').textContent = `Wallet: ${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
         document.getElementById('profileEmail').textContent = 'Connected to MetaMask';
@@ -2862,6 +3655,59 @@
         walletConnected = true;
         
         showSendSection();
+        updatePortfolioAnalytics();
+    }
+
+    // Update portfolio analytics
+    function updatePortfolioAnalytics() {
+        // Generate sample portfolio data
+        const totalValue = parseFloat(currentBalance) * 3200 + Math.random() * 1000;
+        const dayChange = (Math.random() * 10 - 5).toFixed(2);
+        const profitLoss = (Math.random() * 500 - 250).toFixed(2);
+        
+        document.getElementById('totalValue').textContent = `$${totalValue.toFixed(2)}`;
+        document.getElementById('dayChange').textContent = `${dayChange > 0 ? '+' : ''}${dayChange}%`;
+        document.getElementById('profitLoss').textContent = `$${profitLoss}`;
+        
+        // Generate portfolio chart
+        const ctx = document.getElementById('portfolioChart').getContext('2d');
+        
+        if (portfolioChart) {
+            portfolioChart.destroy();
+        }
+        
+        portfolioChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Portfolio Value',
+                    data: [1000, 1200, 900, 1500, 1800, totalValue],
+                    borderColor: 'rgba(255, 184, 0, 1)',
+                    backgroundColor: 'rgba(255, 184, 0, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false
+                    },
+                    y: {
+                        display: false
+                    }
+                }
+            }
+        });
     }
 
     // Handle account changes
@@ -2896,9 +3742,9 @@
         document.getElementById('walletActions').style.display = 'none';
         document.getElementById('quickActions').style.display = 'none';
         document.getElementById('gasTracker').style.display = 'none';
+        document.getElementById('portfolioSection').style.display = 'none';
         document.getElementById('walletBalance').textContent = '0 ETH';
         document.getElementById('networkName').textContent = 'Not Connected';
-        document.getElementById('submitWithdrawBtn').disabled = true;
         
         document.getElementById('profileName').textContent = 'User Profile';
         document.getElementById('profileEmail').textContent = 'Not connected';
@@ -2972,9 +3818,9 @@
     // Update transaction list
     function updateTransactionList() {
         const transactionList = document.getElementById('transactionList');
-        const withdrawals = JSON.parse(localStorage.getItem('withdrawals') || '[]');
+        const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
         
-        if (withdrawals.length === 0) {
+        if (transactions.length === 0) {
             transactionList.innerHTML = `
                 <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
                     <i class="fas fa-receipt" style="font-size: 2rem; margin-bottom: 15px;"></i>
@@ -2984,10 +3830,10 @@
             return;
         }
         
-        withdrawals.sort((a, b) => new Date(b.date) - new Date(a.date));
+        transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
         
         let transactionsHTML = '';
-        withdrawals.forEach(tx => {
+        transactions.forEach(tx => {
             const date = new Date(tx.date);
             const formattedDate = date.toLocaleDateString();
             
@@ -2995,11 +3841,28 @@
             if (tx.status === 'completed') statusClass = 'status-completed';
             if (tx.status === 'failed') statusClass = 'status-failed';
             
+            let txType = '';
+            let txAmount = '';
+            
+            if (tx.type === 'send') {
+                txType = 'Sent';
+                txAmount = `-${tx.amount} ${tx.token}`;
+            } else if (tx.type === 'swap') {
+                txType = 'Swapped';
+                txAmount = `${tx.fromAmount} ${tx.fromToken} → ${tx.toAmount} ${tx.toToken}`;
+            } else if (tx.type === 'buy') {
+                txType = 'Bought';
+                txAmount = `+${tx.amount} ${tx.token}`;
+            } else if (tx.type === 'stake') {
+                txType = 'Staked';
+                txAmount = `+${tx.amount} ${tx.token}`;
+            }
+            
             transactionsHTML += `
                 <div class="transaction-item">
                     <div class="transaction-details">
-                        <div class="transaction-amount">${tx.amount} SA</div>
-                        <div class="transaction-date">${formattedDate}</div>
+                        <div class="transaction-amount">${txAmount}</div>
+                        <div class="transaction-date">${formattedDate} - ${txType}</div>
                     </div>
                     <div class="transaction-status ${statusClass}">${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}</div>
                 </div>
@@ -3007,75 +3870,6 @@
         });
         
         transactionList.innerHTML = transactionsHTML;
-    }
-
-    // Submit withdrawal request
-    async function submitWithdrawal(e) {
-        e.preventDefault();
-        
-        if (!walletConnected) {
-            showMessage('withdrawMessage', 'Please connect your wallet first', 'error');
-            return;
-        }
-        
-        const amount = parseFloat(document.getElementById('withdrawAmount').value);
-        const recipientAddress = document.getElementById('recipientAddress').value;
-        const userEmail = document.getElementById('userEmail').value;
-        const referralCode = document.getElementById('referralCode').value;
-        const notes = document.getElementById('additionalNotes').value;
-        
-        if (!amount || amount < WITHDRAW_MIN_SA) {
-            showMessage('withdrawMessage', `Minimum withdrawal amount is ${WITHDRAW_MIN_SA} SA`, 'error');
-            return;
-        }
-        
-        if (!ethers.isAddress(recipientAddress)) {
-            showMessage('withdrawMessage', 'Please enter a valid wallet address', 'error');
-            return;
-        }
-        
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(userEmail)) {
-            showMessage('withdrawMessage', 'Please enter a valid email address', 'error');
-            return;
-        }
-        
-        try {
-            document.getElementById('submitWithdrawBtn').disabled = true;
-            document.getElementById('submitWithdrawBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            
-            showMessage('withdrawMessage', 'Processing withdrawal request...', 'info');
-            
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            const withdrawalData = {
-                amount: amount,
-                recipientAddress: recipientAddress,
-                userEmail: userEmail,
-                referralCode: referralCode || null,
-                notes: notes,
-                txHash: '0x' + Math.random().toString(36).substring(2, 66),
-                status: 'pending',
-                date: new Date().toISOString()
-            };
-            
-            let withdrawals = JSON.parse(localStorage.getItem('withdrawals') || '[]');
-            withdrawals.push(withdrawalData);
-            localStorage.setItem('withdrawals', JSON.stringify(withdrawals));
-            
-            updateTransactionList();
-            document.getElementById('withdrawForm').reset();
-            document.getElementById('recipientAddress').value = currentAccount;
-            
-            showMessage('withdrawMessage', `Withdrawal request submitted successfully! You'll receive an email confirmation. Processing takes 2-5 working days.`, 'success');
-            
-        } catch (error) {
-            console.error('Withdrawal error:', error);
-            showMessage('withdrawMessage', 'Withdrawal failed: ' + (error.message || 'Unknown error'), 'error');
-        } finally {
-            document.getElementById('submitWithdrawBtn').disabled = false;
-            document.getElementById('submitWithdrawBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Submit Withdrawal Request';
-        }
     }
 
     // Send tokens
@@ -3261,6 +4055,18 @@
             });
             localStorage.setItem('stakingHistory', JSON.stringify(stakingHistory));
             
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push({
+                type: 'stake',
+                amount: amount,
+                token: 'SA',
+                period: period,
+                txHash: '0x' + Math.random().toString(36).substring(2, 66),
+                status: 'completed',
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
             document.getElementById('stakingForm').reset();
             updateStakingDisplay();
             
@@ -3269,6 +4075,274 @@
         } catch (error) {
             console.error('Staking error:', error);
             showMessage('stakingMessage', 'Staking failed: ' + (error.message || 'Unknown error'), 'error');
+        }
+    }
+
+    // Place spot order
+    async function placeSpotOrder(e) {
+        e.preventDefault();
+        
+        if (!walletConnected) {
+            showMessage('walletMessage', 'Please connect your wallet first', 'error');
+            return;
+        }
+        
+        const pair = document.getElementById('spotPair').value;
+        const side = document.getElementById('spotSide').value;
+        const amount = document.getElementById('spotAmount').value;
+        
+        if (!amount || amount <= 0) {
+            showMessage('walletMessage', 'Please enter a valid amount', 'error');
+            return;
+        }
+        
+        try {
+            showMessage('walletMessage', 'Placing spot order...', 'info');
+            
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push({
+                type: 'trade',
+                pair: pair,
+                side: side,
+                amount: amount,
+                orderType: 'spot',
+                txHash: '0x' + Math.random().toString(36).substring(2, 66),
+                status: 'completed',
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            document.getElementById('spotForm').reset();
+            
+            showMessage('walletMessage', `Successfully placed ${side} order for ${amount} ${pair.split('/')[0]}`, 'success');
+            
+        } catch (error) {
+            console.error('Spot order error:', error);
+            showMessage('walletMessage', 'Order failed: ' + (error.message || 'Unknown error'), 'error');
+        }
+    }
+
+    // Place limit order
+    async function placeLimitOrder(e) {
+        e.preventDefault();
+        
+        if (!walletConnected) {
+            showMessage('walletMessage', 'Please connect your wallet first', 'error');
+            return;
+        }
+        
+        const pair = document.getElementById('limitPair').value;
+        const side = document.getElementById('limitSide').value;
+        const price = document.getElementById('limitPrice').value;
+        const amount = document.getElementById('limitAmount').value;
+        
+        if (!amount || amount <= 0) {
+            showMessage('walletMessage', 'Please enter a valid amount', 'error');
+            return;
+        }
+        
+        if (!price || price <= 0) {
+            showMessage('walletMessage', 'Please enter a valid price', 'error');
+            return;
+        }
+        
+        try {
+            showMessage('walletMessage', 'Placing limit order...', 'info');
+            
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push({
+                type: 'trade',
+                pair: pair,
+                side: side,
+                amount: amount,
+                price: price,
+                orderType: 'limit',
+                txHash: '0x' + Math.random().toString(36).substring(2, 66),
+                status: 'pending',
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            document.getElementById('limitForm').reset();
+            
+            showMessage('walletMessage', `Successfully placed limit ${side} order for ${amount} ${pair.split('/')[0]} at $${price}`, 'success');
+            
+        } catch (error) {
+            console.error('Limit order error:', error);
+            showMessage('walletMessage', 'Order failed: ' + (error.message || 'Unknown error'), 'error');
+        }
+    }
+
+    // Place stop order
+    async function placeStopOrder(e) {
+        e.preventDefault();
+        
+        if (!walletConnected) {
+            showMessage('walletMessage', 'Please connect your wallet first', 'error');
+            return;
+        }
+        
+        const pair = document.getElementById('stopPair').value;
+        const side = document.getElementById('stopSide').value;
+        const stopPrice = document.getElementById('stopPrice').value;
+        const limitPrice = document.getElementById('stopLimitPrice').value;
+        const amount = document.getElementById('stopAmount').value;
+        
+        if (!amount || amount <= 0) {
+            showMessage('walletMessage', 'Please enter a valid amount', 'error');
+            return;
+        }
+        
+        if (!stopPrice || stopPrice <= 0) {
+            showMessage('walletMessage', 'Please enter a valid stop price', 'error');
+            return;
+        }
+        
+        if (!limitPrice || limitPrice <= 0) {
+            showMessage('walletMessage', 'Please enter a valid limit price', 'error');
+            return;
+        }
+        
+        try {
+            showMessage('walletMessage', 'Placing stop-limit order...', 'info');
+            
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push({
+                type: 'trade',
+                pair: pair,
+                side: side,
+                amount: amount,
+                stopPrice: stopPrice,
+                limitPrice: limitPrice,
+                orderType: 'stop-limit',
+                txHash: '0x' + Math.random().toString(36).substring(2, 66),
+                status: 'pending',
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            document.getElementById('stopForm').reset();
+            
+            showMessage('walletMessage', `Successfully placed stop-limit ${side} order for ${amount} ${pair.split('/')[0]}`, 'success');
+            
+        } catch (error) {
+            console.error('Stop order error:', error);
+            showMessage('walletMessage', 'Order failed: ' + (error.message || 'Unknown error'), 'error');
+        }
+    }
+
+    // Bridge tokens
+    async function bridgeTokens(e) {
+        e.preventDefault();
+        
+        if (!walletConnected) {
+            showMessage('bridgeMessage', 'Please connect your wallet first', 'error');
+            return;
+        }
+        
+        const fromChain = document.getElementById('bridgeFromChain').value;
+        const toChain = document.getElementById('bridgeToChain').value;
+        const token = document.getElementById('bridgeToken').value;
+        const amount = document.getElementById('bridgeAmount').value;
+        const recipient = document.getElementById('bridgeRecipient').value;
+        
+        if (!amount || amount <= 0) {
+            showMessage('bridgeMessage', 'Please enter a valid amount', 'error');
+            return;
+        }
+        
+        if (!ethers.isAddress(recipient)) {
+            showMessage('bridgeMessage', 'Please enter a valid recipient address', 'error');
+            return;
+        }
+        
+        try {
+            showMessage('bridgeMessage', 'Bridging tokens...', 'info');
+            
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            
+            let bridgeHistory = JSON.parse(localStorage.getItem('bridgeHistory') || '[]');
+            bridgeHistory.push({
+                fromChain: fromChain,
+                toChain: toChain,
+                token: token,
+                amount: amount,
+                recipient: recipient,
+                txHash: '0x' + Math.random().toString(36).substring(2, 66),
+                status: 'pending',
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('bridgeHistory', JSON.stringify(bridgeHistory));
+            
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push({
+                type: 'bridge',
+                fromChain: fromChain,
+                toChain: toChain,
+                token: token,
+                amount: amount,
+                txHash: '0x' + Math.random().toString(36).substring(2, 66),
+                status: 'pending',
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            document.getElementById('bridgeForm').reset();
+            updateBridgeHistory();
+            
+            showMessage('bridgeMessage', `Successfully initiated bridge of ${amount} ${token} from ${fromChain} to ${toChain}`, 'success');
+            
+        } catch (error) {
+            console.error('Bridge error:', error);
+            showMessage('bridgeMessage', 'Bridge failed: ' + (error.message || 'Unknown error'), 'error');
+        }
+    }
+
+    // Create multi-signature wallet
+    async function createMultisigWallet(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('multisigName').value;
+        const threshold = document.getElementById('multisigThreshold').value;
+        const owners = document.getElementById('multisigOwners').value.split('\n').filter(addr => addr.trim() !== '');
+        
+        if (!name) {
+            showMessage('walletMessage', 'Please enter a wallet name', 'error');
+            return;
+        }
+        
+        if (owners.length < 2) {
+            showMessage('walletMessage', 'Please enter at least 2 owner addresses', 'error');
+            return;
+        }
+        
+        if (threshold > owners.length) {
+            showMessage('walletMessage', 'Threshold cannot be greater than number of owners', 'error');
+            return;
+        }
+        
+        try {
+            showMessage('walletMessage', 'Creating multi-signature wallet...', 'info');
+            
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            document.getElementById('multisigStatus').textContent = 'Enabled';
+            document.getElementById('multisigStatus').className = 'security-status status-enabled';
+            
+            document.getElementById('multisigForm').reset();
+            closeMultisigModal();
+            
+            showMessage('walletMessage', `Successfully created multi-signature wallet "${name}" with ${threshold}/${owners.length} threshold`, 'success');
+            
+        } catch (error) {
+            console.error('Multi-sig wallet error:', error);
+            showMessage('walletMessage', 'Multi-sig wallet creation failed: ' + (error.message || 'Unknown error'), 'error');
         }
     }
 
@@ -3312,6 +4386,44 @@
                         <div class="transaction-date">${formattedDate} - ${stake.period} days</div>
                     </div>
                     <div class="transaction-status status-completed">${stake.apy}% APY</div>
+                </div>
+            `;
+        });
+        
+        historyElement.innerHTML = historyHTML;
+    }
+
+    // Update bridge history
+    function updateBridgeHistory() {
+        const bridgeHistory = JSON.parse(localStorage.getItem('bridgeHistory') || '[]');
+        const historyElement = document.getElementById('bridgeHistory');
+        
+        if (bridgeHistory.length === 0) {
+            historyElement.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                    <i class="fas fa-link" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <div>No bridge transactions yet</div>
+                </div>
+            `;
+            return;
+        }
+        
+        let historyHTML = '';
+        bridgeHistory.forEach(bridge => {
+            const date = new Date(bridge.date);
+            const formattedDate = date.toLocaleDateString();
+            
+            let statusClass = 'status-pending';
+            if (bridge.status === 'completed') statusClass = 'status-completed';
+            if (bridge.status === 'failed') statusClass = 'status-failed';
+            
+            historyHTML += `
+                <div class="transaction-item">
+                    <div class="transaction-details">
+                        <div class="transaction-amount">${bridge.amount} ${bridge.token}</div>
+                        <div class="transaction-date">${formattedDate} - ${bridge.fromChain} → ${bridge.toChain}</div>
+                    </div>
+                    <div class="transaction-status ${statusClass}">${bridge.status.charAt(0).toUpperCase() + bridge.status.slice(1)}</div>
                 </div>
             `;
         });
@@ -3395,6 +4507,60 @@
     // Close network modal
     function closeNetworkModal() {
         document.getElementById('networkModal').style.display = 'none';
+    }
+
+    // Open security modal
+    function openSecurityModal() {
+        document.getElementById('securityModal').style.display = 'flex';
+    }
+
+    // Close security modal
+    function closeSecurityModal() {
+        document.getElementById('securityModal').style.display = 'none';
+    }
+
+    // Open multi-signature modal
+    function openMultisigModal() {
+        document.getElementById('multisigModal').style.display = 'flex';
+    }
+
+    // Close multi-signature modal
+    function closeMultisigModal() {
+        document.getElementById('multisigModal').style.display = 'none';
+    }
+
+    // Open hardware wallet modal
+    function openHardwareWalletModal() {
+        document.getElementById('hardwareWalletModal').style.display = 'flex';
+    }
+
+    // Close hardware wallet modal
+    function closeHardwareWalletModal() {
+        document.getElementById('hardwareWalletModal').style.display = 'none';
+    }
+
+    // Open WalletConnect modal
+    function openWalletConnectModal() {
+        document.getElementById('walletConnectModal').style.display = 'flex';
+        
+        const qrCodeElement = document.getElementById('walletConnectQrCode');
+        qrCodeElement.innerHTML = '';
+        
+        // Generate a sample WalletConnect QR code
+        QRCode.toCanvas('wc:8a5e5bdc-a0e4-47a3-b2e2-445d2c8b8d9f@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=41791102999fc9c38a4f0bb0e30abb2a0e28c7b1e5162f594f8a132b8b3b6c79', 
+        { width: 180, height: 180 }, function(err, canvas) {
+            if (err) {
+                console.error('Error generating QR code:', err);
+                qrCodeElement.innerHTML = '<div style="color: var(--text-secondary);">QR Code Error</div>';
+                return;
+            }
+            qrCodeElement.appendChild(canvas);
+        });
+    }
+
+    // Close WalletConnect modal
+    function closeWalletConnectModal() {
+        document.getElementById('walletConnectModal').style.display = 'none';
     }
 
     // Switch network
@@ -3590,6 +4756,60 @@
             console.error('Error importing token:', error);
             showMessage('walletMessage', 'Error importing token: ' + error.message, 'error');
         }
+    }
+
+    // Connect to Ledger hardware wallet
+    async function connectLedger() {
+        showMessage('walletMessage', 'Connecting to Ledger...', 'info');
+        
+        // In a real implementation, this would use the Ledger Live API
+        // For demo purposes, we'll simulate connection
+        setTimeout(() => {
+            showMessage('walletMessage', 'Ledger connected successfully!', 'success');
+            closeHardwareWalletModal();
+        }, 3000);
+    }
+
+    // Connect to Trezor hardware wallet
+    async function connectTrezor() {
+        showMessage('walletMessage', 'Connecting to Trezor...', 'info');
+        
+        // In a real implementation, this would use the Trezor Connect API
+        // For demo purposes, we'll simulate connection
+        setTimeout(() => {
+            showMessage('walletMessage', 'Trezor connected successfully!', 'success');
+            closeHardwareWalletModal();
+        }, 3000);
+    }
+
+    // Setup social recovery
+    function setupSocialRecovery() {
+        showMessage('walletMessage', 'Social recovery setup would open here', 'info');
+        closeSecurityModal();
+    }
+
+    // Setup address whitelist
+    function setupAddressWhitelist() {
+        showMessage('walletMessage', 'Address whitelisting setup would open here', 'info');
+        closeSecurityModal();
+    }
+
+    // Generate tax report
+    function generateTaxReport() {
+        showMessage('walletMessage', 'Generating tax report...', 'info');
+        
+        setTimeout(() => {
+            showMessage('walletMessage', 'Tax report generated successfully!', 'success');
+        }, 3000);
+    }
+
+    // Export tax data
+    function exportTaxData() {
+        showMessage('walletMessage', 'Exporting tax data as CSV...', 'info');
+        
+        setTimeout(() => {
+            showMessage('walletMessage', 'Tax data exported successfully!', 'success');
+        }, 2000);
     }
 
     // Load custom tokens from localStorage
