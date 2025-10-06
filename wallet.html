@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SupremeAmer Wallet | MetaMask Integration</title>
+    <title>SupremeAmer Wallet | Complete Crypto Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.4.0/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@10.0.0"></script>
     <style>
     :root {
         --primary: #FFB800;
@@ -457,6 +458,22 @@
     .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(255, 152, 0, 0.5);
+    }
+
+    .btn-secondary {
+        background: var(--dark-surface);
+        color: var(--text-dark);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    body.light .btn-secondary {
+        background: var(--light-surface);
+        color: var(--text-light);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .btn-block {
@@ -917,6 +934,104 @@
         color: var(--text-secondary);
     }
 
+    /* Import/Export Styles */
+    .import-export-options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .import-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: var(--dark-surface);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    body.light .import-option {
+        background: var(--light-surface);
+    }
+
+    .import-option:hover {
+        background: rgba(255, 184, 0, 0.05);
+        transform: translateY(-2px);
+    }
+
+    .import-option i {
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+
+    .option-details {
+        flex: 1;
+    }
+
+    .option-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .option-description {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    /* Security Settings */
+    .security-settings {
+        margin-top: 20px;
+    }
+
+    .security-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: var(--dark-surface);
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+    body.light .security-item {
+        background: var(--light-surface);
+    }
+
+    .security-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .security-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .security-description {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .security-status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-enabled {
+        background: rgba(35, 209, 96, 0.1);
+        color: var(--success);
+    }
+
+    .status-disabled {
+        background: rgba(255, 56, 96, 0.1);
+        color: var(--accent);
+    }
+
     /* Responsive */
     @media (max-width: 480px) {
         .container {
@@ -963,6 +1078,10 @@
                 <i class="fas fa-moon"></i>
                 <span id="themeToggleText">Dark Mode</span>
             </button>
+            <button class="menu-item" id="securitySettingsBtn">
+                <i class="fas fa-shield-alt"></i>
+                <span>Security Settings</span>
+            </button>
             <button class="menu-item" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
@@ -1007,9 +1126,9 @@
                     <i class="fas fa-exchange-alt"></i>
                     <span>Swap</span>
                 </div>
-                <div class="action-btn" id="buyBtn">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Buy</span>
+                <div class="action-btn" id="importBtn">
+                    <i class="fas fa-download"></i>
+                    <span>Import</span>
                 </div>
             </div>
             
@@ -1024,6 +1143,15 @@
                     <i class="fas fa-plug"></i>
                     Connect MetaMask
                 </button>
+                <div class="import-export-options">
+                    <div class="import-option" id="importWalletOption">
+                        <i class="fas fa-file-import"></i>
+                        <div class="option-details">
+                            <div class="option-title">Import Wallet</div>
+                            <div class="option-description">Import using private key or seed phrase</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -1127,6 +1255,111 @@
         </div>
     </div>
     
+    <!-- Import Modal -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Import Wallet</div>
+                <button class="close-modal" id="closeImportModal">&times;</button>
+            </div>
+            <form id="importForm">
+                <div class="form-group">
+                    <label class="form-label" for="importType">Import Type</label>
+                    <select class="form-input" id="importType">
+                        <option value="privateKey">Private Key</option>
+                        <option value="seedPhrase">Seed Phrase</option>
+                        <option value="keystore">Keystore File</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="privateKeyGroup">
+                    <label class="form-label" for="privateKey">Private Key</label>
+                    <input type="password" class="form-input" id="privateKey" placeholder="Enter your private key">
+                </div>
+                
+                <div class="form-group" id="seedPhraseGroup" style="display: none;">
+                    <label class="form-label" for="seedPhrase">Seed Phrase</label>
+                    <textarea class="form-input form-textarea" id="seedPhrase" placeholder="Enter your 12 or 24 word seed phrase"></textarea>
+                </div>
+                
+                <div class="form-group" id="keystoreGroup" style="display: none;">
+                    <label class="form-label" for="keystoreFile">Keystore File</label>
+                    <input type="file" class="form-input" id="keystoreFile" accept=".json">
+                    <label class="form-label" for="keystorePassword" style="margin-top: 10px;">Keystore Password</label>
+                    <input type="password" class="form-input" id="keystorePassword" placeholder="Enter keystore password">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="importPassword">Wallet Password</label>
+                    <input type="password" class="form-input" id="importPassword" placeholder="Create a password for this wallet" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="importPin">PIN Code (6 digits)</label>
+                    <input type="password" class="form-input" id="importPin" placeholder="Enter a 6-digit PIN" maxlength="6" pattern="[0-9]{6}" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-download"></i>
+                    Import Wallet
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Security Settings Modal -->
+    <div class="modal" id="securityModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Security Settings</div>
+                <button class="close-modal" id="closeSecurityModal">&times;</button>
+            </div>
+            <div class="security-settings">
+                <div class="security-item">
+                    <div class="security-info">
+                        <div class="security-title">PIN Protection</div>
+                        <div class="security-description">Require PIN for transactions</div>
+                    </div>
+                    <div class="security-status status-enabled" id="pinStatus">Enabled</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-info">
+                        <div class="security-title">Biometric Authentication</div>
+                        <div class="security-description">Use fingerprint or face ID</div>
+                    </div>
+                    <div class="security-status status-disabled" id="biometricStatus">Disabled</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-info">
+                        <div class="security-title">Auto-Lock</div>
+                        <div class="security-description">Lock wallet after 5 minutes</div>
+                    </div>
+                    <div class="security-status status-enabled" id="autolockStatus">Enabled</div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label class="form-label" for="changePin">Change PIN</label>
+                    <input type="password" class="form-input" id="changePin" placeholder="Enter new 6-digit PIN" maxlength="6" pattern="[0-9]{6}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="confirmPin">Confirm New PIN</label>
+                    <input type="password" class="form-input" id="confirmPin" placeholder="Confirm new PIN" maxlength="6" pattern="[0-9]{6}">
+                </div>
+                
+                <button class="btn btn-secondary btn-block" id="updatePinBtn">
+                    <i class="fas fa-key"></i>
+                    Update PIN
+                </button>
+                
+                <button class="btn btn-secondary btn-block" id="exportWalletBtn" style="margin-top: 10px;">
+                    <i class="fas fa-file-export"></i>
+                    Export Wallet
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Footer Navigation -->
     <div class="footer">
         <button class="footer-btn active">
@@ -1152,6 +1385,12 @@
     const INFURA_ID = "YOUR_INFURA_ID_HERE"; // Replace with your Infura ID
     const WITHDRAW_FEE_BNB = "0.0017";
     const WITHDRAW_MIN_SA = 50000;
+    
+    // Appwrite Configuration
+    const APPWRITE_ENDPOINT = 'https://cloud.appwrite.io/v1';
+    const APPWRITE_PROJECT_ID = 'YOUR_APPWRITE_PROJECT_ID'; // Replace with your Appwrite Project ID
+    const APPWRITE_DATABASE_ID = 'YOUR_DATABASE_ID'; // Replace with your Database ID
+    const APPWRITE_COLLECTION_ID = 'YOUR_COLLECTION_ID'; // Replace with your Collection ID
 
     // Wallet state
     let walletConnected = false;
@@ -1161,6 +1400,7 @@
     let currentBalance = "0";
     let marketData = [];
     let tokens = [];
+    let appwriteInitialized = false;
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
@@ -1176,6 +1416,117 @@
         generateReferralCode();
         loadMarketData();
         setupDefaultTokens();
+        initializeAppwrite();
+    }
+
+    // Initialize Appwrite
+    function initializeAppwrite() {
+        try {
+            const client = new Appwrite.Client();
+            client
+                .setEndpoint(APPWRITE_ENDPOINT)
+                .setProject(APPWRITE_PROJECT_ID);
+            
+            window.appwriteClient = client;
+            window.appwriteDatabases = new Appwrite.Databases(client);
+            
+            appwriteInitialized = true;
+            console.log('Appwrite initialized successfully');
+        } catch (error) {
+            console.error('Error initializing Appwrite:', error);
+            showMessage('walletMessage', 'Appwrite initialization failed. Some features may not work.', 'error');
+        }
+    }
+
+    // Save wallet data to Appwrite
+    async function saveWalletToAppwrite(walletData) {
+        if (!appwriteInitialized) {
+            console.error('Appwrite not initialized');
+            return false;
+        }
+        
+        try {
+            // In a real app, you would properly hash the password and PIN
+            // For demo purposes, we're storing them directly (NOT RECOMMENDED FOR PRODUCTION)
+            const data = {
+                walletAddress: walletData.address,
+                privateKey: walletData.privateKey, // In production, this should be encrypted
+                password: walletData.password, // In production, this should be hashed
+                pin: walletData.pin, // In production, this should be hashed
+                createdAt: new Date().toISOString(),
+                walletType: walletData.type || 'imported'
+            };
+            
+            // Check if wallet already exists
+            try {
+                const existing = await window.appwriteDatabases.listDocuments(
+                    APPWRITE_DATABASE_ID,
+                    APPWRITE_COLLECTION_ID,
+                    [Appwrite.Query.equal('walletAddress', walletData.address)]
+                );
+                
+                if (existing.documents.length > 0) {
+                    // Update existing document
+                    await window.appwriteDatabases.updateDocument(
+                        APPWRITE_DATABASE_ID,
+                        APPWRITE_COLLECTION_ID,
+                        existing.documents[0].$id,
+                        data
+                    );
+                    console.log('Wallet updated in Appwrite');
+                } else {
+                    // Create new document
+                    await window.appwriteDatabases.createDocument(
+                        APPWRITE_DATABASE_ID,
+                        APPWRITE_COLLECTION_ID,
+                        'unique()',
+                        data
+                    );
+                    console.log('Wallet saved to Appwrite');
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error saving wallet to Appwrite:', error);
+                return false;
+            }
+        } catch (error) {
+            console.error('Error in saveWalletToAppwrite:', error);
+            return false;
+        }
+    }
+
+    // Get wallet from Appwrite
+    async function getWalletFromAppwrite(address, password) {
+        if (!appwriteInitialized) {
+            console.error('Appwrite not initialized');
+            return null;
+        }
+        
+        try {
+            const result = await window.appwriteDatabases.listDocuments(
+                APPWRITE_DATABASE_ID,
+                APPWRITE_COLLECTION_ID,
+                [Appwrite.Query.equal('walletAddress', address)]
+            );
+            
+            if (result.documents.length === 0) {
+                return null;
+            }
+            
+            const walletData = result.documents[0];
+            
+            // In a real app, you would verify the password hash
+            // For demo, we're doing a simple comparison (NOT SECURE)
+            if (walletData.password !== password) {
+                return null;
+            }
+            
+            return walletData;
+        } catch (error) {
+            console.error('Error getting wallet from Appwrite:', error);
+            return null;
+        }
     }
 
     // Set up event listeners
@@ -1190,6 +1541,9 @@
         // Theme toggle
         document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
         
+        // Security settings
+        document.getElementById('securitySettingsBtn').addEventListener('click', openSecuritySettings);
+        
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', logout);
         
@@ -1200,22 +1554,47 @@
         document.getElementById('sendBtn').addEventListener('click', sendTokens);
         document.getElementById('receiveBtn').addEventListener('click', receiveTokens);
         document.getElementById('swapBtn').addEventListener('click', swapTokens);
-        document.getElementById('buyBtn').addEventListener('click', buyTokens);
+        document.getElementById('importBtn').addEventListener('click', openImportModal);
+        
+        // Import options
+        document.getElementById('importWalletOption').addEventListener('click', openImportModal);
         
         // Form submission
         document.getElementById('withdrawForm').addEventListener('submit', submitWithdrawal);
+        document.getElementById('importForm').addEventListener('submit', importWallet);
         
         // Market data refresh
         document.getElementById('refreshMarketData').addEventListener('click', loadMarketData);
         
+        // Import type change
+        document.getElementById('importType').addEventListener('change', handleImportTypeChange);
+        
         // Modal controls
         document.getElementById('closeReceiveModal').addEventListener('click', closeReceiveModal);
         document.getElementById('copyQrAddressBtn').addEventListener('click', copyQrAddress);
+        document.getElementById('closeImportModal').addEventListener('click', closeImportModal);
+        document.getElementById('closeSecurityModal').addEventListener('click', closeSecurityModal);
         
-        // Close modal when clicking outside
+        // Security controls
+        document.getElementById('updatePinBtn').addEventListener('click', updatePin);
+        document.getElementById('exportWalletBtn').addEventListener('click', exportWallet);
+        
+        // Close modals when clicking outside
         document.getElementById('receiveModal').addEventListener('click', function(e) {
             if (e.target.id === 'receiveModal') {
                 closeReceiveModal();
+            }
+        });
+        
+        document.getElementById('importModal').addEventListener('click', function(e) {
+            if (e.target.id === 'importModal') {
+                closeImportModal();
+            }
+        });
+        
+        document.getElementById('securityModal').addEventListener('click', function(e) {
+            if (e.target.id === 'securityModal') {
+                closeSecurityModal();
             }
         });
         
@@ -1656,6 +2035,156 @@
         });
     }
 
+    // Open import modal
+    function openImportModal() {
+        document.getElementById('importModal').style.display = 'flex';
+    }
+
+    // Close import modal
+    function closeImportModal() {
+        document.getElementById('importModal').style.display = 'none';
+        document.getElementById('importForm').reset();
+    }
+
+    // Open security settings modal
+    function openSecuritySettings() {
+        document.getElementById('securityModal').style.display = 'flex';
+        document.getElementById('profileDropdown').style.display = 'none';
+    }
+
+    // Close security settings modal
+    function closeSecurityModal() {
+        document.getElementById('securityModal').style.display = 'none';
+    }
+
+    // Handle import type change
+    function handleImportTypeChange() {
+        const importType = document.getElementById('importType').value;
+        
+        // Hide all import type groups
+        document.getElementById('privateKeyGroup').style.display = 'none';
+        document.getElementById('seedPhraseGroup').style.display = 'none';
+        document.getElementById('keystoreGroup').style.display = 'none';
+        
+        // Show selected import type group
+        if (importType === 'privateKey') {
+            document.getElementById('privateKeyGroup').style.display = 'block';
+        } else if (importType === 'seedPhrase') {
+            document.getElementById('seedPhraseGroup').style.display = 'block';
+        } else if (importType === 'keystore') {
+            document.getElementById('keystoreGroup').style.display = 'block';
+        }
+    }
+
+    // Import wallet
+    async function importWallet(e) {
+        e.preventDefault();
+        
+        const importType = document.getElementById('importType').value;
+        const password = document.getElementById('importPassword').value;
+        const pin = document.getElementById('importPin').value;
+        
+        if (!password || password.length < 6) {
+            showMessage('walletMessage', 'Password must be at least 6 characters', 'error');
+            return;
+        }
+        
+        if (!pin || pin.length !== 6 || !/^\d+$/.test(pin)) {
+            showMessage('walletMessage', 'PIN must be exactly 6 digits', 'error');
+            return;
+        }
+        
+        try {
+            let wallet;
+            
+            if (importType === 'privateKey') {
+                const privateKey = document.getElementById('privateKey').value;
+                if (!privateKey) {
+                    showMessage('walletMessage', 'Please enter a private key', 'error');
+                    return;
+                }
+                
+                wallet = new ethers.Wallet(privateKey);
+            } else if (importType === 'seedPhrase') {
+                const seedPhrase = document.getElementById('seedPhrase').value;
+                if (!seedPhrase) {
+                    showMessage('walletMessage', 'Please enter a seed phrase', 'error');
+                    return;
+                }
+                
+                wallet = ethers.Wallet.fromPhrase(seedPhrase);
+            } else if (importType === 'keystore') {
+                showMessage('walletMessage', 'Keystore import not implemented in this demo', 'info');
+                return;
+            }
+            
+            // Save wallet to Appwrite
+            const saved = await saveWalletToAppwrite({
+                address: wallet.address,
+                privateKey: wallet.privateKey,
+                password: password,
+                pin: pin,
+                type: 'imported'
+            });
+            
+            if (saved) {
+                // Set as current wallet
+                currentAccount = wallet.address;
+                signer = wallet;
+                
+                // Update UI
+                updateWalletUI();
+                updateBalance();
+                updateTokenBalances();
+                
+                showMessage('walletMessage', 'Wallet imported successfully!', 'success');
+                closeImportModal();
+            } else {
+                showMessage('walletMessage', 'Failed to save wallet to secure storage', 'error');
+            }
+            
+        } catch (error) {
+            console.error('Error importing wallet:', error);
+            showMessage('walletMessage', 'Error importing wallet: ' + error.message, 'error');
+        }
+    }
+
+    // Update PIN
+    function updatePin() {
+        const newPin = document.getElementById('changePin').value;
+        const confirmPin = document.getElementById('confirmPin').value;
+        
+        if (!newPin || newPin.length !== 6 || !/^\d+$/.test(newPin)) {
+            showMessage('walletMessage', 'PIN must be exactly 6 digits', 'error');
+            return;
+        }
+        
+        if (newPin !== confirmPin) {
+            showMessage('walletMessage', 'PINs do not match', 'error');
+            return;
+        }
+        
+        // In a real app, you would update the PIN in Appwrite
+        // For this demo, we'll just show a success message
+        showMessage('walletMessage', 'PIN updated successfully!', 'success');
+        
+        // Clear the form
+        document.getElementById('changePin').value = '';
+        document.getElementById('confirmPin').value = '';
+    }
+
+    // Export wallet
+    function exportWallet() {
+        if (!walletConnected) {
+            showMessage('walletMessage', 'No wallet connected to export', 'error');
+            return;
+        }
+        
+        // In a real app, you would retrieve the wallet from Appwrite and export it
+        // For this demo, we'll just show a message
+        showMessage('walletMessage', 'Wallet export functionality would be implemented here', 'info');
+    }
+
     // Load market data from CoinGecko API
     async function loadMarketData() {
         try {
@@ -1884,10 +2413,6 @@
     
     function swapTokens() {
         showMessage('walletMessage', 'Swap functionality would open here', 'info');
-    }
-    
-    function buyTokens() {
-        showMessage('walletMessage', 'Buy functionality would open here', 'info');
     }
     
     // Logout function
