@@ -275,6 +275,11 @@
         background: rgba(255, 184, 0, 0.05);
     }
 
+    .action-btn.active {
+        background: rgba(255, 184, 0, 0.1);
+        border-color: rgba(255, 184, 0, 0.3);
+    }
+
     .action-btn i {
         font-size: 1.5rem;
         margin-bottom: 8px;
@@ -1941,6 +1946,10 @@
                             <i class="fas fa-copy"></i>
                             Copy Address
                         </button>
+                        <button class="btn btn-secondary btn-block" id="openReceiveModalBtn" style="margin-top: 10px;">
+                            <i class="fas fa-expand"></i>
+                            Show Full QR Code
+                        </button>
                     </div>
                 </div>
                 
@@ -3299,6 +3308,9 @@
         document.getElementById('bridgeFromChain').addEventListener('change', calculateBridgeFee);
         document.getElementById('bridgeToChain').addEventListener('change', calculateBridgeFee);
         
+        // Receive modal open button
+        document.getElementById('openReceiveModalBtn').addEventListener('click', openReceiveModal);
+        
         // MetaMask event listeners
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', handleAccountsChanged);
@@ -3383,6 +3395,30 @@
             
             document.getElementById('homeQrAddress').textContent = currentAccount;
         }
+    }
+
+    // Open receive modal
+    function openReceiveModal() {
+        if (!walletConnected) {
+            showMessage('walletMessage', 'Please connect your wallet first', 'error');
+            return;
+        }
+        
+        document.getElementById('qrAddress').textContent = currentAccount;
+        
+        const qrCodeElement = document.getElementById('qrCode');
+        qrCodeElement.innerHTML = '';
+        
+        QRCode.toCanvas(currentAccount, { width: 180, height: 180 }, function(err, canvas) {
+            if (err) {
+                console.error('Error generating QR code:', err);
+                qrCodeElement.innerHTML = '<div style="color: var(--text-secondary);">QR Code Error</div>';
+                return;
+            }
+            qrCodeElement.appendChild(canvas);
+        });
+        
+        document.getElementById('receiveModal').style.display = 'flex';
     }
 
     // Show swap section
@@ -3799,6 +3835,16 @@
 
     // Copy address to clipboard
     function copyAddress() {
+        navigator.clipboard.writeText(currentAccount).then(() => {
+            showMessage('walletMessage', 'Address copied to clipboard!', 'success');
+        }).catch(err => {
+            console.error('Failed to copy address: ', err);
+            showMessage('walletMessage', 'Failed to copy address', 'error');
+        });
+    }
+
+    // Copy QR address to clipboard
+    function copyQrAddress() {
         navigator.clipboard.writeText(currentAccount).then(() => {
             showMessage('walletMessage', 'Address copied to clipboard!', 'success');
         }).catch(err => {
@@ -4438,43 +4484,9 @@
         updateStakingDisplay();
     }
 
-    // Receive tokens - show QR code modal
-    function receiveTokens() {
-        if (!walletConnected) {
-            showMessage('walletMessage', 'Please connect your wallet first', 'error');
-            return;
-        }
-        
-        document.getElementById('qrAddress').textContent = currentAccount;
-        
-        const qrCodeElement = document.getElementById('qrCode');
-        qrCodeElement.innerHTML = '';
-        
-        QRCode.toCanvas(currentAccount, { width: 180, height: 180 }, function(err, canvas) {
-            if (err) {
-                console.error('Error generating QR code:', err);
-                qrCodeElement.innerHTML = '<div style="color: var(--text-secondary);">QR Code Error</div>';
-                return;
-            }
-            qrCodeElement.appendChild(canvas);
-        });
-        
-        document.getElementById('receiveModal').style.display = 'flex';
-    }
-
     // Close receive modal
     function closeReceiveModal() {
         document.getElementById('receiveModal').style.display = 'none';
-    }
-
-    // Copy QR address to clipboard
-    function copyQrAddress() {
-        navigator.clipboard.writeText(currentAccount).then(() => {
-            showMessage('walletMessage', 'Address copied to clipboard!', 'success');
-        }).catch(err => {
-            console.error('Failed to copy address: ', err);
-            showMessage('walletMessage', 'Failed to copy address', 'error');
-        });
     }
 
     // Open import modal
