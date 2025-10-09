@@ -1099,7 +1099,11 @@
         balanceToggle.addEventListener('click', toggleBalanceVisibility);
         
         sendBtn.addEventListener('click', () => {
-            sendModal.style.display = 'flex';
+            if (isConnected) {
+                sendModal.style.display = 'flex';
+            } else {
+                alert('Please connect your wallet first');
+            }
         });
 
         receiveBtn.addEventListener('click', () => {
