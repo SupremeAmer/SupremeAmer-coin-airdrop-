@@ -1,4 +1,4 @@
-/* style.css */
+/* ================= ROOT VARIABLES ================= */
 :root {
     --primary-color: #ff9800;
     --secondary-color: #fdc500;
@@ -9,13 +9,21 @@
     --text-light: #333;
     --card-bg-dark: rgba(30, 30, 40, 0.95);
     --card-bg-light: rgba(255,255,255,0.90);
+    --success-color: #4CAF50;
+    --error-color: #ff3333;
+    --shadow-light: rgba(255, 152, 0, 0.4);
+    --shadow-dark: rgba(0, 0, 0, 0.3);
 }
 
-@media (prefers-color-scheme: light) {
-    body:not(.dark) {
-        background: linear-gradient(135deg, var(--light-bg) 60%, #f7b733 100%);
-        color: var(--text-light);
-    }
+/* ================= BASE STYLES ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
@@ -31,12 +39,34 @@ body {
     justify-content: center;
     overflow-x: hidden;
 }
+
 body.light {
     background: linear-gradient(135deg, var(--light-bg) 60%, #f7b733 100%);
     color: var(--text-light);
 }
 
-/* Header Styles */
+/* ================= LOADER ================= */
+.loader {
+    border: 5px solid #ccc;
+    border-top: 5px solid var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ================= HEADER ================= */
 .header {
     width: 100%;
     padding: 25px 0 10px 0;
@@ -50,11 +80,12 @@ body.light {
     transition: all 0.3s;
     z-index: 1000;
 }
+
 body.light .header {
     background: rgba(255,255,255,0.75);
 }
 
-/* Profile Dropdown */
+/* ================= PROFILE DROPDOWN ================= */
 .emoji-avatar {
     font-size: 2.1em;
     vertical-align: middle;
@@ -64,10 +95,15 @@ body.light .header {
     outline: none;
     transition: transform 0.2s;
     will-change: transform;
+    position: absolute;
+    top: 18px;
+    right: 28px;
 }
+
 .emoji-avatar:hover {
     transform: scale(1.1);
 }
+
 .profile-dropdown-content {
     display: none;
     position: absolute;
@@ -76,7 +112,7 @@ body.light .header {
     background: #222;
     min-width: 210px;
     border-radius: 10px;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.67);
+    box-shadow: 0 2px 16px var(--shadow-dark);
     z-index: 1001;
     color: #fff;
     font-size: 1em;
@@ -86,17 +122,24 @@ body.light .header {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 body.light .profile-dropdown-content {
     background: rgba(255, 255, 255, 0.85);
     color: #222;
     border: 1px solid rgba(0, 0, 0, 0.1);
 }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(-10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
 .profile-dropdown-content hr {
     border: none;
     border-top: 1px solid #333;
     margin: 6px 0;
 }
+
 .profile-dropdown-content a {
     color: var(--accent-color);
     text-decoration: none;
@@ -107,15 +150,28 @@ body.light .profile-dropdown-content {
     border-radius: 5px;
     padding: 8px 18px;
 }
+
 .profile-dropdown-content a:hover {
     background: #333;
     color: #fff;
 }
+
 body.light .profile-dropdown-content a:hover {
     background: rgba(0, 0, 0, 0.1);
 }
 
-/* Marquee */
+.profile-dropdown-content div {
+    padding: 8px 18px;
+}
+
+.profile-dropdown-content #dropdownEmail {
+    padding-top: 0;
+    padding-bottom: 8px;
+    color: var(--secondary-color);
+    font-size: 0.96em;
+}
+
+/* ================= MARQUEE ================= */
 .marquee {
     background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--primary-color));
     color: #222;
@@ -130,6 +186,7 @@ body.light .profile-dropdown-content a:hover {
     width: 100%;
     z-index: 999;
 }
+
 .marquee-text {
     display: inline-block;
     position: absolute;
@@ -139,17 +196,18 @@ body.light .profile-dropdown-content a:hover {
     will-change: transform;
     padding-right: 20px;
 }
+
 @keyframes marquee {
     0%   { transform: translateX(0%); }
     100% { transform: translateX(-100vw); }
 }
 
-/* Main Container */
+/* ================= MAIN CONTAINER ================= */
 .container {
     background: var(--card-bg-dark);
     padding: 36px 32px 28px 32px;
     border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38);
+    box-shadow: 0 8px 32px var(--shadow-dark);
     text-align: center;
     max-width: 400px;
     width: 90%;
@@ -157,7 +215,9 @@ body.light .profile-dropdown-content a:hover {
     position: relative;
     overflow: hidden;
     z-index: 1;
+    margin-bottom: 80px;
 }
+
 .container::before {
     content: '';
     position: absolute;
@@ -169,16 +229,24 @@ body.light .profile-dropdown-content a:hover {
     z-index: -1;
     animation: rotate 60s linear infinite;
 }
+
 @keyframes rotate {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
 body.light .container {
     background: var(--card-bg-light);
     color: var(--text-light);
 }
 
-/* Coin Logo */
+.dashboard-title {
+    font-size: 1.5em;
+    color: var(--secondary-color);
+    margin-bottom: 6px;
+}
+
+/* ================= COIN LOGO ================= */
 #logoContainer {
     width: 100px;
     height: 100px;
@@ -188,30 +256,33 @@ body.light .container {
     align-items: center;
     justify-content: center;
 }
+
 #coinLogo {
     width: 100px !important;
     height: 100px !important;
     border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+    box-shadow: 0 2px 8px var(--shadow-light);
     z-index: 2;
     position: relative;
     border: 3px solid var(--primary-color);
     transition: all 0.3s;
 }
+
 #coinLogo:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.6);
+    box-shadow: 0 4px 16px var(--shadow-light);
 }
 
-/* Stats Display */
+/* ================= STATS DISPLAY ================= */
 .mined-coins {
     font-size: 2.3em;
     margin: 14px 0;
     color: var(--secondary-color);
     font-weight: 700;
     letter-spacing: 1px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 2px 4px var(--shadow-dark);
 }
+
 .timer {
     font-size: 1.5em;
     color: var(--accent-color);
@@ -223,9 +294,11 @@ body.light .container {
     border-radius: 8px;
     position: relative;
 }
+
 .timer:hover {
     background: rgba(255, 51, 51, 0.1);
 }
+
 .timer:hover::after {
     content: attr(data-tooltip);
     position: absolute;
@@ -241,7 +314,7 @@ body.light .container {
     z-index: 10;
 }
 
-/* Buttons */
+/* ================= BUTTONS ================= */
 .mine-btn, .withdraw-btn {
     padding: 15px 38px;
     background: linear-gradient(90deg, var(--secondary-color) 40%, var(--primary-color) 100%);
@@ -252,19 +325,27 @@ body.light .container {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.4);
+    box-shadow: 0 4px 16px var(--shadow-light);
     margin-bottom: 10px;
     position: relative;
     overflow: hidden;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
+
 .mine-btn:hover, .withdraw-btn:hover {
     background: linear-gradient(90deg, var(--primary-color) 40%, var(--secondary-color) 100%);
-    box-shadow: 0 8px 24px rgba(255, 152, 0, 0.6);
+    box-shadow: 0 8px 24px var(--shadow-light);
     transform: translateY(-2px);
 }
+
 .mine-btn:active, .withdraw-btn:active {
     transform: translateY(0);
 }
+
 .mine-btn::after, .withdraw-btn::after {
     content: '';
     position: absolute;
@@ -278,15 +359,18 @@ body.light .container {
     pointer-events: none;
     will-change: transform;
 }
+
 .mine-btn:hover::after, .withdraw-btn:hover::after {
     left: 100%;
 }
+
 .withdraw-btn[disabled] {
     opacity: 0.65;
     cursor: not-allowed;
     background: #ccc;
     box-shadow: none;
 }
+
 .withdraw-btn[disabled]:hover {
     transform: none;
 }
@@ -304,12 +388,19 @@ body.light .container {
     box-shadow: 0 2px 8px rgba(255, 185, 0, 0.27);
     transition: all 0.2s;
     position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
+
 .upgrade-btn:hover {
     background: linear-gradient(90deg, #ffe259, #ffa751);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(255, 185, 0, 0.4);
 }
+
 .upgrade-btn:hover::after {
     content: attr(data-tooltip);
     position: absolute;
@@ -325,7 +416,7 @@ body.light .container {
     z-index: 10;
 }
 
-/* Particles */
+/* ================= PARTICLES ================= */
 .particles {
     position: fixed;
     top: 0;
@@ -335,6 +426,7 @@ body.light .container {
     pointer-events: none;
     z-index: -1;
 }
+
 .particle {
     position: absolute;
     background: var(--primary-color);
@@ -343,12 +435,13 @@ body.light .container {
     animation: float linear infinite;
     will-change: transform;
 }
+
 @keyframes float {
     0% { transform: translateY(0) rotate(0deg); }
     100% { transform: translateY(-100vh) rotate(360deg); }
 }
 
-/* Upgrade Modal */
+/* ================= UPGRADE MODAL ================= */
 #upgradeModal {
     display: none;
     position: fixed;
@@ -363,6 +456,7 @@ body.light .container {
     backdrop-filter: blur(5px);
     animation: fadeIn 0.3s;
 }
+
 #upgradeModalContent {
     background: #fff;
     color: #222;
@@ -371,14 +465,16 @@ body.light .container {
     max-width: 340px;
     width: 90vw;
     text-align: center;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.31);
+    box-shadow: 0 8px 32px var(--shadow-dark);
     position: relative;
     transform: scale(0.95);
     animation: modalAppear 0.3s forwards;
 }
+
 @keyframes modalAppear {
     to { transform: scale(1); }
 }
+
 #upgradeModalContent .close-btn {
     position: absolute;
     right: 20px;
@@ -390,9 +486,17 @@ body.light .container {
     cursor: pointer;
     transition: all 0.2s;
 }
+
 #upgradeModalContent .close-btn:hover {
     transform: rotate(90deg);
 }
+
+#upgradeModalContent h3 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
 .upgrade-plan {
     margin: 18px 0 10px 0;
     padding: 16px 10px;
@@ -403,25 +507,41 @@ body.light .container {
     transition: all 0.2s;
     border: 1px solid rgba(255, 152, 0, 0.2);
 }
+
 .upgrade-plan:hover {
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
+
 .upgrade-plan .plan-title {
     font-weight: bold;
     font-size: 1.07em;
     margin-bottom: 7px;
     color: var(--primary-color);
 }
+
 .upgrade-plan .plan-desc {
     font-size: 0.98em;
     margin-bottom: 10px;
 }
+
 .upgrade-plan .plan-action {
     margin-top: 9px;
 }
 
-/* Footer */
+.upgrade-plan .upgrade-btn {
+    padding: 8px 18px;
+    width: auto;
+}
+
+.upgrade-info {
+    font-size: 0.98em;
+    color: #666;
+    margin-top: 12px;
+    line-height: 1.4;
+}
+
+/* ================= FOOTER ================= */
 .footer {
     width: 100%;
     display: flex;
@@ -437,6 +557,7 @@ body.light .container {
     z-index: 999;
     backdrop-filter: blur(5px);
 }
+
 .footer button {
     background: #fff;
     color: var(--primary-color);
@@ -453,15 +574,18 @@ body.light .container {
     cursor: pointer;
     position: relative;
 }
+
 .footer button:hover {
     background: var(--primary-color);
     color: #fff;
     transform: translateY(-5px);
 }
+
 .footer button.active {
     background: var(--primary-color);
     color: #fff;
 }
+
 .footer button .tooltip {
     position: absolute;
     bottom: 60px;
@@ -477,12 +601,13 @@ body.light .container {
     pointer-events: none;
     transition: all 0.2s;
 }
+
 .footer button:hover .tooltip {
     opacity: 1;
     bottom: 65px;
 }
 
-/* Status Messages */
+/* ================= STATUS MESSAGES ================= */
 .claim-status, .withdraw-status {
     margin: 7px 0 0 0;
     color: var(--secondary-color);
@@ -490,16 +615,18 @@ body.light .container {
     min-height: 18px;
     transition: all 0.3s;
 }
+
 .success-message {
-    color: #4CAF50;
-    font-weight: bold;
-}
-.error-message {
-    color: var(--accent-color);
+    color: var(--success-color);
     font-weight: bold;
 }
 
-/* Light/Dark Toggle */
+.error-message {
+    color: var(--error-color);
+    font-weight: bold;
+}
+
+/* ================= LIGHT/DARK TOGGLE ================= */
 .light-toggle {
     position: absolute;
     left: 28px;
@@ -512,14 +639,16 @@ body.light .container {
     z-index: 101;
     transition: all 0.3s;
 }
+
 .light-toggle:hover {
     transform: rotate(30deg);
 }
+
 body.light .light-toggle {
     color: var(--primary-color);
 }
 
-/* Progress Bar */
+/* ================= PROGRESS BAR ================= */
 .progress-container {
     width: 100%;
     height: 8px;
@@ -528,6 +657,7 @@ body.light .light-toggle {
     margin: 10px 0;
     overflow: hidden;
 }
+
 .progress-bar {
     height: 100%;
     background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
@@ -535,7 +665,7 @@ body.light .light-toggle {
     transition: width 0.3s;
 }
 
-/* Notification */
+/* ================= NOTIFICATION ================= */
 .notification {
     position: fixed;
     top: 20px;
@@ -544,28 +674,76 @@ body.light .light-toggle {
     color: #fff;
     padding: 15px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px var(--shadow-dark);
     z-index: 2000;
     transform: translateX(200%);
     transition: transform 0.3s;
     display: flex;
     align-items: center;
+    max-width: 400px;
 }
+
 .notification.show {
     transform: translateX(0);
 }
+
 .notification.success {
-    background: #4CAF50;
+    background: var(--success-color);
 }
+
 .notification.error {
-    background: var(--accent-color);
+    background: var(--error-color);
 }
+
 .notification i {
     margin-right: 10px;
     font-size: 1.2em;
 }
 
-/* Responsive */
+/* ================= ANIMATIONS ================= */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.bounce {
+    animation: bounce 2s infinite;
+}
+
+/* ================= CONFETTI ================= */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background-color: #f00;
+    opacity: 0;
+    z-index: 2001;
+    animation: confetti-fall 3s linear forwards;
+    will-change: transform;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ================= RESPONSIVE DESIGN ================= */
 @media (max-width:600px) {
     .profile-dropdown-content { 
         min-width: 140px; 
@@ -578,44 +756,26 @@ body.light .light-toggle {
     .mined-coins { font-size:1.8em;}
     .header { font-size: 1.8em; padding-top: 15px; }
     .light-toggle { left: 15px; top: 15px; font-size: 1.4em; }
-    #profileDropdownBtn { right: 15px; top: 10px; font-size: 1.8em; }
-}
-
-/* Animations */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-.pulse {
-    animation: pulse 2s infinite;
-}
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-.bounce {
-    animation: bounce 2s infinite;
-}
-
-/* Confetti */
-.confetti {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    background-color: #f00;
-    opacity: 0;
-    z-index: 2001;
-    animation: confetti-fall 3s linear forwards;
-    will-change: transform;
-}
-@keyframes confetti-fall {
-    0% {
-        transform: translateY(-100vh) rotate(0deg);
-        opacity: 1;
+    .emoji-avatar { right: 15px; top: 10px; font-size: 1.8em; }
+    .mine-btn, .withdraw-btn, .upgrade-btn {
+        padding: 12px 24px;
+        font-size: 1.1em;
     }
-    100% {
-        transform: translateY(100vh) rotate(360deg);
-        opacity: 0;
+}
+
+/* ================= PREFERS COLOR SCHEME ================= */
+@media (prefers-color-scheme: light) {
+    body:not(.dark) {
+        background: linear-gradient(135deg, var(--light-bg) 60%, #f7b733 100%);
+        color: var(--text-light);
+    }
+    
+    body:not(.dark) .header {
+        background: rgba(255,255,255,0.75);
+    }
+    
+    body:not(.dark) .container {
+        background: var(--card-bg-light);
+        color: var(--text-light);
     }
 }
