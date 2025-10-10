@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SupremeAmer Coin - Persistent Mining</title>
+    <title>SupremeAmer Coin - Mining Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -20,11 +20,13 @@
             --success-color: #4CAF50;
             --warning-color: #ffc107;
             --info-color: #2196F3;
-            --header-height: 90px;
+            --header-height: 80px;
         }
         
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
@@ -40,6 +42,7 @@
             overflow-x: hidden;
             padding-top: var(--header-height);
         }
+        
         body.light {
             background: linear-gradient(135deg, var(--light-bg) 60%, #f7b733 100%);
             color: var(--text-light);
@@ -61,6 +64,7 @@
             backdrop-filter: blur(10px);
             border-bottom: 2px solid var(--primary-color);
         }
+        
         body.light .header {
             background: linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(240,240,245,0.95) 100%);
             border-bottom: 2px solid var(--secondary-color);
@@ -88,6 +92,7 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             letter-spacing: 1px;
         }
+        
         body.light .header-title {
             text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
         }
@@ -142,6 +147,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
+        
         body.light .profile-dropdown {
             background: rgba(255, 255, 255, 0.95);
             color: #222;
@@ -158,6 +164,7 @@
             background: rgba(255, 152, 0, 0.2);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+        
         body.light .profile-header {
             background: rgba(255, 152, 0, 0.1);
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -179,6 +186,7 @@
             align-items: center;
             gap: 8px;
         }
+        
         body.light .profile-email {
             color: #666;
         }
@@ -201,6 +209,7 @@
         .profile-menu-item:hover {
             background: rgba(255, 255, 255, 0.1);
         }
+        
         body.light .profile-menu-item:hover {
             background: rgba(0, 0, 0, 0.05);
         }
@@ -216,6 +225,7 @@
             background: rgba(255, 255, 255, 0.1);
             margin: 8px 0;
         }
+        
         body.light .profile-divider {
             background: rgba(0, 0, 0, 0.1);
         }
@@ -233,11 +243,13 @@
             z-index: 999;
             font-weight: 600;
         }
+        
         .marquee-text {
             display: inline-block;
             padding-left: 100%;
             animation: marquee 20s linear infinite;
         }
+        
         @keyframes marquee {
             0%   { transform: translateX(0); }
             100% { transform: translateX(-100%); }
@@ -258,6 +270,7 @@
             z-index: 1;
             margin: 20px 0 100px 0;
         }
+        
         .container::before {
             content: '';
             position: absolute;
@@ -269,10 +282,12 @@
             z-index: -1;
             animation: rotate 60s linear infinite;
         }
+        
         @keyframes rotate {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
         body.light .container {
             background: var(--card-bg-light);
             color: var(--text-light);
@@ -289,6 +304,7 @@
             align-items: center;
             justify-content: center;
         }
+        
         .coin-logo {
             width: 120px;
             height: 120px;
@@ -300,6 +316,7 @@
             transition: all 0.3s;
             animation: pulse 2s infinite;
         }
+        
         .coin-logo:hover {
             transform: scale(1.05);
             box-shadow: 0 8px 25px rgba(255, 152, 0, 0.6);
@@ -327,6 +344,7 @@
             background: rgba(255, 51, 51, 0.1);
             display: inline-block;
         }
+        
         .timer:hover {
             background: rgba(255, 51, 51, 0.2);
             transform: scale(1.05);
@@ -353,11 +371,13 @@
             justify-content: center;
             gap: 10px;
         }
+        
         .mine-btn:hover, .withdraw-btn:hover {
             background: linear-gradient(90deg, var(--primary-color) 40%, var(--secondary-color) 100%);
             box-shadow: 0 8px 25px rgba(255, 152, 0, 0.6);
             transform: translateY(-3px);
         }
+        
         .mine-btn:active, .withdraw-btn:active {
             transform: translateY(0);
         }
@@ -368,6 +388,7 @@
             background: #ccc;
             box-shadow: none;
         }
+        
         .withdraw-btn[disabled]:hover {
             transform: none;
         }
@@ -390,6 +411,7 @@
             justify-content: center;
             gap: 8px;
         }
+        
         .upgrade-btn:hover {
             background: linear-gradient(90deg, #ffe259, #ffa751);
             transform: translateY(-3px);
@@ -406,6 +428,7 @@
             pointer-events: none;
             z-index: -1;
         }
+        
         .particle {
             position: absolute;
             background: var(--primary-color);
@@ -413,6 +436,7 @@
             opacity: 0.3;
             animation: float linear infinite;
         }
+        
         @keyframes float {
             0% { transform: translateY(0) rotate(0deg); }
             100% { transform: translateY(-100vh) rotate(360deg); }
@@ -433,6 +457,7 @@
             backdrop-filter: blur(5px);
             animation: fadeIn 0.3s;
         }
+        
         .upgrade-modal-content {
             background: #fff;
             color: #222;
@@ -446,9 +471,11 @@
             transform: scale(0.95);
             animation: modalAppear 0.3s forwards;
         }
+        
         @keyframes modalAppear {
             to { transform: scale(1); }
         }
+        
         .close-btn {
             position: absolute;
             right: 20px;
@@ -460,9 +487,11 @@
             cursor: pointer;
             transition: all 0.2s;
         }
+        
         .close-btn:hover {
             transform: rotate(90deg);
         }
+        
         .upgrade-plan {
             margin: 20px 0 15px 0;
             padding: 20px 15px;
@@ -473,21 +502,25 @@
             transition: all 0.3s;
             border: 2px solid rgba(255, 152, 0, 0.2);
         }
+        
         .upgrade-plan:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
         }
+        
         .plan-title {
             font-weight: bold;
             font-size: 1.2em;
             margin-bottom: 10px;
             color: var(--primary-color);
         }
+        
         .plan-desc {
             font-size: 1em;
             margin-bottom: 15px;
             line-height: 1.5;
         }
+        
         .plan-action {
             margin-top: 15px;
         }
@@ -508,6 +541,7 @@
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
+        
         .footer-btn {
             background: #fff;
             color: var(--primary-color);
@@ -524,16 +558,19 @@
             cursor: pointer;
             position: relative;
         }
+        
         .footer-btn:hover {
             background: var(--primary-color);
             color: #fff;
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4);
         }
+        
         .footer-btn.active {
             background: var(--primary-color);
             color: #fff;
         }
+        
         .tooltip {
             position: absolute;
             bottom: 70px;
@@ -550,6 +587,7 @@
             transition: all 0.3s;
             font-weight: 600;
         }
+        
         .footer-btn:hover .tooltip {
             opacity: 1;
             bottom: 75px;
@@ -565,6 +603,7 @@
             overflow: hidden;
             box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+        
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
@@ -591,15 +630,19 @@
             gap: 15px;
             max-width: 400px;
         }
+        
         .notification.show {
             transform: translateX(0);
         }
+        
         .notification.success {
             background: var(--success-color);
         }
+        
         .notification.error {
             background: var(--accent-color);
         }
+        
         .notification.info {
             background: var(--info-color);
         }
@@ -616,9 +659,11 @@
             gap: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
+        
         body.light .stats-panel {
             background: var(--card-bg-light);
         }
+        
         .stat-item {
             flex: 1;
             min-width: 120px;
@@ -628,24 +673,29 @@
             background: rgba(255, 255, 255, 0.05);
             transition: all 0.3s;
         }
+        
         .stat-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
+        
         body.light .stat-item {
             background: rgba(0, 0, 0, 0.05);
         }
+        
         .stat-value {
             font-size: 1.6em;
             font-weight: bold;
             color: var(--secondary-color);
             margin-bottom: 5px;
         }
+        
         .stat-label {
             font-size: 0.9em;
             color: var(--text-dark);
             font-weight: 600;
         }
+        
         body.light .stat-label {
             color: var(--text-light);
         }
@@ -660,9 +710,11 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             border-left: 5px solid var(--primary-color);
         }
+        
         body.light .session-info {
             background: var(--card-bg-light);
         }
+        
         .session-status {
             font-weight: bold;
             color: var(--secondary-color);
@@ -681,6 +733,7 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
+        
         .bounce {
             animation: bounce 2s infinite;
         }
@@ -695,6 +748,7 @@
             z-index: 2001;
             animation: confetti-fall 3s linear forwards;
         }
+        
         @keyframes confetti-fall {
             0% {
                 transform: translateY(-100vh) rotate(0deg);
@@ -962,6 +1016,15 @@
     <div id="confettiContainer"></div>
     
     <script>
+        // Mining state
+        let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
+        let miningActive = localStorage.getItem('miningActive') === 'true';
+        let miningStartTime = parseInt(localStorage.getItem('miningStartTime')) || 0;
+        let miningSpeed = parseFloat(localStorage.getItem('miningSpeed')) || 0.0002;
+        let miningMultiplier = parseInt(localStorage.getItem('miningMultiplier')) || 1;
+        let sessionDuration = 7 * 60 * 60; // 7 hours in seconds
+        let miningInterval;
+        
         // Theme Toggle Functionality
         const themeToggleBtn = document.getElementById('themeToggleBtn');
         const themeIcon = themeToggleBtn.querySelector('i');
@@ -1044,6 +1107,136 @@
             }, duration);
         }
         
+        // Mining functionality
+        function updateMining() {
+            if (!miningActive) return;
+            
+            const now = Math.floor(Date.now() / 1000);
+            const elapsed = now - miningStartTime;
+            
+            if (elapsed >= sessionDuration) {
+                // Session completed
+                stopMining();
+                showNotification("Mining session completed!", "success");
+                return;
+            }
+            
+            // Calculate coins earned
+            const coinsEarned = miningSpeed * miningMultiplier;
+            minedCoins += coinsEarned;
+            localStorage.setItem('minedCoins', minedCoins);
+            
+            // Update UI
+            updateUI();
+        }
+        
+        function startMining() {
+            if (miningActive) return;
+            
+            miningActive = true;
+            miningStartTime = Math.floor(Date.now() / 1000);
+            
+            localStorage.setItem('miningActive', 'true');
+            localStorage.setItem('miningStartTime', miningStartTime.toString());
+            
+            // Update UI
+            document.getElementById('mineBtnText').textContent = 'Mining...';
+            document.getElementById('mineBtn').querySelector('i').className = 'fas fa-cog fa-spin';
+            document.getElementById('sessionStatus').textContent = 'Mining in progress...';
+            
+            // Start interval
+            miningInterval = setInterval(updateMining, 1000);
+            
+            showNotification("Mining session started!", "success");
+        }
+        
+        function stopMining() {
+            miningActive = false;
+            localStorage.setItem('miningActive', 'false');
+            
+            // Update UI
+            document.getElementById('mineBtnText').textContent = 'Start Mining';
+            document.getElementById('mineBtn').querySelector('i').className = 'fas fa-play';
+            document.getElementById('sessionStatus').textContent = 'Ready to start mining';
+            
+            // Clear interval
+            clearInterval(miningInterval);
+        }
+        
+        function resumeMining() {
+            if (!miningActive) return;
+            
+            const now = Math.floor(Date.now() / 1000);
+            const elapsed = now - miningStartTime;
+            
+            if (elapsed >= sessionDuration) {
+                // Session completed while away
+                stopMining();
+                showNotification("Mining session completed!", "success");
+                return;
+            }
+            
+            // Calculate offline earnings
+            const offlineTime = now - parseInt(localStorage.getItem('lastUpdateTime') || miningStartTime);
+            const offlineCoins = miningSpeed * miningMultiplier * offlineTime;
+            minedCoins += offlineCoins;
+            localStorage.setItem('minedCoins', minedCoins);
+            
+            // Update UI
+            document.getElementById('mineBtnText').textContent = 'Mining...';
+            document.getElementById('mineBtn').querySelector('i').className = 'fas fa-cog fa-spin';
+            document.getElementById('sessionStatus').textContent = 'Mining in progress...';
+            
+            if (offlineTime > 0) {
+                showNotification(`Earned ${offlineCoins.toFixed(4)} SA while offline!`, "success");
+            }
+            
+            // Start interval
+            miningInterval = setInterval(updateMining, 1000);
+        }
+        
+        function updateUI() {
+            // Update mined coins
+            document.getElementById('minedCoins').textContent = `${minedCoins.toFixed(4)} SA`;
+            
+            // Update timer and progress
+            if (miningActive) {
+                const now = Math.floor(Date.now() / 1000);
+                const elapsed = now - miningStartTime;
+                const remaining = Math.max(sessionDuration - elapsed, 0);
+                
+                // Format time
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                const seconds = remaining % 60;
+                
+                document.getElementById('timer').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Update progress
+                const progress = (elapsed / sessionDuration) * 100;
+                document.getElementById('miningProgress').style.width = `${progress}%`;
+                document.getElementById('sessionProgress').textContent = `${Math.round(progress)}%`;
+                
+                // Update session time
+                const elapsedHours = Math.floor(elapsed / 3600);
+                const elapsedMinutes = Math.floor((elapsed % 3600) / 60);
+                const elapsedSeconds = elapsed % 60;
+                
+                document.getElementById('sessionTime').textContent = 
+                    `Session: ${elapsedHours.toString().padStart(2, '0')}:${elapsedMinutes.toString().padStart(2, '0')}:${elapsedSeconds.toString().padStart(2, '0')} / 07:00:00`;
+                
+                // Save last update time
+                localStorage.setItem('lastUpdateTime', now.toString());
+            }
+            
+            // Update mining rate
+            document.getElementById('miningRate').textContent = (miningSpeed * miningMultiplier).toFixed(4);
+            
+            // Update multiplier
+            document.getElementById('multiplier').textContent = `${miningMultiplier}x`;
+        }
+        
         // Initialize with a welcome message
         setTimeout(() => {
             showNotification("Welcome to SupremeAmer Coin Mining!", "info");
@@ -1123,41 +1316,57 @@
             }
         }
         
-        // Placeholder functions for demonstration
-        window.upgradeMining = function(speedKey) {
-            hideUpgradeModal();
-            showNotification(`Mining upgraded to ${speedKey} SA/sec!`, "success");
+        // Mining button event
+        document.getElementById('mineBtn').onclick = function() {
+            if (miningActive) {
+                stopMining();
+                showNotification("Mining stopped", "info");
+            } else {
+                startMining();
+            }
+        };
+        
+        // Withdraw button event
+        document.getElementById('withdrawBtn').onclick = function() {
+            if (minedCoins < 50000) {
+                showNotification("You need at least 50,000 SA to withdraw", "error");
+                return;
+            }
+            
+            // Simulate withdrawal
+            showNotification(`Withdrawal of ${minedCoins.toFixed(2)} SA processed!`, "success");
+            minedCoins = 0;
+            localStorage.setItem('minedCoins', '0');
+            updateUI();
             createConfetti();
         };
         
-        // Initialize mining button state
-        document.getElementById('mineBtn').onclick = function() {
-            const btn = this;
-            const text = btn.querySelector('#mineBtnText');
+        // Upgrade mining function
+        window.upgradeMining = function(speedKey) {
+            hideUpgradeModal();
             
-            if (text.textContent === 'Start Mining') {
-                text.textContent = 'Mining...';
-                btn.querySelector('i').className = 'fas fa-cog fa-spin';
-                showNotification("Mining session started!", "success");
-                
-                // Simulate mining progress
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 1;
-                    document.getElementById('miningProgress').style.width = `${progress}%`;
-                    document.getElementById('sessionProgress').textContent = `${progress}%`;
-                    
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                        text.textContent = 'Start Mining';
-                        btn.querySelector('i').className = 'fas fa-play';
-                        showNotification("Mining session completed!", "info");
-                    }
-                }, 50);
-            } else {
-                text.textContent = 'Start Mining';
-                btn.querySelector('i').className = 'fas fa-play';
-                showNotification("Mining stopped", "info");
+            const upgrades = {
+                '0.05': { speed: 0.05, cost: 0.002 },
+                '0.1': { speed: 0.1, cost: 0.009 },
+                '0.5': { speed: 0.5, cost: 0.025 }
+            };
+            
+            const upgrade = upgrades[speedKey];
+            miningSpeed = upgrade.speed;
+            localStorage.setItem('miningSpeed', miningSpeed.toString());
+            
+            showNotification(`Mining upgraded to ${upgrade.speed} SA/sec!`, "success");
+            createConfetti();
+            updateUI();
+        };
+        
+        // Initialize on page load
+        window.onload = function() {
+            updateUI();
+            
+            // Resume mining if active
+            if (miningActive) {
+                resumeMining();
             }
         };
     </script>
