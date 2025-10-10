@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SA Coin Collector</title>
+    <title>SA Coin Collector - Enhanced</title>
     <style>
         * {
             margin: 0;
@@ -27,9 +27,11 @@
             border-radius: 20px;
             padding: 30px;
             width: 100%;
-            max-width: 500px;
+            max-width: 800px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
         
         h1 {
@@ -43,24 +45,38 @@
             color: #ccc;
         }
         
-        .score-container {
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
+            padding: 15px;
             border: 2px solid #fdbb2d;
         }
         
-        .score {
-            font-size: 2.5rem;
+        .stat-value {
+            font-size: 1.8rem;
             font-weight: bold;
             margin-bottom: 5px;
             color: #fdbb2d;
         }
         
-        .score-label {
-            font-size: 1.2rem;
+        .stat-label {
+            font-size: 0.9rem;
             color: #ccc;
+        }
+        
+        .main-game-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
         }
         
         .click-area {
@@ -68,7 +84,6 @@
             border-radius: 50%;
             width: 200px;
             height: 200px;
-            margin: 0 auto 30px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -78,6 +93,7 @@
             box-shadow: 0 0 20px rgba(253, 187, 45, 0.5);
             position: relative;
             overflow: hidden;
+            flex-shrink: 0;
         }
         
         .click-area:hover {
@@ -104,36 +120,102 @@
             border: 4px solid rgba(255, 255, 255, 0.3);
         }
         
-        .stats {
-            display: flex;
-            justify-content: space-between;
+        .upgrades-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
             margin-bottom: 20px;
+        }
+        
+        .upgrade {
             background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
             border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #1a2a6c;
+            text-align: left;
         }
         
-        .stat {
-            text-align: center;
+        .upgrade:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
         }
         
-        .stat-value {
-            font-size: 1.5rem;
+        .upgrade:active {
+            transform: translateY(1px);
+        }
+        
+        .upgrade.unlocked {
+            border-color: #fdbb2d;
+        }
+        
+        .upgrade-name {
             font-weight: bold;
+            margin-bottom: 5px;
             color: #fdbb2d;
         }
         
-        .stat-label {
-            font-size: 0.9rem;
+        .upgrade-description {
+            font-size: 0.8rem;
+            margin-bottom: 10px;
             color: #ccc;
         }
         
-        .instructions {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
+        .upgrade-cost {
             font-size: 0.9rem;
+            color: #1a2a6c;
+            background: #fdbb2d;
+            padding: 3px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            font-weight: bold;
+        }
+        
+        .upgrade.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .upgrade.disabled:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: none;
+        }
+        
+        .achievements-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .achievement {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+        
+        .achievement.unlocked {
+            opacity: 1;
+            border: 2px solid #fdbb2d;
+        }
+        
+        .achievement-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .achievement-name {
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .achievement-desc {
+            font-size: 0.7rem;
             color: #ccc;
         }
         
@@ -171,16 +253,32 @@
             opacity: 0;
             transition: opacity 0.3s;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
         }
         
-        .boosters {
+        .progress-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #fdbb2d;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .shop-container {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-top: 20px;
         }
         
-        .booster {
+        .shop-item {
             background: rgba(26, 42, 108, 0.8);
             border: 2px solid #fdbb2d;
             color: white;
@@ -189,60 +287,196 @@
             cursor: pointer;
             transition: all 0.3s;
             font-weight: bold;
+            flex: 1;
+            max-width: 200px;
         }
         
-        .booster:hover {
+        .shop-item:hover {
             background: rgba(253, 187, 45, 0.8);
             color: #1a2a6c;
         }
         
-        .booster:disabled {
+        .shop-item:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
         
-        .booster:disabled:hover {
+        .shop-item:disabled:hover {
             background: rgba(26, 42, 108, 0.8);
             color: white;
+        }
+        
+        .leaderboard {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .leaderboard h3 {
+            margin-bottom: 10px;
+            color: #fdbb2d;
+            text-align: center;
+        }
+        
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .special-event {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(253, 187, 45, 0.9);
+            color: #1a2a6c;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .click-streak {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(26, 42, 108, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #fdbb2d;
+            color: #1a2a6c;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>SA Coin Collector</h1>
-        <p class="subtitle">Click the coin to earn 0.0005 SA per click!</p>
+        <h1>SA Coin Collector - Enhanced</h1>
+        <p class="subtitle">Click the coin to earn 0.0005 SA per click! Unlock upgrades and achievements!</p>
         
-        <div class="score-container">
-            <div class="score" id="score">0.0000</div>
-            <div class="score-label">Total SA Points</div>
+        <div class="tab-container">
+            <div class="tab active" data-tab="game">Game</div>
+            <div class="tab" data-tab="upgrades">Upgrades</div>
+            <div class="tab" data-tab="achievements">Achievements</div>
+            <div class="tab" data-tab="leaderboard">Leaderboard</div>
         </div>
         
-        <div class="click-area" id="clickArea">
-            <div class="coin">SA</div>
-        </div>
-        
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-value" id="clicks">0</div>
-                <div class="stat-label">Clicks</div>
+        <div class="tab-content active" id="game-tab">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-value" id="score">0.0000</div>
+                    <div class="stat-label">Total SA Points</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="clicks">0</div>
+                    <div class="stat-label">Total Clicks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="rate">0.0005</div>
+                    <div class="stat-label">SA per Click</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="multiplier">1x</div>
+                    <div class="stat-label">Multiplier</div>
+                </div>
             </div>
-            <div class="stat">
-                <div class="stat-value" id="rate">0.0005</div>
-                <div class="stat-label">SA per Click</div>
+            
+            <div class="main-game-area">
+                <div class="click-area" id="clickArea">
+                    <div class="coin">SA</div>
+                </div>
+                
+                <div class="shop-container">
+                    <button class="shop-item" id="doubleBooster">2x Multiplier (10 SA)</button>
+                    <button class="shop-item" id="autoClicker">Auto-Clicker (50 SA)</button>
+                    <button class="shop-item" id="clickStorm">Click Storm (100 SA)</button>
+                </div>
             </div>
-            <div class="stat">
-                <div class="stat-value" id="multiplier">1x</div>
-                <div class="stat-label">Multiplier</div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="prestigeProgress"></div>
+            </div>
+            <div class="stat-label">Prestige Progress: <span id="prestigePercent">0%</span></div>
+            
+            <div class="click-streak" id="clickStreak">Streak: 0</div>
+            
+            <div class="special-event" id="specialEvent" style="display: none;">2x Event Active!</div>
+        </div>
+        
+        <div class="tab-content" id="upgrades-tab">
+            <div class="upgrades-container" id="upgradesList">
+                <!-- Upgrades will be added here by JavaScript -->
             </div>
         </div>
         
-        <div class="boosters">
-            <button class="booster" id="doubleBooster">2x Multiplier (10 SA)</button>
-            <button class="booster" id="autoClicker">Auto-Clicker (50 SA)</button>
+        <div class="tab-content" id="achievements-tab">
+            <div class="achievements-container" id="achievementsList">
+                <!-- Achievements will be added here by JavaScript -->
+            </div>
         </div>
         
-        <div class="instructions">
-            <p>Click the golden SA coin to earn points. Purchase boosters to increase your earnings!</p>
+        <div class="tab-content" id="leaderboard-tab">
+            <div class="leaderboard">
+                <h3>Top Players</h3>
+                <div class="leaderboard-entry">
+                    <span>1. CryptoKing</span>
+                    <span>12,450.2300 SA</span>
+                </div>
+                <div class="leaderboard-entry">
+                    <span>2. SatoshiFan</span>
+                    <span>9,780.1500 SA</span>
+                </div>
+                <div class="leaderboard-entry">
+                    <span>3. BlockMaster</span>
+                    <span>7,650.8900 SA</span>
+                </div>
+                <div class="leaderboard-entry">
+                    <span>4. CoinCollector</span>
+                    <span>5,430.6700 SA</span>
+                </div>
+                <div class="leaderboard-entry">
+                    <span>5. You</span>
+                    <span id="playerRank">0.0000 SA</span>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -255,6 +489,30 @@
         let multiplier = 1;
         let autoClickerActive = false;
         let autoClickerInterval;
+        let clickStormActive = false;
+        let clickStreak = 0;
+        let lastClickTime = 0;
+        let specialEventActive = false;
+        let specialEventTimeout;
+        let prestigeLevel = 0;
+        
+        // Upgrades system
+        const upgrades = [
+            { id: 1, name: "Better Clicks", description: "Increase base SA per click by 0.0001", cost: 5, baseIncrease: 0.0001, type: "click", count: 0, maxCount: 10 },
+            { id: 2, name: "Multiplier Boost", description: "Permanent 0.1x multiplier increase", cost: 20, baseIncrease: 0.1, type: "multiplier", count: 0, maxCount: 5 },
+            { id: 3, name: "Auto-Clicker Speed", description: "Increase auto-clicker speed by 10%", cost: 30, baseIncrease: 0.1, type: "autoClicker", count: 0, maxCount: 10 },
+            { id: 4, name: "Click Storm Duration", description: "Increase click storm duration by 1 second", cost: 50, baseIncrease: 1, type: "clickStorm", count: 0, maxCount: 5 }
+        ];
+        
+        // Achievements system
+        const achievements = [
+            { id: 1, name: "First Click", description: "Make your first click", condition: () => clicks >= 1, unlocked: false },
+            { id: 2, name: "SA Collector", description: "Reach 10 SA points", condition: () => score >= 10, unlocked: false },
+            { id: 3, name: "Click Master", description: "Reach 100 clicks", condition: () => clicks >= 100, unlocked: false },
+            { id: 4, name: "Multiplier Pro", description: "Reach 5x multiplier", condition: () => multiplier >= 5, unlocked: false },
+            { id: 5, name: "SA Tycoon", description: "Reach 1000 SA points", condition: () => score >= 1000, unlocked: false },
+            { id: 6, name: "Streak Master", description: "Reach a 10-click streak", condition: () => clickStreak >= 10, unlocked: false }
+        ];
         
         // DOM elements
         const scoreElement = document.getElementById('score');
@@ -264,7 +522,17 @@
         const clickArea = document.getElementById('clickArea');
         const message = document.getElementById('message');
         const doubleBooster = document.getElementById('doubleBooster');
-        const autoClicker = document.getElementById('autoClicker');
+        const autoClickerBtn = document.getElementById('autoClicker');
+        const clickStormBtn = document.getElementById('clickStorm');
+        const upgradesList = document.getElementById('upgradesList');
+        const achievementsList = document.getElementById('achievementsList');
+        const clickStreakElement = document.getElementById('clickStreak');
+        const specialEventElement = document.getElementById('specialEvent');
+        const prestigeProgress = document.getElementById('prestigeProgress');
+        const prestigePercent = document.getElementById('prestigePercent');
+        const playerRank = document.getElementById('playerRank');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
         
         // Format number to 4 decimal places
         function formatNumber(num) {
@@ -275,17 +543,42 @@
         function updateUI() {
             scoreElement.textContent = formatNumber(score);
             clicksElement.textContent = clicks;
-            rateElement.textContent = formatNumber(0.0005 * multiplier);
-            multiplierElement.textContent = `${multiplier}x`;
+            
+            // Calculate base rate with upgrades
+            let baseRate = 0.0005;
+            const clickUpgrade = upgrades.find(u => u.type === "click");
+            if (clickUpgrade) {
+                baseRate += clickUpgrade.count * clickUpgrade.baseIncrease;
+            }
+            
+            rateElement.textContent = formatNumber(baseRate * multiplier);
+            multiplierElement.textContent = `${multiplier.toFixed(1)}x`;
+            clickStreakElement.textContent = `Streak: ${clickStreak}`;
+            playerRank.textContent = `${formatNumber(score)} SA`;
             
             // Update booster button states
             doubleBooster.disabled = score < 10 || multiplier >= 2;
-            autoClicker.disabled = score < 50 || autoClickerActive;
+            autoClickerBtn.disabled = score < 50 || autoClickerActive;
+            clickStormBtn.disabled = score < 100 || clickStormActive;
+            
+            // Update upgrades UI
+            renderUpgrades();
+            
+            // Update achievements UI
+            renderAchievements();
+            
+            // Update prestige progress
+            const progress = Math.min(100, (score / 1000) * 100);
+            prestigeProgress.style.width = `${progress}%`;
+            prestigePercent.textContent = `${progress.toFixed(1)}%`;
         }
         
         // Show a message when points are earned
-        function showMessage(value) {
+        function showMessage(value, type = "normal") {
             message.textContent = `+${formatNumber(value)} SA`;
+            message.style.background = type === "special" ? 
+                "rgba(26, 42, 108, 0.9)" : "rgba(253, 187, 45, 0.9)";
+            message.style.color = type === "special" ? "white" : "#1a2a6c";
             message.style.opacity = '1';
             
             setTimeout(() => {
@@ -294,10 +587,11 @@
         }
         
         // Create particle effects
-        function createParticles(x, y) {
-            for (let i = 0; i < 10; i++) {
+        function createParticles(x, y, count = 10, color = "#fdbb2d") {
+            for (let i = 0; i < count; i++) {
                 const particle = document.createElement('div');
                 particle.classList.add('particle');
+                particle.style.background = color;
                 
                 // Random position around the click
                 const angle = Math.random() * Math.PI * 2;
@@ -333,22 +627,57 @@
             const y = e.clientY - rect.top;
             
             // Calculate points earned
-            const pointsEarned = 0.0005 * multiplier;
+            let baseRate = 0.0005;
+            const clickUpgrade = upgrades.find(u => u.type === "click");
+            if (clickUpgrade) {
+                baseRate += clickUpgrade.count * clickUpgrade.baseIncrease;
+            }
+            
+            let pointsEarned = baseRate * multiplier;
+            
+            // Apply click streak bonus
+            if (clickStreak >= 10) {
+                pointsEarned *= 1.5;
+            }
+            
+            // Apply special event bonus
+            if (specialEventActive) {
+                pointsEarned *= 2;
+            }
+            
             score += pointsEarned;
             clicks++;
+            
+            // Update click streak
+            const currentTime = Date.now();
+            if (currentTime - lastClickTime < 1000) {
+                clickStreak++;
+            } else {
+                clickStreak = 1;
+            }
+            lastClickTime = currentTime;
+            
+            // Check for special event trigger
+            if (clickStreak >= 5 && !specialEventActive) {
+                triggerSpecialEvent();
+            }
             
             // Update UI
             updateUI();
             
             // Show message and particles
-            showMessage(pointsEarned);
-            createParticles(x, y);
+            const messageType = specialEventActive ? "special" : "normal";
+            showMessage(pointsEarned, messageType);
+            createParticles(x, y, 10, specialEventActive ? "#1a2a6c" : "#fdbb2d");
             
             // Add visual feedback
             clickArea.style.transform = 'scale(0.95)';
             setTimeout(() => {
                 clickArea.style.transform = 'scale(1)';
             }, 100);
+            
+            // Check achievements
+            checkAchievements();
         }
         
         // Activate auto-clicker
@@ -356,40 +685,221 @@
             if (autoClickerActive) return;
             
             autoClickerActive = true;
+            
+            // Calculate auto-clicker speed (base 1 second)
+            let speed = 1000;
+            const autoClickerUpgrade = upgrades.find(u => u.type === "autoClicker");
+            if (autoClickerUpgrade) {
+                speed = 1000 / (1 + autoClickerUpgrade.count * autoClickerUpgrade.baseIncrease);
+            }
+            
             autoClickerInterval = setInterval(() => {
-                score += 0.0005 * multiplier;
-                clicks++;
+                let baseRate = 0.0005;
+                const clickUpgrade = upgrades.find(u => u.type === "click");
+                if (clickUpgrade) {
+                    baseRate += clickUpgrade.count * clickUpgrade.baseIncrease;
+                }
+                
+                let pointsEarned = baseRate * multiplier * 0.5; // Auto-clicker is half as effective
+                
+                // Apply special event bonus
+                if (specialEventActive) {
+                    pointsEarned *= 2;
+                }
+                
+                score += pointsEarned;
                 updateUI();
-            }, 1000);
+                
+                // Show auto-clicker message occasionally
+                if (Math.random() < 0.1) {
+                    showMessage(pointsEarned, "normal");
+                }
+            }, speed);
         }
         
-        // Purchase double multiplier
-        function purchaseDoubleMultiplier() {
+        // Activate click storm
+        function activateClickStorm() {
+            if (clickStormActive) return;
+            
+            clickStormActive = true;
+            
+            // Calculate duration (base 5 seconds)
+            let duration = 5000;
+            const clickStormUpgrade = upgrades.find(u => u.type === "clickStorm");
+            if (clickStormUpgrade) {
+                duration += clickStormUpgrade.count * clickStormUpgrade.baseIncrease * 1000;
+            }
+            
+            // Create visual effect
+            clickArea.style.boxShadow = "0 0 30px rgba(26, 42, 108, 0.8)";
+            clickArea.style.borderColor = "#1a2a6c";
+            
+            // Rapid clicks for the duration
+            const stormInterval = setInterval(() => {
+                let baseRate = 0.0005;
+                const clickUpgrade = upgrades.find(u => u.type === "click");
+                if (clickUpgrade) {
+                    baseRate += clickUpgrade.count * clickUpgrade.baseIncrease;
+                }
+                
+                let pointsEarned = baseRate * multiplier * 0.2; // Click storm is less effective per click
+                
+                // Apply special event bonus
+                if (specialEventActive) {
+                    pointsEarned *= 2;
+                }
+                
+                score += pointsEarned;
+                clicks++;
+                updateUI();
+                
+                // Create particles at random positions
+                const x = Math.random() * 200;
+                const y = Math.random() * 200;
+                createParticles(x, y, 3, "#1a2a6c");
+            }, 100);
+            
+            // End click storm after duration
+            setTimeout(() => {
+                clearInterval(stormInterval);
+                clickStormActive = false;
+                clickArea.style.boxShadow = "0 0 20px rgba(253, 187, 45, 0.5)";
+                clickArea.style.borderColor = "#fdbb2d";
+            }, duration);
+        }
+        
+        // Trigger special event
+        function triggerSpecialEvent() {
+            if (specialEventActive) return;
+            
+            specialEventActive = true;
+            specialEventElement.style.display = "block";
+            
+            // End special event after 10 seconds
+            specialEventTimeout = setTimeout(() => {
+                specialEventActive = false;
+                specialEventElement.style.display = "none";
+            }, 10000);
+        }
+        
+        // Purchase upgrade
+        function purchaseUpgrade(upgradeId) {
+            const upgrade = upgrades.find(u => u.id === upgradeId);
+            if (!upgrade || upgrade.count >= upgrade.maxCount || score < upgrade.cost) return;
+            
+            score -= upgrade.cost;
+            upgrade.count++;
+            upgrade.cost = Math.floor(upgrade.cost * 1.5); // Increase cost for next purchase
+            
+            // Apply upgrade effect
+            if (upgrade.type === "multiplier") {
+                multiplier += upgrade.baseIncrease;
+            }
+            
+            updateUI();
+            showMessage(`Upgrade: ${upgrade.name}`, "special");
+        }
+        
+        // Render upgrades in the UI
+        function renderUpgrades() {
+            upgradesList.innerHTML = "";
+            
+            upgrades.forEach(upgrade => {
+                const upgradeElement = document.createElement('div');
+                upgradeElement.className = `upgrade ${upgrade.count > 0 ? 'unlocked' : ''} ${score < upgrade.cost || upgrade.count >= upgrade.maxCount ? 'disabled' : ''}`;
+                
+                upgradeElement.innerHTML = `
+                    <div class="upgrade-name">${upgrade.name} (${upgrade.count}/${upgrade.maxCount})</div>
+                    <div class="upgrade-description">${upgrade.description}</div>
+                    <div class="upgrade-cost">Cost: ${formatNumber(upgrade.cost)} SA</div>
+                `;
+                
+                if (score >= upgrade.cost && upgrade.count < upgrade.maxCount) {
+                    upgradeElement.addEventListener('click', () => purchaseUpgrade(upgrade.id));
+                }
+                
+                upgradesList.appendChild(upgradeElement);
+            });
+        }
+        
+        // Check and unlock achievements
+        function checkAchievements() {
+            achievements.forEach(achievement => {
+                if (!achievement.unlocked && achievement.condition()) {
+                    achievement.unlocked = true;
+                    showMessage(`Achievement: ${achievement.name}`, "special");
+                }
+            });
+        }
+        
+        // Render achievements in the UI
+        function renderAchievements() {
+            achievementsList.innerHTML = "";
+            
+            achievements.forEach(achievement => {
+                const achievementElement = document.createElement('div');
+                achievementElement.className = `achievement ${achievement.unlocked ? 'unlocked' : ''}`;
+                
+                achievementElement.innerHTML = `
+                    <div class="achievement-icon">${achievement.unlocked ? '🏆' : '🔒'}</div>
+                    <div class="achievement-name">${achievement.name}</div>
+                    <div class="achievement-desc">${achievement.description}</div>
+                `;
+                
+                achievementsList.appendChild(achievementElement);
+            });
+        }
+        
+        // Tab switching functionality
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show corresponding content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${tabId}-tab`) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+        // Initialize event listeners
+        clickArea.addEventListener('click', handleClick);
+        doubleBooster.addEventListener('click', () => {
             if (score >= 10 && multiplier < 2) {
                 score -= 10;
                 multiplier = 2;
                 updateUI();
-                showMessage("2x Multiplier Activated!");
+                showMessage("2x Multiplier Activated!", "special");
             }
-        }
-        
-        // Purchase auto-clicker
-        function purchaseAutoClicker() {
+        });
+        autoClickerBtn.addEventListener('click', () => {
             if (score >= 50 && !autoClickerActive) {
                 score -= 50;
                 activateAutoClicker();
                 updateUI();
-                showMessage("Auto-Clicker Activated!");
+                showMessage("Auto-Clicker Activated!", "special");
             }
-        }
-        
-        // Initialize event listeners
-        clickArea.addEventListener('click', handleClick);
-        doubleBooster.addEventListener('click', purchaseDoubleMultiplier);
-        autoClicker.addEventListener('click', purchaseAutoClicker);
+        });
+        clickStormBtn.addEventListener('click', () => {
+            if (score >= 100 && !clickStormActive) {
+                score -= 100;
+                activateClickStorm();
+                updateUI();
+                showMessage("Click Storm Activated!", "special");
+            }
+        });
         
         // Initialize the game
         updateUI();
+        renderUpgrades();
+        renderAchievements();
     </script>
 </body>
 </html>
