@@ -6,40 +6,37 @@
     <title>SupremeAmer Coin Airdrop</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- ================= LOADER ================= -->
+    <!-- Loader -->
     <div id="loader" class="loader"></div>
     
-    <!-- ================= NOTIFICATION SYSTEM ================= -->
+    <!-- Notification System -->
     <div id="notification" class="notification">
         <i class="fas fa-check-circle"></i>
         <span id="notificationText">Notification message</span>
     </div>
     
-    <!-- ================= PARTICLES BACKGROUND ================= -->
+    <!-- Particles Background -->
     <div class="particles" id="particles"></div>
     
-    <!-- ================= HEADER ================= -->
     <header class="header">
         <button class="light-toggle" id="lightToggleBtn" aria-label="Toggle light/dark mode">🌙</button>
         SUPREMEAMER COIN AIRDROP 🚀💰
         <button id="profileDropdownBtn" class="emoji-avatar">👤</button>
         <div id="profileDropdownMenu" class="profile-dropdown-content">
-            <div id="dropdownUsername"><span class="emoji-avatar">🧑</span> </div>
-            <div id="dropdownEmail"><span class="emoji-avatar">✉️</span></div>
+            <div id="dropdownUsername"><span class="emoji-avatar">🧑</span> Loading...</div>
+            <div id="dropdownEmail"><span class="emoji-avatar">✉️</span> Loading...</div>
             <hr>
             <a href="#" id="logoutBtn">Logout</a>
         </div>
     </header>
     
-    <!-- ================= MARQUEE ================= -->
     <div class="marquee">
         <span class="marquee-text">🚀 Welcome to $SA - Mine SupremeAmer coins and join the revolution! 💰 Withdrawals on 9th & 13th each month 🎉</span>
     </div>
     
-    <!-- ================= MAIN CONTENT ================= -->
     <main class="container">
         <h1 class="dashboard-title">Mining Dashboard</h1>
         
@@ -72,7 +69,6 @@
         <div class="withdraw-status" id="withdrawStatus"></div>
     </main>
     
-    <!-- ================= FOOTER ================= -->
     <footer class="footer">
         <button data-page="index.html" title="Home">
             <i class="fas fa-home"></i>
@@ -92,9 +88,9 @@
         </button>
     </footer>
     
-    <!-- ================= UPGRADE MODAL ================= -->
-    <div id="upgradeModal">
-        <div id="upgradeModalContent">
+    <!-- Upgrade Modal -->
+    <div id="upgradeModal" class="modal">
+        <div class="modal-content">
             <button class="close-btn" id="closeUpgradeModal">&times;</button>
             <h3>Upgrade Mining Speed</h3>
             
@@ -102,7 +98,7 @@
                 <div class="plan-title">🚀 0.05 SA/sec</div>
                 <div class="plan-desc">Duration: <b>360 days</b> <br> Fee: <b>0.002 BNB</b> <br> Claim every 30 days</div>
                 <div class="plan-action">
-                    <button class="upgrade-btn" data-speed="0.05">
+                    <button class="upgrade-plan-btn" data-speed="0.05">
                         <i class="fas fa-bolt"></i>Upgrade
                     </button>
                 </div>
@@ -112,7 +108,7 @@
                 <div class="plan-title">🔥 0.1 SA/sec</div>
                 <div class="plan-desc">Duration: <b>360 days</b> <br> Fee: <b>0.009 BNB</b> <br> Claim every 30 days</div>
                 <div class="plan-action">
-                    <button class="upgrade-btn" data-speed="0.1">
+                    <button class="upgrade-plan-btn" data-speed="0.1">
                         <i class="fas fa-fire"></i>Upgrade
                     </button>
                 </div>
@@ -124,12 +120,12 @@
         </div>
     </div>
     
-    <!-- ================= CONFETTI CONTAINER ================= -->
+    <!-- Confetti Container -->
     <div id="confettiContainer"></div>
     
-    <!-- ================= EXTERNAL SCRIPTS ================= -->
+    <!-- External Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
-    <script src="script.js" type="module"></script>
+    <script src="main.js"></script>
 </body>
 </html>
