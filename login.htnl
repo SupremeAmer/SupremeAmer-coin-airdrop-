@@ -17,6 +17,9 @@
             --text-light: #333;
             --card-bg-dark: rgba(30, 30, 40, 0.95);
             --card-bg-light: rgba(255,255,255,0.90);
+            --success-color: #4CAF50;
+            --warning-color: #ffc107;
+            --info-color: #2196F3;
         }
         
         body {
@@ -530,9 +533,207 @@
         .notification.error {
             background: var(--accent-color);
         }
+        .notification.info {
+            background: var(--info-color);
+        }
         .notification i {
             margin-right: 10px;
             font-size: 1.2em;
+        }
+        
+        /* Stats Panel */
+        .stats-panel {
+            background: var(--card-bg-dark);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        body.light .stats-panel {
+            background: var(--card-bg-light);
+        }
+        .stat-item {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        body.light .stat-item {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        .stat-label {
+            font-size: 0.85em;
+            color: var(--text-dark);
+            margin-top: 5px;
+        }
+        body.light .stat-label {
+            color: var(--text-light);
+        }
+        
+        /* Referral Section */
+        .referral-section {
+            background: var(--card-bg-dark);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        body.light .referral-section {
+            background: var(--card-bg-light);
+        }
+        .referral-code {
+            display: flex;
+            margin: 10px 0;
+        }
+        .referral-code input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dark);
+        }
+        body.light .referral-code input {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-light);
+        }
+        .copy-btn {
+            padding: 10px 15px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: var(--secondary-color);
+        }
+        
+        /* Daily Bonus Section */
+        .daily-bonus {
+            background: var(--card-bg-dark);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        body.light .daily-bonus {
+            background: var(--card-bg-light);
+        }
+        .bonus-btn {
+            padding: 12px 25px;
+            background: linear-gradient(90deg, var(--info-color), #2196F3);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+            margin-top: 10px;
+        }
+        .bonus-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(33, 150, 243, 0.6);
+        }
+        .bonus-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Leaderboard Section */
+        .leaderboard-section {
+            background: var(--card-bg-dark);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        body.light .leaderboard-section {
+            background: var(--card-bg-light);
+        }
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body.light .leaderboard-item {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .leaderboard-rank {
+            width: 30px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        .leaderboard-name {
+            flex: 1;
+            margin: 0 10px;
+        }
+        .leaderboard-value {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        /* Boost Section */
+        .boost-section {
+            background: var(--card-bg-dark);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        body.light .boost-section {
+            background: var(--card-bg-light);
+        }
+        .boost-item {
+            display: inline-block;
+            margin: 0 10px;
+            text-align: center;
+        }
+        .boost-btn {
+            padding: 10px 15px;
+            background: linear-gradient(90deg, var(--warning-color), #ff9800);
+            color: #222;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+            margin-top: 5px;
+        }
+        .boost-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 193, 7, 0.6);
+        }
+        .boost-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         
         /* Responsive */
@@ -553,6 +754,8 @@
             .light-toggle { left: 15px; top: 15px; font-size: 1.4em; }
             #profileDropdownBtn { right: 15px; top: 10px; font-size: 1.8em; }
             .marquee { top: 60px; }
+            .stats-panel { flex-direction: column; }
+            .stat-item { min-width: 100%; }
         }
         
         /* Animations */
@@ -570,6 +773,14 @@
         }
         .bounce {
             animation: bounce 2s infinite;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .shake {
+            animation: shake 0.5s;
         }
         
         /* Confetti */
@@ -629,6 +840,22 @@
         
         <div class="mined-coins" id="minedCoins">Mined Coins: 0 SA</div>
         
+        <!-- Stats Panel -->
+        <div class="stats-panel">
+            <div class="stat-item">
+                <div class="stat-value" id="miningRate">0.0002</div>
+                <div class="stat-label">SA/sec</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalMined">0</div>
+                <div class="stat-label">Total Mined</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="referralCount">0</div>
+                <div class="stat-label">Referrals</div>
+            </div>
+        </div>
+        
         <!-- Progress Bar -->
         <div class="progress-container">
             <div class="progress-bar" id="miningProgress"></div>
@@ -640,6 +867,19 @@
             <span id="mineBtnText">Start Mining</span>
         </button>
         
+        <!-- Boost Section -->
+        <div class="boost-section">
+            <h3 style="margin-top:0; color:var(--secondary-color);">Mining Boosts</h3>
+            <div class="boost-item">
+                <div>2x Boost</div>
+                <button class="boost-btn" id="boost2x">30 min</button>
+            </div>
+            <div class="boost-item">
+                <div>5x Boost</div>
+                <button class="boost-btn" id="boost5x">15 min</button>
+            </div>
+        </div>
+        
         <button class="upgrade-btn" id="showUpgradeBtn" style="margin-bottom: 16px;">
             <i class="fas fa-bolt" style="margin-right: 8px;"></i>Upgrade
         </button>
@@ -647,6 +887,48 @@
         <button class="withdraw-btn" id="withdrawBtn">
             <i class="fas fa-wallet" style="margin-right: 8px;"></i>Withdraw (Min: 50,000 SA)
         </button>
+        
+        <!-- Daily Bonus Section -->
+        <div class="daily-bonus">
+            <h3 style="margin-top:0; color:var(--secondary-color);">Daily Bonus</h3>
+            <p id="bonusStatus">Claim your daily bonus now!</p>
+            <button class="bonus-btn" id="dailyBonusBtn">
+                <i class="fas fa-gift" style="margin-right: 8px;"></i>Claim Bonus
+            </button>
+        </div>
+        
+        <!-- Referral Section -->
+        <div class="referral-section">
+            <h3 style="margin-top:0; color:var(--secondary-color);">Referral Program</h3>
+            <p>Invite friends and earn 10% of their mining for 30 days!</p>
+            <div class="referral-code">
+                <input type="text" id="referralCodeInput" value="SA-REF-12345" readonly>
+                <button class="copy-btn" id="copyReferralBtn">Copy</button>
+            </div>
+            <p style="font-size:0.9em; margin-top:10px;">Referral Bonus: <span id="referralBonus">0</span> SA</p>
+        </div>
+        
+        <!-- Leaderboard Section -->
+        <div class="leaderboard-section">
+            <h3 style="margin-top:0; color:var(--secondary-color);">Top Miners</h3>
+            <div id="leaderboardList">
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">1</div>
+                    <div class="leaderboard-name">CryptoKing</div>
+                    <div class="leaderboard-value">1,245,678 SA</div>
+                </div>
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">2</div>
+                    <div class="leaderboard-name">BlockchainQueen</div>
+                    <div class="leaderboard-value">987,654 SA</div>
+                </div>
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">3</div>
+                    <div class="leaderboard-name">MiningMaster</div>
+                    <div class="leaderboard-value">765,432 SA</div>
+                </div>
+            </div>
+        </div>
         
         <div class="claim-status" id="claimStatus"></div>
         <div class="withdraw-status" id="withdrawStatus"></div>
@@ -697,6 +979,16 @@
                 </div>
             </div>
             
+            <div class="upgrade-plan">
+                <div class="plan-title">💎 0.5 SA/sec</div>
+                <div class="plan-desc">Duration: <b>360 days</b> <br> Fee: <b>0.025 BNB</b> <br> Claim every 30 days</div>
+                <div class="plan-action">
+                    <button class="upgrade-btn" style="padding:8px 18px;" onclick="upgradeMining('0.5')">
+                        <i class="fas fa-gem" style="margin-right: 5px;"></i>Upgrade
+                    </button>
+                </div>
+            </div>
+            
             <div style="font-size:0.98em;color:#666;margin-top:12px;">
                After upgrade, mining speed increases for 360 days. You can claim mined rewards every 30 days. Mining continues even if you delay claim, but only for 360 days. After that, mining returns to 0.0002 SA/sec.
             </div>
@@ -719,11 +1011,13 @@
 
     const UPGRADE_FEES = {
         "0.05": "0.002",
-        "0.1": "0.009"
+        "0.1": "0.009",
+        "0.5": "0.025"
     };
     const UPGRADE_SPEEDS = {
         "0.05": 0.05,
-        "0.1": 0.1
+        "0.1": 0.1,
+        "0.5": 0.5
     };
     const NORMAL_SPEED = 0.0002;
     const UPGRADE_DURATION = 360 * 24 * 3600;
@@ -755,6 +1049,7 @@
             notification.classList.add('error');
             notification.querySelector('i').className = 'fas fa-exclamation-circle';
         } else {
+            notification.classList.add('info');
             notification.querySelector('i').className = 'fas fa-info-circle';
         }
         
@@ -899,6 +1194,7 @@
 
     // ---- Mining State ----
     let minedCoins = parseFloat(localStorage.getItem('minedCoins')||'0');
+    let totalMined = parseFloat(localStorage.getItem('totalMined')||'0');
     let miningActive = false;
     let miningSpeed = NORMAL_SPEED;
     let miningUpgrade = JSON.parse(localStorage.getItem('miningUpgrade') || 'null');
@@ -906,6 +1202,13 @@
     let miningUpgradeSpeed = miningUpgrade?.upgradeSpeed||0;
     let miningUpgradeLastClaim = miningUpgrade?.lastClaim||0;
     let miningTimerInterval = null;
+    
+    // New features state
+    let referralCount = parseInt(localStorage.getItem('referralCount')||'0');
+    let referralBonus = parseFloat(localStorage.getItem('referralBonus')||'0');
+    let lastBonusClaim = parseInt(localStorage.getItem('lastBonusClaim')||'0');
+    let activeBoosts = JSON.parse(localStorage.getItem('activeBoosts')||'{}');
+    let boostMultiplier = 1;
 
     // Enhanced mining persistence
     let miningSession = JSON.parse(localStorage.getItem('miningSession') || 'null');
@@ -919,10 +1222,13 @@
         
         // Add coins earned while page was closed
         minedCoins += elapsed * speed;
+        totalMined += elapsed * speed;
         localStorage.setItem('minedCoins', minedCoins);
+        localStorage.setItem('totalMined', totalMined);
         
         // Update UI
         updateMinedCoinsDisplay();
+        updateStatsPanel();
         
         // Clear background mining data
         localStorage.removeItem('backgroundMining');
@@ -933,10 +1239,155 @@
         if (miningActive) {
             localStorage.setItem('backgroundMining', JSON.stringify({
                 lastUpdate: Math.floor(Date.now() / 1000),
-                speed: getCurrentSpeed()
+                speed: getCurrentSpeed() * boostMultiplier
             }));
         }
     });
+
+    // ---- New Features Functions ----
+    
+    // Stats Panel
+    function updateStatsPanel() {
+        document.getElementById('miningRate').textContent = (getCurrentSpeed() * boostMultiplier).toFixed(4);
+        document.getElementById('totalMined').textContent = totalMined.toFixed(0);
+        document.getElementById('referralCount').textContent = referralCount;
+        document.getElementById('referralBonus').textContent = referralBonus.toFixed(2);
+    }
+    
+    // Daily Bonus
+    function checkDailyBonus() {
+        const now = Math.floor(Date.now() / 1000);
+        const lastClaim = lastBonusClaim;
+        const oneDay = 24 * 60 * 60; // 24 hours in seconds
+        
+        if (now - lastClaim >= oneDay) {
+            document.getElementById('bonusStatus').textContent = "Claim your daily bonus now!";
+            document.getElementById('dailyBonusBtn').disabled = false;
+        } else {
+            const nextClaim = lastClaim + oneDay;
+            const timeLeft = nextClaim - now;
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            
+            document.getElementById('bonusStatus').textContent = `Next bonus in ${hours}h ${minutes}m`;
+            document.getElementById('dailyBonusBtn').disabled = true;
+        }
+    }
+    
+    function claimDailyBonus() {
+        const bonusAmount = 100 + Math.floor(Math.random() * 400); // 100-500 SA
+        minedCoins += bonusAmount;
+        totalMined += bonusAmount;
+        lastBonusClaim = Math.floor(Date.now() / 1000);
+        
+        localStorage.setItem('minedCoins', minedCoins);
+        localStorage.setItem('totalMined', totalMined);
+        localStorage.setItem('lastBonusClaim', lastBonusClaim);
+        
+        updateMinedCoinsDisplay();
+        updateStatsPanel();
+        checkDailyBonus();
+        
+        createConfetti();
+        showNotification(`Daily bonus claimed! +${bonusAmount} SA`, "success");
+        
+        // Shake animation for bonus button
+        document.getElementById('dailyBonusBtn').classList.add('shake');
+        setTimeout(() => {
+            document.getElementById('dailyBonusBtn').classList.remove('shake');
+        }, 500);
+    }
+    
+    // Referral System
+    function copyReferralCode() {
+        const referralInput = document.getElementById('referralCodeInput');
+        referralInput.select();
+        document.execCommand('copy');
+        
+        showNotification("Referral code copied to clipboard!", "success");
+    }
+    
+    // Mining Boosts
+    function activateBoost(multiplier, duration) {
+        if (activeBoosts[multiplier]) {
+            showNotification(`You already have an active ${multiplier}x boost!`, "error");
+            return;
+        }
+        
+        const boostCost = multiplier * 50; // Cost in SA
+        if (minedCoins < boostCost) {
+            showNotification(`Not enough SA! Need ${boostCost} SA for ${multiplier}x boost.`, "error");
+            return;
+        }
+        
+        minedCoins -= boostCost;
+        localStorage.setItem('minedCoins', minedCoins);
+        
+        const boostEndTime = Math.floor(Date.now() / 1000) + (duration * 60);
+        activeBoosts[multiplier] = boostEndTime;
+        localStorage.setItem('activeBoosts', JSON.stringify(activeBoosts));
+        
+        updateBoostMultiplier();
+        updateMinedCoinsDisplay();
+        updateStatsPanel();
+        
+        showNotification(`${multiplier}x mining boost activated for ${duration} minutes!`, "success");
+        
+        // Update boost button state
+        document.getElementById(`boost${multiplier}x`).disabled = true;
+        document.getElementById(`boost${multiplier}x`).textContent = "Active";
+        
+        // Set timeout to deactivate boost
+        setTimeout(() => {
+            delete activeBoosts[multiplier];
+            localStorage.setItem('activeBoosts', JSON.stringify(activeBoosts));
+            updateBoostMultiplier();
+            document.getElementById(`boost${multiplier}x`).disabled = false;
+            document.getElementById(`boost${multiplier}x`).textContent = `${duration} min`;
+            showNotification(`${multiplier}x mining boost has expired.`, "info");
+        }, duration * 60 * 1000);
+    }
+    
+    function updateBoostMultiplier() {
+        boostMultiplier = 1;
+        const now = Math.floor(Date.now() / 1000);
+        
+        // Check for active boosts
+        for (const multiplier in activeBoosts) {
+            if (activeBoosts[multiplier] > now) {
+                boostMultiplier = Math.max(boostMultiplier, parseInt(multiplier));
+            } else {
+                // Remove expired boost
+                delete activeBoosts[multiplier];
+                localStorage.setItem('activeBoosts', JSON.stringify(activeBoosts));
+                
+                // Reset button
+                if (multiplier === '2') {
+                    document.getElementById('boost2x').disabled = false;
+                    document.getElementById('boost2x').textContent = '30 min';
+                } else if (multiplier === '5') {
+                    document.getElementById('boost5x').disabled = false;
+                    document.getElementById('boost5x').textContent = '15 min';
+                }
+            }
+        }
+        
+        updateStatsPanel();
+    }
+    
+    // Initialize boosts on page load
+    function initializeBoosts() {
+        updateBoostMultiplier();
+        
+        // Set up boost buttons
+        document.getElementById('boost2x').onclick = function() {
+            activateBoost(2, 30);
+        };
+        
+        document.getElementById('boost5x').onclick = function() {
+            activateBoost(5, 15);
+        };
+    }
 
     function getCurrentSpeed() {
         if (isUpgradeActive()) return miningUpgrade.upgradeSpeed;
@@ -973,7 +1424,9 @@
     }
     function addMinedCoins(amount) {
         minedCoins += amount;
+        totalMined += amount;
         localStorage.setItem('minedCoins', minedCoins);
+        localStorage.setItem('totalMined', totalMined);
     }
     function updateMinedCoinsDisplay() {
         document.getElementById('minedCoins').textContent = `Mined Coins: ${minedCoins.toFixed(4)} SA`;
@@ -1069,6 +1522,7 @@
             setMiningUpgrade(UPGRADE_SPEEDS[speedKey], UPGRADE_FEES[speedKey]);
             updateUpgradeInfo();
             updateMinedCoinsDisplay();
+            updateStatsPanel();
             createConfetti();
             
             showNotification("Upgrade successful! Mining speed increased.", "success");
@@ -1089,10 +1543,13 @@
         document.getElementById('mineBtn').innerHTML = '<i class="fas fa-cog fa-spin" style="margin-right: 8px;"></i> Mining...';
         
         let sessionInterval = setInterval(function(){
-            let speed = getCurrentSpeed();
+            let speed = getCurrentSpeed() * boostMultiplier;
             minedCoins += speed;
+            totalMined += speed;
             localStorage.setItem('minedCoins', minedCoins);
+            localStorage.setItem('totalMined', totalMined);
             updateMinedCoinsDisplay();
+            updateStatsPanel();
             updateProgressBar();
 
             if(!isUpgradeActive()){
@@ -1199,6 +1656,7 @@
             minedCoins = 0;
             localStorage.setItem('minedCoins', minedCoins);
             updateMinedCoinsDisplay();
+            updateStatsPanel();
             status.textContent = "";
             
             createConfetti();
@@ -1217,11 +1675,14 @@
             let claimAmount = seconds * miningUpgrade.upgradeSpeed;
             
             minedCoins += claimAmount;
+            totalMined += claimAmount;
             miningUpgrade.lastClaim = now;
             localStorage.setItem('minedCoins', minedCoins);
+            localStorage.setItem('totalMined', totalMined);
             localStorage.setItem('miningUpgrade', JSON.stringify(miningUpgrade));
             
             updateMinedCoinsDisplay();
+            updateStatsPanel();
             updateUpgradeInfo();
             
             createConfetti();
@@ -1241,7 +1702,16 @@
         updateTimerDisplay();
         updateUpgradeInfo();
         updateProgressBar();
+        updateStatsPanel();
+        checkDailyBonus();
+        initializeBoosts();
         document.getElementById('mineBtn').disabled = false;
+        
+        // Set up daily bonus button
+        document.getElementById('dailyBonusBtn').onclick = claimDailyBonus;
+        
+        // Set up referral copy button
+        document.getElementById('copyReferralBtn').onclick = copyReferralCode;
         
         // Check if upgrade expired
         if (isUpgradeActive() && getUpgradeTimeLeft() <= 0) {
