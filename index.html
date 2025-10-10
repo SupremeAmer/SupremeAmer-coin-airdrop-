@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SupremeAmer Coin - Mining Dashboard</title>
+    <title>SupremeAmer Coin - Complete Mining Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -722,6 +722,25 @@
             font-size: 1.1em;
         }
         
+        /* Claim Status */
+        .claim-status, .withdraw-status {
+            margin: 7px 0 0 0;
+            color: var(--secondary-color);
+            font-size: 0.97em;
+            min-height: 18px;
+            transition: all 0.3s;
+        }
+        
+        .success-message {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .error-message {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
         /* Animations */
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -973,7 +992,7 @@
     <!-- Upgrade Modal -->
     <div class="upgrade-modal" id="upgradeModal">
         <div class="upgrade-modal-content">
-            <button class="close-btn" onclick="hideUpgradeModal()">&times;</button>
+            <button class="close-btn" id="closeUpgradeModal">&times;</button>
             <h3 style="color:var(--primary-color);margin-top:0; font-size:1.5em;">Upgrade Mining Speed</h3>
             
             <div class="upgrade-plan">
@@ -1024,6 +1043,10 @@
         let miningMultiplier = parseInt(localStorage.getItem('miningMultiplier')) || 1;
         let sessionDuration = 7 * 60 * 60; // 7 hours in seconds
         let miningInterval;
+        
+        // Upgrade state
+        let miningUpgrade = JSON.parse(localStorage.getItem('miningUpgrade')) || null;
+        let upgradeActive = false;
         
         // Theme Toggle Functionality
         const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -1077,6 +1100,14 @@
         }
         
         document.getElementById('showUpgradeBtn').onclick = showUpgradeModal;
+        document.getElementById('closeUpgradeModal').onclick = hideUpgradeModal;
+        
+        // Close modal when clicking outside
+        document.getElementById('upgradeModal').onclick = function(e) {
+            if (e.target === this) {
+                hideUpgradeModal();
+            }
+        };
         
         // Notification System
         function showNotification(message, type = 'info', duration = 3000) {
@@ -1235,6 +1266,40 @@
             
             // Update multiplier
             document.getElementById('multiplier').textContent = `${miningMultiplier}x`;
+            
+            // Update claim status
+            updateClaimStatus();
+        }
+        
+        function updateClaimStatus() {
+            const claimStatus = document.getElementById('claimStatus');
+            
+            if (upgradeActive) {
+                const now = Math.floor(Date.now() / 1000);
+                const upgradeEndTime = miningUpgrade.startTime + (360 * 24 * 3600); // 360 days
+                const timeLeft = upgradeEndTime - now;
+                const nextClaim = miningUpgrade.lastClaim + (30 * 24 * 3600); // 30 days
+                const canClaim = now >= nextClaim;
+                
+                if (timeLeft > 0) {
+                    const daysLeft = Math.floor(timeLeft / (24 * 3600));
+                    const hoursLeft = Math.floor((timeLeft % (24 * 3600)) / 3600);
+                    
+                    claimStatus.innerHTML = `Upgrade: <b>${miningUpgrade.upgradeSpeed} SA/sec</b>, ${daysLeft}d ${hoursLeft}h left<br>
+                    Next claim: <b>${new Date(nextClaim * 1000).toLocaleDateString()}</b> ${canClaim ? '<span style="color:#00ffb3;">Ready!</span>' : ''}`;
+                } else {
+                    // Upgrade expired
+                    upgradeActive = false;
+                    miningUpgrade = null;
+                    localStorage.removeItem('miningUpgrade');
+                    miningSpeed = 0.0002;
+                    localStorage.setItem('miningSpeed', miningSpeed.toString());
+                    claimStatus.innerHTML = "";
+                    showNotification("Your mining upgrade has expired", "info");
+                }
+            } else {
+                claimStatus.innerHTML = "";
+            }
         }
         
         // Initialize with a welcome message
@@ -1328,22 +1393,60 @@
         
         // Withdraw button event
         document.getElementById('withdrawBtn').onclick = function() {
-            if (minedCoins < 50000) {
-                showNotification("You need at least 50,000 SA to withdraw", "error");
+            const today = new Date();
+            const withdrawDays = [9, 13];
+            
+            // Check if today is a withdrawal day
+            if (!withdrawDays.includes(today.getDate())) {
+                document.getElementById('withdrawStatus').textContent = `Withdrawals only on ${withdrawDays.join('th and ')}th each month!`;
+                document.getElementById('withdrawStatus').classList.add('error-message');
                 return;
             }
             
-            // Simulate withdrawal
-            showNotification(`Withdrawal of ${minedCoins.toFixed(2)} SA processed!`, "success");
-            minedCoins = 0;
-            localStorage.setItem('minedCoins', '0');
-            updateUI();
-            createConfetti();
+            if (minedCoins < 50000) {
+                document.getElementById('withdrawStatus').textContent = `Need at least 50,000 SA to withdraw.`;
+                document.getElementById('withdrawStatus').classList.add('error-message');
+                return;
+            }
+            
+            // Clear status
+            document.getElementById('withdrawStatus').textContent = "";
+            document.getElementById('withdrawStatus').classList.remove('error-message');
+            
+            // Simulate withdrawal processing
+            document.getElementById('withdrawStatus').textContent = "Processing withdrawal...";
+            showNotification("Processing withdrawal transaction...", "info");
+            
+            setTimeout(() => {
+                // Calculate withdrawal with fee
+                const feePercent = 6;
+                const feeAmount = minedCoins * (feePercent / 100);
+                const sendAmount = minedCoins - feeAmount;
+                
+                // Reset mined coins
+                minedCoins = 0;
+                localStorage.setItem('minedCoins', '0');
+                
+                // Update UI
+                updateUI();
+                document.getElementById('withdrawStatus').textContent = "";
+                
+                // Show success
+                createConfetti();
+                showNotification(`Withdrawal successful! ${sendAmount.toFixed(2)} SA sent to your wallet.`, "success");
+                
+                alert(`Withdrawal completed!\n\nSent: ${sendAmount.toFixed(2)} SA\nFee: ${feeAmount.toFixed(2)} SA (${feePercent}%)\n\nThank you for using SupremeAmer Coin!`);
+            }, 3000);
         };
         
         // Upgrade mining function
         window.upgradeMining = function(speedKey) {
             hideUpgradeModal();
+            
+            if (upgradeActive) {
+                showNotification("You already have an active upgrade!", "error");
+                return;
+            }
             
             const upgrades = {
                 '0.05': { speed: 0.05, cost: 0.002 },
@@ -1353,15 +1456,73 @@
             
             const upgrade = upgrades[speedKey];
             miningSpeed = upgrade.speed;
+            
+            // Set upgrade data
+            miningUpgrade = {
+                upgradeSpeed: upgrade.speed,
+                bnbFee: upgrade.cost,
+                startTime: Math.floor(Date.now() / 1000),
+                lastClaim: Math.floor(Date.now() / 1000)
+            };
+            
+            upgradeActive = true;
+            
             localStorage.setItem('miningSpeed', miningSpeed.toString());
+            localStorage.setItem('miningUpgrade', JSON.stringify(miningUpgrade));
             
             showNotification(`Mining upgraded to ${upgrade.speed} SA/sec!`, "success");
             createConfetti();
             updateUI();
         };
         
+        // Timer click for claim
+        document.getElementById('timer').onclick = function() {
+            if (upgradeActive && miningUpgrade) {
+                const now = Math.floor(Date.now() / 1000);
+                const nextClaim = miningUpgrade.lastClaim + (30 * 24 * 3600); // 30 days
+                
+                if (now >= nextClaim) {
+                    // Calculate claimable amount
+                    const seconds = now - miningUpgrade.lastClaim;
+                    const claimAmount = seconds * miningUpgrade.upgradeSpeed;
+                    
+                    // Add to mined coins
+                    minedCoins += claimAmount;
+                    miningUpgrade.lastClaim = now;
+                    
+                    localStorage.setItem('minedCoins', minedCoins);
+                    localStorage.setItem('miningUpgrade', JSON.stringify(miningUpgrade));
+                    
+                    updateUI();
+                    createConfetti();
+                    showNotification(`You claimed ${claimAmount.toFixed(4)} SA!`, "success");
+                } else {
+                    const timeLeft = nextClaim - now;
+                    const days = Math.floor(timeLeft / (24 * 3600));
+                    const hours = Math.floor((timeLeft % (24 * 3600)) / 3600);
+                    
+                    showNotification(`Next claim available in ${days}d ${hours}h`, "info");
+                }
+            }
+        };
+        
         // Initialize on page load
         window.onload = function() {
+            // Check for existing upgrade
+            if (miningUpgrade) {
+                const now = Math.floor(Date.now() / 1000);
+                const upgradeEndTime = miningUpgrade.startTime + (360 * 24 * 3600); // 360 days
+                
+                if (now < upgradeEndTime) {
+                    upgradeActive = true;
+                    miningSpeed = miningUpgrade.upgradeSpeed;
+                } else {
+                    // Upgrade expired
+                    miningUpgrade = null;
+                    localStorage.removeItem('miningUpgrade');
+                }
+            }
+            
             updateUI();
             
             // Resume mining if active
