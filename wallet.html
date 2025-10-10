@@ -6,6 +6,7 @@
     <title>SupremeAmer Wallet | Complete Crypto Ecosystem</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@10.0.0"></script>
     <style>
         :root {
             --primary: #3c3c3d;
@@ -1282,14 +1283,6 @@
                 </button>
             </div>
             
-            <div style="background: rgba(0, 0, 0, 0.03); padding: 20px; border-radius: 15px; margin: 20px 0; border-left: 5px solid var(--secondary);">
-                <h3 style="color: var(--secondary); margin-bottom: 10px;">💎 0.5 SA/sec</h3>
-                <p style="margin-bottom: 15px;">Duration: <b>360 days</b> <br> Fee: <b>0.025 BNB</b> <br> Claim every 30 days</p>
-                <button class="btn btn-primary" onclick="upgradeMining('0.5')" style="width: 100%;">
-                    <i class="fas fa-gem"></i> Upgrade
-                </button>
-            </div>
-            
             <div style="font-size:0.95em;color:#666;margin-top:15px; line-height:1.5;">
                After upgrade, mining speed increases for 360 days. You can claim mined rewards every 30 days. Mining continues even if you delay claim, but only for 360 days.
             </div>
@@ -1300,6 +1293,35 @@
     <div id="confettiContainer"></div>
 
     <script>
+        // ---- CONFIGURATION ----
+        const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
+        const APPWRITE_PROJECT = '6839d9640019316a160d';
+        const APPWRITE_DB_ID = '6839dcca000190bf99f6';
+        const APPWRITE_COLLECTION_ID = 'users';
+        const SUPREMEAMER_RECEIVER_BNB = '0xYourBnbAddressHere'; // CHANGE TO YOURS
+
+        const UPGRADE_FEES = {
+            "0.05": "0.002",
+            "0.1": "0.009"
+        };
+        const UPGRADE_SPEEDS = {
+            "0.05": 0.05,
+            "0.1": 0.1
+        };
+        const NORMAL_SPEED = 0.0002;
+        const UPGRADE_DURATION = 360 * 24 * 3600;
+        const CLAIM_INTERVAL = 30 * 24 * 3600;
+        const WITHDRAW_ELIGIBILITY_FEE_BNB = "0.0017";
+        const WITHDRAW_MIN_SA = 50000;
+        const WITHDRAW_FEE_PERCENT = 6;
+        const WITHDRAW_DAYS = [9, 13];
+
+        // Appwrite
+        const { Client, Account, Databases, Query } = Appwrite;
+        const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT);
+        const account = new Account(client);
+        const databases = new Databases(client);
+
         // DOM Elements
         const authSection = document.getElementById('authSection');
         const walletDashboard = document.getElementById('walletDashboard');
@@ -1403,7 +1425,7 @@
         let minedCoins = 0;
         let miningActive = false;
         let miningStartTime = 0;
-        let miningSpeed = 0.0002;
+        let miningSpeed = NORMAL_SPEED;
         let miningMultiplier = 1;
         let sessionDuration = 7 * 60 * 60; // 7 hours in seconds
         let miningInterval;
@@ -1419,48 +1441,6 @@
             busd: 1.00,
             safe: 0.0805
         };
-
-        // Simulated backend storage
-        const userDatabase = JSON.parse(localStorage.getItem('supremeamer_users') || '{}');
-        const walletDatabase = JSON.parse(localStorage.getItem('supremeamer_wallets') || '{}');
-
-        // Initialize Web3 with Infura (BNB Smart Chain)
-        const INFURA_PROJECT_ID = 'your-infura-project-id'; // Replace with actual Infura ID
-        const BSC_MAINNET_URL = `https://bsc-dataseed.binance.org/`;
-        let web3;
-
-        try {
-            web3 = new Web3(BSC_MAINNET_URL);
-            console.log('Web3 initialized with BSC');
-        } catch (error) {
-            console.error('Error initializing Web3:', error);
-            // Fallback to a mock implementation for demo purposes
-            web3 = {
-                eth: {
-                    getBalance: () => Promise.resolve(web3.utils.toWei('2.5', 'ether')),
-                    getTransactionCount: () => Promise.resolve(10),
-                    sendTransaction: () => Promise.resolve({ transactionHash: '0x' + Math.random().toString(16).substr(2, 64) }),
-                    Contract: function() {
-                        return {
-                            methods: {
-                                balanceOf: () => ({ call: () => Promise.resolve(web3.utils.toWei('1000', 'ether')) }),
-                                transfer: () => ({ send: () => Promise.resolve({ transactionHash: '0x' + Math.random().toString(16).substr(2, 64) }) })
-                            }
-                        };
-                    }
-                },
-                utils: {
-                    toWei: (value, unit) => {
-                        const units = { ether: 1e18, gwei: 1e9, wei: 1 };
-                        return (parseFloat(value) * (units[unit] || 1)).toString();
-                    },
-                    fromWei: (value, unit) => {
-                        const units = { ether: 1e18, gwei: 1e9, wei: 1 };
-                        return (parseFloat(value) / (units[unit] || 1)).toString();
-                    }
-                }
-            };
-        }
 
         // Event Listeners
         loginTab.addEventListener('click', () => {
@@ -1628,8 +1608,87 @@
             }
         });
 
+        // Appwrite Functions
+        async function createUser(email, password, userData) {
+            try {
+                // Create Appwrite account
+                const user = await account.create('unique()', email, password);
+                
+                // Create user document in database
+                const document = await databases.createDocument(
+                    APPWRITE_DB_ID,
+                    APPWRITE_COLLECTION_ID,
+                    'unique()',
+                    {
+                        email: email,
+                        userId: user.$id,
+                        wallet: userData
+                    }
+                );
+                
+                return { user, document };
+            } catch (error) {
+                console.error('Error creating user:', error);
+                throw error;
+            }
+        }
+
+        async function loginUser(email, password) {
+            try {
+                const session = await account.createEmailSession(email, password);
+                return session;
+            } catch (error) {
+                console.error('Error logging in:', error);
+                throw error;
+            }
+        }
+
+        async function getUserData() {
+            try {
+                const user = await account.get();
+                const documents = await databases.listDocuments(
+                    APPWRITE_DB_ID,
+                    APPWRITE_COLLECTION_ID,
+                    [Query.equal('userId', user.$id)]
+                );
+                
+                if (documents.documents.length > 0) {
+                    return documents.documents[0];
+                }
+                return null;
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                throw error;
+            }
+        }
+
+        async function updateUserData(data) {
+            try {
+                const user = await account.get();
+                const documents = await databases.listDocuments(
+                    APPWRITE_DB_ID,
+                    APPWRITE_COLLECTION_ID,
+                    [Query.equal('userId', user.$id)]
+                );
+                
+                if (documents.documents.length > 0) {
+                    const document = await databases.updateDocument(
+                        APPWRITE_DB_ID,
+                        APPWRITE_COLLECTION_ID,
+                        documents.documents[0].$id,
+                        { wallet: data }
+                    );
+                    return document;
+                }
+                return null;
+            } catch (error) {
+                console.error('Error updating user data:', error);
+                throw error;
+            }
+        }
+
         // Functions
-        function handleLogin() {
+        async function handleLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
@@ -1638,51 +1697,59 @@
                 return;
             }
             
-            if (userDatabase[email] && userDatabase[email].password === password) {
-                currentUser = email;
-                userWallet = walletDatabase[email];
-                isLoggedIn = true;
+            try {
+                await loginUser(email, password);
+                const userData = await getUserData();
                 
-                // Initialize mining data for user
-                if (!userWallet.mining) {
-                    userWallet.mining = {
-                        minedCoins: 0,
-                        miningActive: false,
-                        miningStartTime: 0,
-                        miningSpeed: 0.0002,
-                        miningMultiplier: 1,
-                        miningUpgrade: null,
-                        upgradeActive: false
-                    };
-                }
-                
-                // Load mining data
-                minedCoins = userWallet.mining.minedCoins;
-                miningActive = userWallet.mining.miningActive;
-                miningStartTime = userWallet.mining.miningStartTime;
-                miningSpeed = userWallet.mining.miningSpeed;
-                miningMultiplier = userWallet.mining.miningMultiplier;
-                miningUpgrade = userWallet.mining.miningUpgrade;
-                upgradeActive = userWallet.mining.upgradeActive;
-                
-                showStatus(authStatus, 'Login successful!', 'success');
-                setTimeout(() => {
-                    authSection.classList.add('hidden');
-                    walletDashboard.classList.remove('hidden');
-                    loadWalletData();
-                    updateMiningUI();
+                if (userData) {
+                    currentUser = email;
+                    userWallet = userData.wallet;
+                    isLoggedIn = true;
                     
-                    // Resume mining if active
-                    if (miningActive) {
-                        resumeMining();
+                    // Initialize mining data for user if not exists
+                    if (!userWallet.mining) {
+                        userWallet.mining = {
+                            minedCoins: 0,
+                            miningActive: false,
+                            miningStartTime: 0,
+                            miningSpeed: NORMAL_SPEED,
+                            miningMultiplier: 1,
+                            miningUpgrade: null,
+                            upgradeActive: false
+                        };
+                        await updateUserData(userWallet);
                     }
-                }, 1000);
-            } else {
+                    
+                    // Load mining data
+                    minedCoins = userWallet.mining.minedCoins;
+                    miningActive = userWallet.mining.miningActive;
+                    miningStartTime = userWallet.mining.miningStartTime;
+                    miningSpeed = userWallet.mining.miningSpeed;
+                    miningMultiplier = userWallet.mining.miningMultiplier;
+                    miningUpgrade = userWallet.mining.miningUpgrade;
+                    upgradeActive = userWallet.mining.upgradeActive;
+                    
+                    showStatus(authStatus, 'Login successful!', 'success');
+                    setTimeout(() => {
+                        authSection.classList.add('hidden');
+                        walletDashboard.classList.remove('hidden');
+                        loadWalletData();
+                        updateMiningUI();
+                        
+                        // Resume mining if active
+                        if (miningActive) {
+                            resumeMining();
+                        }
+                    }, 1000);
+                } else {
+                    showStatus(authStatus, 'User data not found', 'error');
+                }
+            } catch (error) {
                 showStatus(authStatus, 'Invalid email or password', 'error');
             }
         }
 
-        function handleRegister() {
+        async function handleRegister() {
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
@@ -1697,48 +1764,44 @@
                 return;
             }
             
-            if (userDatabase[email]) {
-                showStatus(authStatus, 'User already exists', 'error');
-                return;
-            }
-            
-            // Create new user and wallet
-            userDatabase[email] = { password, createdAt: new Date().toISOString() };
-            
-            // Generate a new wallet (in a real app, this would be done securely on the server)
-            const newWallet = {
-                address: '0x' + Math.random().toString(16).substr(2, 40),
-                privateKey: 'encrypted_' + Math.random().toString(36).substr(2, 50), // Encrypted in real implementation
-                tokens: {
-                    bnb: { balance: 2.5, value: 987.65 },
-                    cake: { balance: 45.82, value: 147.08 },
-                    busd: { balance: 1250.75, value: 1250.75 },
-                    safe: { balance: 10000, value: 805.00 }
-                },
-                transactions: [],
-                mining: {
-                    minedCoins: 0,
-                    miningActive: false,
-                    miningStartTime: 0,
-                    miningSpeed: 0.0002,
-                    miningMultiplier: 1,
-                    miningUpgrade: null,
-                    upgradeActive: false
+            try {
+                // Generate a new wallet
+                const newWallet = {
+                    address: '0x' + Math.random().toString(16).substr(2, 40),
+                    privateKey: 'encrypted_' + Math.random().toString(36).substr(2, 50),
+                    tokens: {
+                        bnb: { balance: 2.5, value: 987.65 },
+                        cake: { balance: 45.82, value: 147.08 },
+                        busd: { balance: 1250.75, value: 1250.75 },
+                        safe: { balance: 10000, value: 805.00 }
+                    },
+                    transactions: [],
+                    mining: {
+                        minedCoins: 0,
+                        miningActive: false,
+                        miningStartTime: 0,
+                        miningSpeed: NORMAL_SPEED,
+                        miningMultiplier: 1,
+                        miningUpgrade: null,
+                        upgradeActive: false
+                    }
+                };
+                
+                await createUser(email, password, newWallet);
+                
+                showStatus(authStatus, 'Wallet created successfully!', 'success');
+                setTimeout(() => {
+                    // Switch to login tab
+                    loginTab.click();
+                    document.getElementById('loginEmail').value = email;
+                }, 1500);
+            } catch (error) {
+                if (error.message.includes('already exists')) {
+                    showStatus(authStatus, 'User already exists', 'error');
+                } else {
+                    showStatus(authStatus, 'Error creating account', 'error');
                 }
-            };
-            
-            walletDatabase[email] = newWallet;
-            
-            // Save to localStorage (simulated backend)
-            localStorage.setItem('supremeamer_users', JSON.stringify(userDatabase));
-            localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
-            
-            showStatus(authStatus, 'Wallet created successfully!', 'success');
-            setTimeout(() => {
-                // Switch to login tab
-                loginTab.click();
-                document.getElementById('loginEmail').value = email;
-            }, 1500);
+            }
         }
 
         function loadWalletData() {
@@ -1893,7 +1956,7 @@
             return colors[token] || '#f8b500';
         }
 
-        function handleSend() {
+        async function handleSend() {
             const recipient = document.getElementById('recipient').value;
             const token = document.getElementById('tokenSelect').value;
             const amount = parseFloat(document.getElementById('amount').value);
@@ -1913,7 +1976,7 @@
             showStatus(sendStatus, 'Processing transaction...', 'success');
             
             // In a real implementation, this would use web3 to send the transaction
-            setTimeout(() => {
+            setTimeout(async () => {
                 // Update balances
                 userWallet.tokens[token].balance -= amount;
                 userWallet.tokens[token].value = userWallet.tokens[token].balance * tokenPrices[token];
@@ -1928,8 +1991,7 @@
                 });
                 
                 // Save to database
-                walletDatabase[currentUser] = userWallet;
-                localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+                await updateUserData(userWallet);
                 
                 // Update UI
                 loadWalletData();
@@ -1945,7 +2007,7 @@
             }, 2000);
         }
 
-        function handleBuy() {
+        async function handleBuy() {
             const token = document.getElementById('buyToken').value;
             const amountUSD = parseFloat(document.getElementById('buyAmount').value);
             const buyStatus = document.getElementById('buyStatus');
@@ -1963,7 +2025,7 @@
             // Simulate buy
             showStatus(buyStatus, 'Processing purchase...', 'success');
             
-            setTimeout(() => {
+            setTimeout(async () => {
                 // Update balances
                 if (!userWallet.tokens[token]) {
                     userWallet.tokens[token] = { balance: 0, value: 0 };
@@ -1983,8 +2045,7 @@
                 });
                 
                 // Save to database
-                walletDatabase[currentUser] = userWallet;
-                localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+                await updateUserData(userWallet);
                 
                 // Update UI
                 loadWalletData();
@@ -1999,7 +2060,7 @@
             }, 2000);
         }
 
-        function handleSell() {
+        async function handleSell() {
             const token = document.getElementById('sellToken').value;
             const amount = parseFloat(document.getElementById('sellAmount').value);
             const sellStatus = document.getElementById('sellStatus');
@@ -2022,7 +2083,7 @@
             // Simulate sell
             showStatus(sellStatus, 'Processing sale...', 'success');
             
-            setTimeout(() => {
+            setTimeout(async () => {
                 // Update balances
                 userWallet.tokens[token].balance -= amount;
                 userWallet.tokens[token].value = userWallet.tokens[token].balance * tokenPrices[token];
@@ -2038,8 +2099,7 @@
                 });
                 
                 // Save to database
-                walletDatabase[currentUser] = userWallet;
-                localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+                await updateUserData(userWallet);
                 
                 // Update UI
                 loadWalletData();
@@ -2126,7 +2186,7 @@
             }, 1500);
         }
 
-        function handleAddToken() {
+        async function handleAddToken() {
             const contract = document.getElementById('tokenContract').value;
             const name = document.getElementById('tokenName').value;
             const symbol = document.getElementById('tokenSymbol').value;
@@ -2150,8 +2210,7 @@
             };
             
             // Save to database
-            walletDatabase[currentUser] = userWallet;
-            localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+            await updateUserData(userWallet);
             
             showStatus(addTokenStatus, 'Token added successfully!', 'success');
             
@@ -2188,23 +2247,22 @@
             
             // Update user wallet
             userWallet.mining.minedCoins = minedCoins;
-            walletDatabase[currentUser] = userWallet;
-            localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+            updateUserData(userWallet);
             
             // Update UI
             updateMiningUI();
         }
 
-        function toggleMining() {
+        async function toggleMining() {
             if (miningActive) {
                 stopMining();
                 showNotification("Mining stopped", "info");
             } else {
-                startMining();
+                await startMining();
             }
         }
 
-        function startMining() {
+        async function startMining() {
             if (miningActive) return;
             
             miningActive = true;
@@ -2213,8 +2271,7 @@
             // Update user wallet
             userWallet.mining.miningActive = true;
             userWallet.mining.miningStartTime = miningStartTime;
-            walletDatabase[currentUser] = userWallet;
-            localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+            await updateUserData(userWallet);
             
             // Update UI
             mineBtn.querySelector('i').className = 'fas fa-cog fa-spin';
@@ -2227,13 +2284,12 @@
             showNotification("Mining session started!", "success");
         }
 
-        function stopMining() {
+        async function stopMining() {
             miningActive = false;
             
             // Update user wallet
             userWallet.mining.miningActive = false;
-            walletDatabase[currentUser] = userWallet;
-            localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+            await updateUserData(userWallet);
             
             // Update UI
             mineBtn.querySelector('i').className = 'fas fa-play';
@@ -2244,7 +2300,7 @@
             clearInterval(miningInterval);
         }
 
-        function resumeMining() {
+        async function resumeMining() {
             if (!miningActive) return;
             
             const now = Math.floor(Date.now() / 1000);
@@ -2264,8 +2320,7 @@
             
             // Update user wallet
             userWallet.mining.minedCoins = minedCoins;
-            walletDatabase[currentUser] = userWallet;
-            localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+            await updateUserData(userWallet);
             
             // Update UI
             mineBtn.querySelector('i').className = 'fas fa-cog fa-spin';
@@ -2328,9 +2383,9 @@
         function updateClaimStatus() {
             if (upgradeActive) {
                 const now = Math.floor(Date.now() / 1000);
-                const upgradeEndTime = miningUpgrade.startTime + (360 * 24 * 3600); // 360 days
+                const upgradeEndTime = miningUpgrade.startTime + UPGRADE_DURATION;
                 const timeLeft = upgradeEndTime - now;
-                const nextClaim = miningUpgrade.lastClaim + (30 * 24 * 3600); // 30 days
+                const nextClaim = miningUpgrade.lastClaim + CLAIM_INTERVAL;
                 const canClaim = now >= nextClaim;
                 
                 if (timeLeft > 0) {
@@ -2343,14 +2398,13 @@
                     // Upgrade expired
                     upgradeActive = false;
                     miningUpgrade = null;
-                    miningSpeed = 0.0002;
+                    miningSpeed = NORMAL_SPEED;
                     
                     // Update user wallet
                     userWallet.mining.upgradeActive = false;
                     userWallet.mining.miningUpgrade = null;
                     userWallet.mining.miningSpeed = miningSpeed;
-                    walletDatabase[currentUser] = userWallet;
-                    localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+                    updateUserData(userWallet);
                     
                     claimStatus.innerHTML = "";
                     showNotification("Your mining upgrade has expired", "info");
@@ -2360,19 +2414,18 @@
             }
         }
 
-        function handleWithdraw() {
+        async function handleWithdraw() {
             const today = new Date();
-            const withdrawDays = [9, 13];
             
             // Check if today is a withdrawal day
-            if (!withdrawDays.includes(today.getDate())) {
-                withdrawStatus.textContent = `Withdrawals only on ${withdrawDays.join('th and ')}th each month!`;
+            if (!WITHDRAW_DAYS.includes(today.getDate())) {
+                withdrawStatus.textContent = `Withdrawals only on ${WITHDRAW_DAYS.join('th and ')}th each month!`;
                 withdrawStatus.classList.add('error-message');
                 return;
             }
             
-            if (minedCoins < 50000) {
-                withdrawStatus.textContent = `Need at least 50,000 SA to withdraw.`;
+            if (minedCoins < WITHDRAW_MIN_SA) {
+                withdrawStatus.textContent = `Need at least ${WITHDRAW_MIN_SA} SA to withdraw.`;
                 withdrawStatus.classList.add('error-message');
                 return;
             }
@@ -2385,10 +2438,9 @@
             withdrawStatus.textContent = "Processing withdrawal...";
             showNotification("Processing withdrawal transaction...", "info");
             
-            setTimeout(() => {
+            setTimeout(async () => {
                 // Calculate withdrawal with fee
-                const feePercent = 6;
-                const feeAmount = minedCoins * (feePercent / 100);
+                const feeAmount = minedCoins * (WITHDRAW_FEE_PERCENT / 100);
                 const sendAmount = minedCoins - feeAmount;
                 
                 // Add SAFE tokens to wallet
@@ -2412,8 +2464,7 @@
                 });
                 
                 // Save to database
-                walletDatabase[currentUser] = userWallet;
-                localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+                await updateUserData(userWallet);
                 
                 // Update UI
                 updateMiningUI();
@@ -2426,10 +2477,10 @@
             }, 3000);
         }
 
-        function handleClaim() {
+        async function handleClaim() {
             if (upgradeActive && miningUpgrade) {
                 const now = Math.floor(Date.now() / 1000);
-                const nextClaim = miningUpgrade.lastClaim + (30 * 24 * 3600); // 30 days
+                const nextClaim = miningUpgrade.lastClaim + CLAIM_INTERVAL;
                 
                 if (now >= nextClaim) {
                     // Calculate claimable amount
@@ -2443,8 +2494,7 @@
                     // Update user wallet
                     userWallet.mining.minedCoins = minedCoins;
                     userWallet.mining.miningUpgrade = miningUpgrade;
-                    walletDatabase[currentUser] = userWallet;
-                    localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+                    await updateUserData(userWallet);
                     
                     updateMiningUI();
                     createConfetti();
@@ -2459,7 +2509,7 @@
             }
         }
 
-        function upgradeMining(speedKey) {
+        async function upgradeMining(speedKey) {
             miningUpgradeModal.style.display = 'none';
             
             if (upgradeActive) {
@@ -2467,13 +2517,11 @@
                 return;
             }
             
-            const upgrades = {
-                '0.05': { speed: 0.05, cost: 0.002 },
-                '0.1': { speed: 0.1, cost: 0.009 },
-                '0.5': { speed: 0.5, cost: 0.025 }
+            const upgrade = {
+                speed: UPGRADE_SPEEDS[speedKey],
+                cost: UPGRADE_FEES[speedKey]
             };
             
-            const upgrade = upgrades[speedKey];
             miningSpeed = upgrade.speed;
             
             // Set upgrade data
@@ -2490,8 +2538,7 @@
             userWallet.mining.miningSpeed = miningSpeed;
             userWallet.mining.miningUpgrade = miningUpgrade;
             userWallet.mining.upgradeActive = true;
-            walletDatabase[currentUser] = userWallet;
-            localStorage.setItem('supremeamer_wallets', JSON.stringify(walletDatabase));
+            await updateUserData(userWallet);
             
             showNotification(`Mining upgraded to ${upgrade.speed} SA/sec!`, "success");
             createConfetti();
@@ -2640,10 +2687,44 @@
         updateBuyDetails();
         updateSellDetails();
         
-        // Initialize mining on page load if user is logged in
-        if (isLoggedIn && miningActive) {
-            resumeMining();
-        }
+        // Check if user is already logged in
+        (async function checkExistingSession() {
+            try {
+                const user = await account.get();
+                if (user) {
+                    const userData = await getUserData();
+                    if (userData) {
+                        currentUser = user.email;
+                        userWallet = userData.wallet;
+                        isLoggedIn = true;
+                        
+                        // Load mining data
+                        if (userWallet.mining) {
+                            minedCoins = userWallet.mining.minedCoins;
+                            miningActive = userWallet.mining.miningActive;
+                            miningStartTime = userWallet.mining.miningStartTime;
+                            miningSpeed = userWallet.mining.miningSpeed;
+                            miningMultiplier = userWallet.mining.miningMultiplier;
+                            miningUpgrade = userWallet.mining.miningUpgrade;
+                            upgradeActive = userWallet.mining.upgradeActive;
+                        }
+                        
+                        authSection.classList.add('hidden');
+                        walletDashboard.classList.remove('hidden');
+                        loadWalletData();
+                        updateMiningUI();
+                        
+                        // Resume mining if active
+                        if (miningActive) {
+                            resumeMining();
+                        }
+                    }
+                }
+            } catch (error) {
+                // No existing session, user needs to log in
+                console.log('No existing session found');
+            }
+        })();
     </script>
 </body>
 </html>
