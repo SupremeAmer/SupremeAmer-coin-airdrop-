@@ -258,8 +258,8 @@ body.light .container {
 }
 
 #coinLogo {
-    width: 100px !important;
-    height: 100px !important;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     box-shadow: 0 2px 8px var(--shadow-light);
     z-index: 2;
@@ -416,6 +416,27 @@ body.light .container {
     z-index: 10;
 }
 
+.upgrade-plan-btn {
+    padding: 8px 18px;
+    background: linear-gradient(90deg, #ece9e6 0%, var(--primary-color) 100%);
+    color: #222;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.upgrade-plan-btn:hover {
+    background: linear-gradient(90deg, #ffe259, #ffa751);
+    transform: translateY(-2px);
+}
+
 /* ================= PARTICLES ================= */
 .particles {
     position: fixed;
@@ -441,8 +462,8 @@ body.light .container {
     100% { transform: translateY(-100vh) rotate(360deg); }
 }
 
-/* ================= UPGRADE MODAL ================= */
-#upgradeModal {
+/* ================= MODAL ================= */
+.modal {
     display: none;
     position: fixed;
     z-index: 2002;
@@ -457,7 +478,7 @@ body.light .container {
     animation: fadeIn 0.3s;
 }
 
-#upgradeModalContent {
+.modal-content {
     background: #fff;
     color: #222;
     border-radius: 17px;
@@ -475,7 +496,7 @@ body.light .container {
     to { transform: scale(1); }
 }
 
-#upgradeModalContent .close-btn {
+.modal-content .close-btn {
     position: absolute;
     right: 20px;
     top: 15px;
@@ -487,11 +508,11 @@ body.light .container {
     transition: all 0.2s;
 }
 
-#upgradeModalContent .close-btn:hover {
+.modal-content .close-btn:hover {
     transform: rotate(90deg);
 }
 
-#upgradeModalContent h3 {
+.modal-content h3 {
     color: var(--primary-color);
     margin-top: 0;
     margin-bottom: 15px;
@@ -527,11 +548,6 @@ body.light .container {
 
 .upgrade-plan .plan-action {
     margin-top: 9px;
-}
-
-.upgrade-plan .upgrade-btn {
-    padding: 8px 18px;
-    width: auto;
 }
 
 .upgrade-info {
@@ -751,7 +767,7 @@ body.light .light-toggle {
         right: 3vw;
     }
     #logoContainer { width: 80px; height: 80px; }
-    #coinLogo { width: 80px !important; height: 80px !important; }
+    #coinLogo { width: 80px; height: 80px; }
     .container { padding: 18px 4vw 18px 4vw;}
     .mined-coins { font-size:1.8em;}
     .header { font-size: 1.8em; padding-top: 15px; }
@@ -760,22 +776,5 @@ body.light .light-toggle {
     .mine-btn, .withdraw-btn, .upgrade-btn {
         padding: 12px 24px;
         font-size: 1.1em;
-    }
-}
-
-/* ================= PREFERS COLOR SCHEME ================= */
-@media (prefers-color-scheme: light) {
-    body:not(.dark) {
-        background: linear-gradient(135deg, var(--light-bg) 60%, #f7b733 100%);
-        color: var(--text-light);
-    }
-    
-    body:not(.dark) .header {
-        background: rgba(255,255,255,0.75);
-    }
-    
-    body:not(.dark) .container {
-        background: var(--card-bg-light);
-        color: var(--text-light);
     }
 }
