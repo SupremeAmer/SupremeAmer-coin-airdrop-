@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Spin Wheel</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>SA Coin Collector</title>
     <style>
         * {
             margin: 0;
@@ -14,520 +13,383 @@
         }
         
         body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             padding: 20px;
-            color: #fff;
+            color: white;
         }
         
         .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.7);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            max-width: 800px;
             width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
         }
         
         h1 {
-            font-size: 2.8rem;
             margin-bottom: 10px;
-            text-align: center;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            color: #fdbb2d;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
         
         .subtitle {
-            font-size: 1.2rem;
             margin-bottom: 30px;
-            text-align: center;
-            opacity: 0.9;
+            color: #ccc;
         }
         
-        .game-area {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-            width: 100%;
+        .score-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 2px solid #fdbb2d;
         }
         
-        .wheel-container {
-            position: relative;
-            width: 350px;
-            height: 350px;
+        .score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #fdbb2d;
         }
         
-        .wheel {
-            width: 100%;
-            height: 100%;
+        .score-label {
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+        
+        .click-area {
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            background: conic-gradient(
-                #ff6b6b 0deg 45deg,
-                #4ecdc4 45deg 90deg,
-                #45b7d1 90deg 135deg,
-                #96ceb4 135deg 180deg,
-                #feca57 180deg 225deg,
-                #ff9ff3 225deg 270deg,
-                #54a0ff 270deg 315deg,
-                #5f27cd 315deg 360deg
-            );
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 4px solid #fdbb2d;
+            box-shadow: 0 0 20px rgba(253, 187, 45, 0.5);
             position: relative;
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.16, 0.99);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
             overflow: hidden;
         }
         
-        .wheel-section {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            transform-origin: bottom right;
-            left: 0;
-            top: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        .click-area:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(253, 187, 45, 0.7);
         }
         
-        .wheel-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: #fff;
+        .click-area:active {
+            transform: scale(0.95);
+        }
+        
+        .coin {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle at 30% 30%, #fdbb2d, #b21f1f);
             border-radius: 50%;
-            z-index: 10;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .pointer {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 60px;
-            background: #ff4757;
-            clip-path: polygon(50% 100%, 0 0, 100% 0);
-            z-index: 5;
-            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
-        }
-        
-        .controls {
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 20px;
-            flex: 1;
-            max-width: 300px;
-        }
-        
-        .btn {
-            background: linear-gradient(to bottom, #ff6b6b, #ee5a52);
+            font-size: 3rem;
             color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 0 #c23616;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 0 #c23616;
-        }
-        
-        .btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 3px 0 #c23616;
-        }
-        
-        .btn-spin {
-            background: linear-gradient(to bottom, #ff9f43, #ff7f00);
-            box-shadow: 0 5px 0 #cc6600;
-        }
-        
-        .btn-spin:hover {
-            box-shadow: 0 8px 0 #cc6600;
-        }
-        
-        .btn-spin:active {
-            box-shadow: 0 3px 0 #cc6600;
-        }
-        
-        .btn-reset {
-            background: linear-gradient(to bottom, #2ed573, #1dd1a1);
-            box-shadow: 0 5px 0 #009432;
-        }
-        
-        .btn-reset:hover {
-            box-shadow: 0 8px 0 #009432;
-        }
-        
-        .btn-reset:active {
-            box-shadow: 0 3px 0 #009432;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 4px solid rgba(255, 255, 255, 0.3);
         }
         
         .stats {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            padding: 20px;
-            width: 100%;
-            margin-top: 20px;
-        }
-        
-        .stats h2 {
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .stat-item {
             display: flex;
             justify-content: space-between;
-            padding: 10px;
+            margin-bottom: 20px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-        
-        .result {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 1.3rem;
-            font-weight: bold;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
             padding: 15px;
-        }
-        
-        .win-animation {
-            animation: winPulse 0.5s infinite alternate;
-        }
-        
-        @keyframes winPulse {
-            from { transform: scale(1); }
-            to { transform: scale(1.05); }
-        }
-        
-        .history {
-            margin-top: 20px;
-            width: 100%;
-        }
-        
-        .history h2 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 1.5rem;
-        }
-        
-        .history-list {
-            max-height: 150px;
-            overflow-y: auto;
-            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            padding: 10px;
         }
         
-        .history-item {
-            padding: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fdbb2d;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #fdbb2d;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(253, 187, 45, 0.9);
+            color: #1a2a6c;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .boosters {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
         }
         
-        .history-item:last-child {
-            border-bottom: none;
+        .booster {
+            background: rgba(26, 42, 108, 0.8);
+            border: 2px solid #fdbb2d;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
         }
         
-        @media (max-width: 768px) {
-            .game-area {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .wheel-container {
-                width: 300px;
-                height: 300px;
-            }
-            
-            .controls {
-                max-width: 100%;
-            }
+        .booster:hover {
+            background: rgba(253, 187, 45, 0.8);
+            color: #1a2a6c;
+        }
+        
+        .booster:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .booster:disabled:hover {
+            background: rgba(26, 42, 108, 0.8);
+            color: white;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>Lucky Spin Wheel</h1>
-        <p class="subtitle">Spin the wheel and win amazing prizes!</p>
+        <h1>SA Coin Collector</h1>
+        <p class="subtitle">Click the coin to earn 0.0005 SA per click!</p>
         
-        <div class="game-area">
-            <div class="wheel-container">
-                <div class="pointer"></div>
-                <div class="wheel" id="wheel">
-                    <!-- Wheel sections will be generated by JavaScript -->
-                </div>
-                <div class="wheel-center">SPIN</div>
+        <div class="score-container">
+            <div class="score" id="score">0.0000</div>
+            <div class="score-label">Total SA Points</div>
+        </div>
+        
+        <div class="click-area" id="clickArea">
+            <div class="coin">SA</div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="clicks">0</div>
+                <div class="stat-label">Clicks</div>
             </div>
-            
-            <div class="controls">
-                <button class="btn btn-spin" id="spinBtn">
-                    <i class="fas fa-play"></i> SPIN WHEEL
-                </button>
-                <button class="btn btn-reset" id="resetBtn">
-                    <i class="fas fa-redo"></i> RESET GAME
-                </button>
-                
-                <div class="stats">
-                    <h2>Game Stats</h2>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <span>Spins:</span>
-                            <span id="spinCount">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Points:</span>
-                            <span id="points">100</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Wins:</span>
-                            <span id="winCount">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Losses:</span>
-                            <span id="lossCount">0</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="result" id="result">
-                    Spin the wheel to play!
-                </div>
+            <div class="stat">
+                <div class="stat-value" id="rate">0.0005</div>
+                <div class="stat-label">SA per Click</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="multiplier">1x</div>
+                <div class="stat-label">Multiplier</div>
             </div>
         </div>
         
-        <div class="history">
-            <h2>Spin History</h2>
-            <div class="history-list" id="historyList">
-                <!-- History items will be added here -->
-            </div>
+        <div class="boosters">
+            <button class="booster" id="doubleBooster">2x Multiplier (10 SA)</button>
+            <button class="booster" id="autoClicker">Auto-Clicker (50 SA)</button>
+        </div>
+        
+        <div class="instructions">
+            <p>Click the golden SA coin to earn points. Purchase boosters to increase your earnings!</p>
         </div>
     </div>
+    
+    <div class="message" id="message">+0.0005 SA</div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const wheel = document.getElementById('wheel');
-            const spinBtn = document.getElementById('spinBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const result = document.getElementById('result');
-            const spinCount = document.getElementById('spinCount');
-            const points = document.getElementById('points');
-            const winCount = document.getElementById('winCount');
-            const lossCount = document.getElementById('lossCount');
-            const historyList = document.getElementById('historyList');
+        // Game state
+        let score = 0;
+        let clicks = 0;
+        let multiplier = 1;
+        let autoClickerActive = false;
+        let autoClickerInterval;
+        
+        // DOM elements
+        const scoreElement = document.getElementById('score');
+        const clicksElement = document.getElementById('clicks');
+        const rateElement = document.getElementById('rate');
+        const multiplierElement = document.getElementById('multiplier');
+        const clickArea = document.getElementById('clickArea');
+        const message = document.getElementById('message');
+        const doubleBooster = document.getElementById('doubleBooster');
+        const autoClicker = document.getElementById('autoClicker');
+        
+        // Format number to 4 decimal places
+        function formatNumber(num) {
+            return num.toFixed(4);
+        }
+        
+        // Update the UI with current game state
+        function updateUI() {
+            scoreElement.textContent = formatNumber(score);
+            clicksElement.textContent = clicks;
+            rateElement.textContent = formatNumber(0.0005 * multiplier);
+            multiplierElement.textContent = `${multiplier}x`;
             
-            // Wheel sections data
-            const sections = [
-                { text: "100 Points", value: 100, type: "points" },
-                { text: "200 Points", value: 200, type: "points" },
-                { text: "Try Again", value: 0, type: "try" },
-                { text: "50 Points", value: 50, type: "points" },
-                { text: "Lose 50", value: -50, type: "loss" },
-                { text: "300 Points", value: 300, type: "points" },
-                { text: "Lose 100", value: -100, type: "loss" },
-                { text: "500 Points", value: 500, type: "points" }
-            ];
+            // Update booster button states
+            doubleBooster.disabled = score < 10 || multiplier >= 2;
+            autoClicker.disabled = score < 50 || autoClickerActive;
+        }
+        
+        // Show a message when points are earned
+        function showMessage(value) {
+            message.textContent = `+${formatNumber(value)} SA`;
+            message.style.opacity = '1';
             
-            // Game state
-            let gameState = {
-                spins: 0,
-                currentPoints: 100,
-                wins: 0,
-                losses: 0,
-                isSpinning: false
-            };
-            
-            // Create wheel sections
-            function createWheelSections() {
-                wheel.innerHTML = '';
-                const anglePerSection = 360 / sections.length;
+            setTimeout(() => {
+                message.style.opacity = '0';
+            }, 1000);
+        }
+        
+        // Create particle effects
+        function createParticles(x, y) {
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
                 
-                sections.forEach((section, index) => {
-                    const sectionEl = document.createElement('div');
-                    sectionEl.className = 'wheel-section';
-                    sectionEl.style.transform = `rotate(${index * anglePerSection}deg)`;
-                    
-                    const textEl = document.createElement('div');
-                    textEl.textContent = section.text;
-                    textEl.style.transform = `rotate(${anglePerSection/2}deg)`;
-                    textEl.style.textAlign = 'center';
-                    textEl.style.width = '80px';
-                    textEl.style.marginLeft = '30px';
-                    
-                    sectionEl.appendChild(textEl);
-                    wheel.appendChild(sectionEl);
-                });
-            }
-            
-            // Spin the wheel
-            function spinWheel() {
-                if (gameState.isSpinning) return;
+                // Random position around the click
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 50 + 20;
+                const startX = x + Math.cos(angle) * distance;
+                const startY = y + Math.sin(angle) * distance;
                 
-                // Check if player has enough points to spin
-                if (gameState.currentPoints < 10) {
-                    result.textContent = "Not enough points to spin!";
-                    result.style.color = "#ff6b6b";
-                    return;
-                }
+                particle.style.left = `${startX}px`;
+                particle.style.top = `${startY}px`;
                 
-                gameState.isSpinning = true;
-                gameState.spins++;
-                gameState.currentPoints -= 10; // Cost to spin
+                // Random size
+                const size = Math.random() * 8 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
                 
-                // Random rotation between 5 and 10 full rotations plus a random angle
-                const spinDegrees = 1800 + Math.floor(Math.random() * 1800);
-                const winningIndex = Math.floor(Math.random() * sections.length);
-                const anglePerSection = 360 / sections.length;
-                const adjustment = (winningIndex * anglePerSection) - (anglePerSection / 2);
-                const finalRotation = spinDegrees - adjustment;
+                // Random animation duration
+                const duration = Math.random() * 1 + 0.5;
+                particle.style.animation = `floatUp ${duration}s ease-out forwards`;
                 
-                // Apply the spin
-                wheel.style.transform = `rotate(${finalRotation}deg)`;
+                document.body.appendChild(particle);
                 
-                // Update UI during spin
-                spinBtn.disabled = true;
-                result.textContent = "Spinning...";
-                result.classList.remove('win-animation');
-                
-                // After spin completes
+                // Remove particle after animation
                 setTimeout(() => {
-                    gameState.isSpinning = false;
-                    spinBtn.disabled = false;
-                    
-                    const winningSection = sections[winningIndex];
-                    processResult(winningSection);
-                    
-                    // Update stats
-                    updateStats();
-                    addToHistory(winningSection);
-                }, 4000);
+                    particle.remove();
+                }, duration * 1000);
             }
+        }
+        
+        // Handle click on the coin
+        function handleClick(e) {
+            const rect = clickArea.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
             
-            // Process the result of a spin
-            function processResult(section) {
-                let message = "";
-                let color = "#fff";
-                
-                switch(section.type) {
-                    case "points":
-                        gameState.currentPoints += section.value;
-                        gameState.wins++;
-                        message = `Congratulations! You won ${section.value} points!`;
-                        color = "#2ed573";
-                        result.classList.add('win-animation');
-                        break;
-                    case "loss":
-                        gameState.currentPoints += section.value;
-                        gameState.losses++;
-                        message = `Oh no! You lost ${Math.abs(section.value)} points!`;
-                        color = "#ff6b6b";
-                        break;
-                    case "try":
-                        gameState.losses++;
-                        message = "Try again! No points won or lost.";
-                        color = "#ffa502";
-                        break;
-                }
-                
-                result.textContent = message;
-                result.style.color = color;
+            // Calculate points earned
+            const pointsEarned = 0.0005 * multiplier;
+            score += pointsEarned;
+            clicks++;
+            
+            // Update UI
+            updateUI();
+            
+            // Show message and particles
+            showMessage(pointsEarned);
+            createParticles(x, y);
+            
+            // Add visual feedback
+            clickArea.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                clickArea.style.transform = 'scale(1)';
+            }, 100);
+        }
+        
+        // Activate auto-clicker
+        function activateAutoClicker() {
+            if (autoClickerActive) return;
+            
+            autoClickerActive = true;
+            autoClickerInterval = setInterval(() => {
+                score += 0.0005 * multiplier;
+                clicks++;
+                updateUI();
+            }, 1000);
+        }
+        
+        // Purchase double multiplier
+        function purchaseDoubleMultiplier() {
+            if (score >= 10 && multiplier < 2) {
+                score -= 10;
+                multiplier = 2;
+                updateUI();
+                showMessage("2x Multiplier Activated!");
             }
-            
-            // Reset the game
-            function resetGame() {
-                gameState = {
-                    spins: 0,
-                    currentPoints: 100,
-                    wins: 0,
-                    losses: 0,
-                    isSpinning: false
-                };
-                
-                wheel.style.transform = 'rotate(0deg)';
-                result.textContent = "Game reset! Spin the wheel to play!";
-                result.style.color = "#fff";
-                result.classList.remove('win-animation');
-                historyList.innerHTML = '';
-                
-                updateStats();
+        }
+        
+        // Purchase auto-clicker
+        function purchaseAutoClicker() {
+            if (score >= 50 && !autoClickerActive) {
+                score -= 50;
+                activateAutoClicker();
+                updateUI();
+                showMessage("Auto-Clicker Activated!");
             }
-            
-            // Update game statistics
-            function updateStats() {
-                spinCount.textContent = gameState.spins;
-                points.textContent = gameState.currentPoints;
-                winCount.textContent = gameState.wins;
-                lossCount.textContent = gameState.losses;
-            }
-            
-            // Add result to history
-            function addToHistory(section) {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
-                
-                const date = new Date().toLocaleTimeString();
-                historyItem.innerHTML = `
-                    <span>${date}</span>
-                    <span>${section.text}</span>
-                `;
-                
-                historyList.prepend(historyItem);
-            }
-            
-            // Event listeners
-            spinBtn.addEventListener('click', spinWheel);
-            resetBtn.addEventListener('click', resetGame);
-            
-            // Initialize the game
-            createWheelSections();
-            updateStats();
-        });
+        }
+        
+        // Initialize event listeners
+        clickArea.addEventListener('click', handleClick);
+        doubleBooster.addEventListener('click', purchaseDoubleMultiplier);
+        autoClicker.addEventListener('click', purchaseAutoClicker);
+        
+        // Initialize the game
+        updateUI();
     </script>
 </body>
 </html>
