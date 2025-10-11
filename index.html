@@ -1115,6 +1115,38 @@
         e.stopPropagation(); 
     };
     
+    // Logout Functionality - FIXED
+    document.getElementById('logoutBtn').onclick = async function(e) {
+        e.preventDefault();
+        try { 
+            await account.deleteSession('current'); 
+            showNotification("Logged out successfully", "success");
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1000);
+        } catch (err) {
+            console.error("Logout error:", err);
+            showNotification("Error logging out", "error");
+        }
+    };
+    
+    // Display User Information
+    async function displayUser() {
+        try {
+            const user = await account.get();
+            const res = await databases.listDocuments(APPWRITE_DB_ID, APPWRITE_COLLECTION_ID, [Query.equal("userId", user.$id)]);
+            if (res.documents.length > 0) {
+                const profile = res.documents[0];
+                document.getElementById('dropdownUsername').textContent = profile.name;
+                document.getElementById('dropdownEmail').textContent = profile.email;
+            }
+        } catch (err) {
+            console.error("Error fetching user:", err);
+            // If not logged in, redirect to login page
+            window.location.href = "login.html";
+        }
+    }
+    
     // Upgrade Modal Functionality
     function showUpgradeModal() {
         document.getElementById('upgradeModal').style.display = 'flex';
@@ -1607,6 +1639,9 @@
     
     // Initialize on page load
     window.onload = function() {
+        // Display user information
+        displayUser();
+        
         // Check for background mining
         checkBackgroundMining();
         
