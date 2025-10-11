@@ -5,113 +5,278 @@
   <title>Login - SupremeAmer Coin Airdrop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
   <style>
+    :root {
+      --primary: #ff9800;
+      --primary-dark: #f57c00;
+      --primary-light: #ffb74d;
+      --dark-bg: #121212;
+      --card-bg: rgba(30, 30, 40, 0.85);
+      --text-light: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.7);
+      --error: #ff4c4c;
+      --success: #36ff9b;
+      --border-radius: 16px;
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #1e1e2f 65%, #ff9800 100%);
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1e1e2f 65%, var(--primary) 100%);
       font-family: 'Montserrat', Arial, sans-serif;
-      margin: 0;
+      padding: 20px;
+      color: var(--text-light);
     }
+    
     .login-card {
-      background: rgba(35, 35, 60, 0.8);
-      backdrop-filter: blur(8px);
-      border-radius: 24px;
-      box-shadow: 0 12px 40px #ff980055, 0 2px 24px #0008;
-      padding: 2.7em 2.1em 2.3em 2.1em;
-      min-width: 330px;
-      max-width: 90vw;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: var(--border-radius);
+      box-shadow: 0 16px 40px rgba(255, 152, 0, 0.15), 0 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      border: 1.5px solid #fff2;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: var(--transition);
     }
-    .login-card h2 {
-      color: #ffb900;
-      margin-bottom: 0.6em;
-      letter-spacing: 1px;
-      font-size: 2em;
+    
+    .login-card:hover {
+      box-shadow: 0 20px 50px rgba(255, 152, 0, 0.2), 0 10px 40px rgba(0, 0, 0, 0.4);
     }
-    .login-card label {
-      display: block;
-      font-size: 1em;
-      margin-bottom: 0.2em;
-      color: #fff;
+    
+    .logo {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .logo h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 0.25rem;
+    }
+    
+    .logo p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
       font-weight: 400;
-      letter-spacing: 0.5px;
     }
+    
+    .login-card h2 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .form-group {
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+    
+    .input-wrapper {
+      position: relative;
+    }
+    
+    .input-wrapper i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+    
     .login-card input {
       width: 100%;
-      padding: 12px 14px;
-      margin-bottom: 1.3em;
-      border: 1.5px solid #ff980055;
-      border-radius: 8px;
-      font-size: 1em;
-      background: rgba(255,255,255,0.07);
-      color: #fff;
+      padding: 14px 14px 14px 42px;
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-light);
       outline: none;
-      transition: border 0.2s, box-shadow 0.2s;
+      transition: var(--transition);
       font-family: inherit;
     }
+    
     .login-card input:focus {
-      border: 1.5px solid #ff9800;
-      box-shadow: 0 0 0 2px #ff980066;
-      background: rgba(255,255,255,0.13);
+      border: 1.5px solid var(--primary);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
     }
+    
+    .login-card input::placeholder {
+      color: var(--text-muted);
+    }
+    
     .login-card button {
       width: 100%;
-      padding: 13px 0;
-      background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%);
+      padding: 14px 0;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
       color: #222;
       border: none;
-      border-radius: 12px;
-      font-size: 1.1em;
-      font-weight: 700;
-      letter-spacing: 1px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 16px #ff980055;
-      margin-top: 0.2em;
-      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
+      margin-top: 0.5rem;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
+    
     .login-card button:hover, .login-card button:focus {
-      background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%);
-      box-shadow: 0 6px 24px #ff980088;
-      transform: translateY(-2px) scale(1.03);
+      background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+      box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+      transform: translateY(-2px);
     }
+    
     .login-card .error, .login-card .success {
       width: 100%;
       text-align: center;
-      margin-bottom: 0.5em;
-      font-size: 1em;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
       min-height: 1.5em;
+      padding: 10px;
+      border-radius: 8px;
     }
-    .login-card .error { color: #ff4c4c; }
-    .login-card .success { color: #36ff9b; }
+    
+    .login-card .error { 
+      background: rgba(255, 76, 76, 0.1);
+      color: var(--error);
+      border: 1px solid rgba(255, 76, 76, 0.2);
+    }
+    
+    .login-card .success { 
+      background: rgba(54, 255, 155, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(54, 255, 155, 0.2);
+    }
+    
+    .divider {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      margin: 1.5rem 0;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .divider::before, .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .divider span {
+      padding: 0 1rem;
+    }
+    
+    .register-link {
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .register-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    
+    .register-link a:hover {
+      color: var(--primary-light);
+      text-decoration: underline;
+    }
+    
     @media (max-width: 480px) {
-      .login-card { min-width: 90vw; padding: 1.2em; }
-      .login-card h2 { font-size: 1.3em; }
+      .login-card { 
+        padding: 2rem 1.5rem; 
+      }
+      
+      .logo h1 {
+        font-size: 1.5rem;
+      }
+      
+      .login-card h2 {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
   <form id="loginForm" class="login-card" autocomplete="off">
-    <h2>Login to Airdrop</h2>
+    <div class="logo">
+      <h1>SupremeAmer Coin</h1>
+      <p>Airdrop Program</p>
+    </div>
+    
+    <h2>Welcome Back</h2>
+    
     <div class="error" id="error"></div>
     <div class="success" id="success"></div>
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
-    <button type="submit">Login</button>
+    
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <div class="input-wrapper">
+        <i>✉️</i>
+        <input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="input-wrapper">
+        <i>🔒</i>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+      </div>
+    </div>
+    
+    <button type="submit">
+      <span>Login</span>
+    </button>
+    
+    <div class="divider">
+      <span>OR</span>
+    </div>
+    
+    <div class="register-link">
+      Don't have an account? <a href="register.html">Create Account</a>
+    </div>
   </form>
 
   <script>
     // ---- CONFIGURATION ----
-    const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1'; // e.g. https://cloud.appwrite.io/v1
+    const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
     const APPWRITE_PROJECT = '6839d9640019316a160d';
 
     // ---- APPWRITE SDK INIT ----
@@ -136,10 +301,23 @@
       e.preventDefault();
       document.getElementById('error').textContent = '';
       document.getElementById('success').textContent = '';
+      
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
+      // Basic validation
+      if (!email || !password) {
+        document.getElementById('error').textContent = 'Please fill in all fields.';
+        return;
+      }
+
       try {
+        // Show loading state
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span>Logging in...</span>';
+        submitBtn.disabled = true;
+
         // 1. Create session (login)
         await account.createEmailSession(email, password);
 
@@ -147,6 +325,11 @@
         setTimeout(() => window.location.href = 'main.html', 1200);
       } catch (err) {
         document.getElementById('error').textContent = (err.message || 'Login failed. Check your credentials.');
+        
+        // Reset button state
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<span>Login</span>';
+        submitBtn.disabled = false;
       }
     };
   </script>
