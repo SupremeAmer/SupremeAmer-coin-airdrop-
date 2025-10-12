@@ -3,903 +3,1413 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SA Coin Collector - Enhanced</title>
+    <title>SupremeAmer Token Spin & Earn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #ff9800;
+            --secondary-color: #fdc500;
+            --accent-color: #ff3333;
+            --success-color: #4CAF50;
+            --info-color: #2196F3;
+            --dark-bg: #111;
+            --light-bg: #fffde4;
+            --text-dark: #fff;
+            --text-light: #333;
+            --card-bg-dark: rgba(30, 30, 40, 0.95);
+            --card-bg-light: rgba(255,255,255,0.90);
+            --header-height: 80px;
+        }
+
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            font-family: 'Montserrat', Arial, sans-serif;
             min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, var(--dark-bg) 70%, var(--primary-color) 100%);
+            color: var(--text-dark);
+            transition: all 0.3s ease;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 20px;
-            color: white;
+            overflow-x: hidden;
+            padding-top: var(--header-height);
         }
-        
-        .game-container {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 20px;
-            padding: 30px;
+
+        body.light {
+            background: linear-gradient(135deg, var(--light-bg) 60%, #f7b733 100%);
+            color: var(--text-light);
+        }
+
+        /* Header Styles */
+        .header {
             width: 100%;
-            max-width: 800px;
+            height: var(--header-height);
+            padding: 0 20px;
+            background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(30,30,40,0.9) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(255, 152, 0, 0.3);
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        body.light .header {
+            background: linear-gradient(90deg, rgba(255,255,255,0.95) 0%, rgba(240,240,245,0.95) 100%);
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            font-size: 2.5em;
+            color: var(--primary-color);
+            filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.5));
+        }
+
+        .header-title {
+            font-size: 1.8em;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 1px;
+        }
+
+        body.light .header-title {
+            text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Profile Dropdown */
+        .profile-container {
+            position: relative;
+        }
+
+        .profile-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: #222;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+        }
+
+        .profile-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(255, 152, 0, 0.5);
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 60px;
+            background: rgba(40, 40, 50, 0.95);
+            min-width: 220px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            color: #fff;
+            font-size: 1em;
+            animation: fadeIn 0.3s;
+            text-align: left;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        body.light .profile-dropdown {
+            background: rgba(255, 255, 255, 0.95);
+            color: #222;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(-10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* Main Container */
+        .container {
+            background: var(--card-bg-dark);
+            padding: 30px;
+            border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             text-align: center;
+            max-width: 500px;
+            width: 90%;
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
+            z-index: 1;
+            margin: 20px 0 100px 0;
         }
-        
-        h1 {
-            margin-bottom: 10px;
-            color: #fdbb2d;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+
+        body.light .container {
+            background: var(--card-bg-light);
+            color: var(--text-light);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
-        
-        .subtitle {
-            margin-bottom: 30px;
-            color: #ccc;
-        }
-        
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 15px;
-            border: 2px solid #fdbb2d;
-        }
-        
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #fdbb2d;
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: #ccc;
-        }
-        
-        .main-game-area {
+
+        /* Balance Display */
+        .balance-display {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 20px;
-            gap: 20px;
+            gap: 10px;
         }
-        
-        .click-area {
+
+        .balance-item {
+            flex: 1;
             background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .balance-label {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+
+        .balance-value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        /* Wheel Container */
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            width: 200px;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 4px solid #fdbb2d;
-            box-shadow: 0 0 20px rgba(253, 187, 45, 0.5);
             position: relative;
             overflow: hidden;
-            flex-shrink: 0;
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            box-shadow: 0 0 30px rgba(255, 152, 0, 0.3);
+            border: 8px solid var(--primary-color);
         }
-        
-        .click-area:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(253, 187, 45, 0.7);
-        }
-        
-        .click-area:active {
-            transform: scale(0.95);
-        }
-        
-        .coin {
-            width: 120px;
-            height: 120px;
-            background: radial-gradient(circle at 30% 30%, #fdbb2d, #b21f1f);
-            border-radius: 50%;
+
+        .wheel-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 3rem;
+            justify-content: center;
             color: white;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
-        
-        .upgrades-container {
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #222;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 152, 0, 0.5);
+            border: 4px solid var(--secondary-color);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: var(--accent-color);
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 20;
+            filter: drop-shadow(0 0 10px rgba(255, 51, 51, 0.5));
+        }
+
+        /* Spin Button */
+        .spin-btn {
+            padding: 20px 50px;
+            background: linear-gradient(90deg, var(--secondary-color) 40%, var(--primary-color) 100%);
+            color: #111;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            background: linear-gradient(90deg, var(--primary-color) 40%, var(--secondary-color) 100%);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Spin Counter */
+        .spin-counter {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 20px;
         }
-        
-        .upgrade {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+
+        .action-btn {
             padding: 15px;
+            background: linear-gradient(90deg, var(--info-color), #2196F3);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            border: 2px solid #1a2a6c;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .action-btn.buy {
+            background: linear-gradient(90deg, var(--success-color), #4CAF50);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .action-btn.buy:hover {
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: var(--card-bg-dark);
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        body.light .modal-content {
+            background: var(--card-bg-light);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 1.5em;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Purchase Packages */
+        .package {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
             text-align: left;
+            transition: all 0.3s;
+            border: 2px solid transparent;
         }
-        
-        .upgrade:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
+
+        .package:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.3);
         }
-        
-        .upgrade:active {
-            transform: translateY(1px);
-        }
-        
-        .upgrade.unlocked {
-            border-color: #fdbb2d;
-        }
-        
-        .upgrade-name {
+
+        .package-title {
+            font-size: 1.3em;
             font-weight: bold;
-            margin-bottom: 5px;
-            color: #fdbb2d;
-        }
-        
-        .upgrade-description {
-            font-size: 0.8rem;
+            color: var(--primary-color);
             margin-bottom: 10px;
-            color: #ccc;
         }
-        
-        .upgrade-cost {
-            font-size: 0.9rem;
-            color: #1a2a6c;
-            background: #fdbb2d;
-            padding: 3px 8px;
+
+        .package-price {
+            font-size: 1.1em;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .buy-package-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: #222;
+            border: none;
             border-radius: 10px;
-            display: inline-block;
             font-weight: bold;
-        }
-        
-        .upgrade.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .upgrade.disabled:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: none;
-        }
-        
-        .achievements-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .achievement {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-            opacity: 0.5;
+            cursor: pointer;
             transition: all 0.3s;
         }
-        
-        .achievement.unlocked {
-            opacity: 1;
-            border: 2px solid #fdbb2d;
+
+        .buy-package-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
         }
-        
-        .achievement-icon {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: #333;
+            color: #fff;
+            padding: 18px 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            transform: translateX(200%);
+            transition: transform 0.4s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            max-width: 400px;
         }
-        
-        .achievement-name {
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-bottom: 3px;
+
+        .notification.show {
+            transform: translateX(0);
         }
-        
-        .achievement-desc {
-            font-size: 0.7rem;
-            color: #ccc;
+
+        .notification.success {
+            background: var(--success-color);
         }
-        
-        .particle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #fdbb2d;
+
+        .notification.error {
+            background: var(--accent-color);
+        }
+
+        .notification.info {
+            background: var(--info-color);
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 20px 0;
+            background: rgba(255, 184, 0, 0.1);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            border-radius: 25px 25px 0 0;
+            box-shadow: 0 -5px 20px rgba(255, 152, 0, 0.2);
+            z-index: 999;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-btn {
+            background: #fff;
+            color: var(--primary-color);
+            border: none;
             border-radius: 50%;
-            pointer-events: none;
-            opacity: 0;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(34, 34, 34, 0.15);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
         }
-        
-        @keyframes floatUp {
+
+        .footer-btn:hover {
+            background: var(--primary-color);
+            color: #fff;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4);
+        }
+
+        .footer-btn.active {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .footer-btn:hover .tooltip {
+            opacity: 1;
+            bottom: 75px;
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 2001;
+            animation: confetti-fall 3s linear forwards;
+        }
+
+        @keyframes confetti-fall {
             0% {
-                transform: translateY(0) scale(1);
+                transform: translateY(-100vh) rotate(0deg);
                 opacity: 1;
             }
             100% {
-                transform: translateY(-100px) scale(0);
+                transform: translateY(100vh) rotate(360deg);
                 opacity: 0;
             }
         }
-        
-        .message {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(253, 187, 45, 0.9);
-            color: #1a2a6c;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: bold;
-            opacity: 0;
-            transition: opacity 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            z-index: 100;
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 15px;
+                height: 80px;
+            }
+
+            .header-title {
+                font-size: 1.5em;
+            }
+
+            .logo-icon {
+                font-size: 2em;
+            }
+
+            .profile-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3em;
+            }
+
+            .container {
+                padding: 25px 20px;
+                margin: 15px 0 100px 0;
+            }
+
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            .footer-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3em;
+            }
+
+            .balance-display {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
-        
-        .progress-bar {
-            height: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: #fdbb2d;
-            width: 0%;
-            transition: width 0.5s;
-        }
-        
-        .shop-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .shop-item {
-            background: rgba(26, 42, 108, 0.8);
-            border: 2px solid #fdbb2d;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-            flex: 1;
-            max-width: 200px;
-        }
-        
-        .shop-item:hover {
-            background: rgba(253, 187, 45, 0.8);
-            color: #1a2a6c;
-        }
-        
-        .shop-item:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .shop-item:disabled:hover {
-            background: rgba(26, 42, 108, 0.8);
-            color: white;
-        }
-        
-        .leaderboard {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-            text-align: left;
-        }
-        
-        .leaderboard h3 {
-            margin-bottom: 10px;
-            color: #fdbb2d;
-            text-align: center;
-        }
-        
-        .leaderboard-entry {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .special-event {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(253, 187, 45, 0.9);
-            color: #1a2a6c;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .click-streak {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(26, 42, 108, 0.8);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        
-        .tab-container {
-            display: flex;
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .tab.active {
-            background: #fdbb2d;
-            color: #1a2a6c;
-            font-weight: bold;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
+
+        @media (max-width: 480px) {
+            .header-title {
+                font-size: 1.3em;
+            }
+
+            .logo-icon {
+                font-size: 1.8em;
+            }
+
+            .container {
+                padding: 20px 15px;
+            }
+
+            .wheel-container {
+                width: 220px;
+                height: 220px;
+            }
+
+            .spin-btn {
+                padding: 16px 40px;
+                font-size: 1.1em;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>SA Coin Collector - Enhanced</h1>
-        <p class="subtitle">Click the coin to earn 0.0005 SA per click! Unlock upgrades and achievements!</p>
-        
-        <div class="tab-container">
-            <div class="tab active" data-tab="game">Game</div>
-            <div class="tab" data-tab="upgrades">Upgrades</div>
-            <div class="tab" data-tab="achievements">Achievements</div>
-            <div class="tab" data-tab="leaderboard">Leaderboard</div>
+    <!-- Notification System -->
+    <div class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span class="notification-text">Notification message</span>
+    </div>
+
+    <!-- Confetti Container -->
+    <div id="confettiContainer"></div>
+
+    <!-- Enhanced Header -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo-icon">🎰</div>
+            <h1 class="header-title">SPIN & EARN</h1>
         </div>
-        
-        <div class="tab-content active" id="game-tab">
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-value" id="score">0.0000</div>
-                    <div class="stat-label">Total SA Points</div>
+
+        <div class="header-actions">
+            <div class="profile-container">
+                <button class="profile-btn" id="profileDropdownBtn">
+                    <i class="fas fa-user"></i>
+                </button>
+                <div class="profile-dropdown" id="profileDropdownMenu">
+                    <div class="profile-header">
+                        <div class="profile-name">
+                            <i class="fas fa-user-circle"></i>
+                            <span id="dropdownUsername">Spinner123</span>
+                        </div>
+                        <div class="profile-email">
+                            <i class="fas fa-envelope"></i>
+                            <span id="dropdownEmail">spinner@example.com</span>
+                        </div>
+                    </div>
+                    <div class="profile-menu">
+                        <div class="profile-menu-item" id="themeToggleBtn">
+                            <i class="fas fa-moon"></i>
+                            <span>Dark Mode</span>
+                        </div>
+                        <div class="profile-divider"></div>
+                        <div class="profile-menu-item">
+                            <i class="fas fa-history"></i>
+                            <span>Spin History</span>
+                        </div>
+                        <div class="profile-menu-item">
+                            <i class="fas fa-trophy"></i>
+                            <span>Leaderboard</span>
+                        </div>
+                        <div class="profile-divider"></div>
+                        <div class="profile-menu-item" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="clicks">0</div>
-                    <div class="stat-label">Total Clicks</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="rate">0.0005</div>
-                    <div class="stat-label">SA per Click</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="multiplier">1x</div>
-                    <div class="stat-label">Multiplier</div>
-                </div>
-            </div>
-            
-            <div class="main-game-area">
-                <div class="click-area" id="clickArea">
-                    <div class="coin">SA</div>
-                </div>
-                
-                <div class="shop-container">
-                    <button class="shop-item" id="doubleBooster">2x Multiplier (10 SA)</button>
-                    <button class="shop-item" id="autoClicker">Auto-Clicker (50 SA)</button>
-                    <button class="shop-item" id="clickStorm">Click Storm (100 SA)</button>
-                </div>
-            </div>
-            
-            <div class="progress-bar">
-                <div class="progress-fill" id="prestigeProgress"></div>
-            </div>
-            <div class="stat-label">Prestige Progress: <span id="prestigePercent">0%</span></div>
-            
-            <div class="click-streak" id="clickStreak">Streak: 0</div>
-            
-            <div class="special-event" id="specialEvent" style="display: none;">2x Event Active!</div>
-        </div>
-        
-        <div class="tab-content" id="upgrades-tab">
-            <div class="upgrades-container" id="upgradesList">
-                <!-- Upgrades will be added here by JavaScript -->
             </div>
         </div>
-        
-        <div class="tab-content" id="achievements-tab">
-            <div class="achievements-container" id="achievementsList">
-                <!-- Achievements will be added here by JavaScript -->
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div style="font-size:1.6em; color:var(--secondary-color); margin-bottom:20px; font-weight:700;">
+            SupremeAmer Spin & Earn
+        </div>
+
+        <!-- Balance Display -->
+        <div class="balance-display">
+            <div class="balance-item">
+                <div class="balance-label">Spins</div>
+                <div class="balance-value" id="spinBalance">0</div>
+            </div>
+            <div class="balance-item">
+                <div class="balance-label">SA Balance</div>
+                <div class="balance-value" id="saBalance">0 SA</div>
+            </div>
+            <div class="balance-item">
+                <div class="balance-label">USDT</div>
+                <div class="balance-value" id="usdtBalance">0 USDT</div>
             </div>
         </div>
-        
-        <div class="tab-content" id="leaderboard-tab">
-            <div class="leaderboard">
-                <h3>Top Players</h3>
-                <div class="leaderboard-entry">
-                    <span>1. CryptoKing</span>
-                    <span>12,450.2300 SA</span>
+
+        <!-- Wheel Container -->
+        <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <div class="wheel" id="wheel">
+                <!-- Wheel sections will be generated by JavaScript -->
+            </div>
+            <div class="wheel-center">SPIN</div>
+        </div>
+
+        <!-- Spin Counter -->
+        <div class="spin-counter">
+            Spins Available: <span id="availableSpins">0</span>
+        </div>
+
+        <!-- Spin Button -->
+        <button class="spin-btn" id="spinBtn">
+            <i class="fas fa-play"></i>
+            SPIN NOW
+        </button>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn buy" id="buySpinsBtn">
+                <i class="fas fa-shopping-cart"></i>
+                Buy Spins
+            </button>
+            <button class="action-btn" id="referralBtn">
+                <i class="fas fa-users"></i>
+                Refer Friends
+            </button>
+        </div>
+
+        <!-- Daily Bonus Info -->
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; margin-top: 20px;">
+            <div style="color: var(--secondary-color); font-weight: bold; margin-bottom: 8px;">
+                🎁 Daily Bonus: 10,000 Free Spins
+            </div>
+            <div style="font-size: 0.9em;">
+                Resets in: <span id="resetTimer">24:00:00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy Spins Modal -->
+    <div class="modal" id="buySpinsModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeBuyModal">&times;</button>
+            <h3 style="color:var(--primary-color);margin-top:0; font-size:1.5em;">Buy Spins</h3>
+            
+            <div class="package">
+                <div class="package-title">50,000 Spins</div>
+                <div class="package-price">$2.00 BNB</div>
+                <button class="buy-package-btn" onclick="buySpins(50000, 2)">
+                    <i class="fab fa-btc"></i> Buy Now
+                </button>
+            </div>
+
+            <div class="package">
+                <div class="package-title">75,000 Spins</div>
+                <div class="package-price">$2.80 BNB</div>
+                <button class="buy-package-btn" onclick="buySpins(75000, 2.8)">
+                    <i class="fab fa-btc"></i> Buy Now
+                </button>
+            </div>
+
+            <div class="package">
+                <div class="package-title">150,000 Spins</div>
+                <div class="package-price">$3.50 BNB</div>
+                <button class="buy-package-btn" onclick="buySpins(150000, 3.5)">
+                    <i class="fab fa-btc"></i> Buy Now
+                </button>
+            </div>
+
+            <div style="font-size:0.9em;color:var(--secondary-color);margin-top:15px; text-align: center;">
+                Purchases unlock USDT rewards on the wheel!
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral Modal -->
+    <div class="modal" id="referralModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeReferralModal">&times;</button>
+            <h3 style="color:var(--primary-color);margin-top:0; font-size:1.5em;">Refer & Earn</h3>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin: 15px 0;">
+                <div style="font-size: 1.1em; font-weight: bold; color: var(--secondary-color); margin-bottom: 10px;">
+                    Your Referral Link
                 </div>
-                <div class="leaderboard-entry">
-                    <span>2. SatoshiFan</span>
-                    <span>9,780.1500 SA</span>
+                <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; font-family: monospace; word-break: break-all; margin-bottom: 15px;"
+                     id="referralLink">
+                    https://supremeamer.com/ref/loading...
                 </div>
-                <div class="leaderboard-entry">
-                    <span>3. BlockMaster</span>
-                    <span>7,650.8900 SA</span>
+                <button class="buy-package-btn" onclick="copyReferralLink()">
+                    <i class="fas fa-copy"></i> Copy Link
+                </button>
+            </div>
+
+            <div style="background: rgba(76, 175, 80, 0.2); padding: 15px; border-radius: 12px; border: 1px solid var(--success-color);">
+                <div style="font-weight: bold; color: var(--success-color); margin-bottom: 8px;">
+                    🎉 Referral Rewards
                 </div>
-                <div class="leaderboard-entry">
-                    <span>4. CoinCollector</span>
-                    <span>5,430.6700 SA</span>
-                </div>
-                <div class="leaderboard-entry">
-                    <span>5. You</span>
-                    <span id="playerRank">0.0000 SA</span>
+                <div style="font-size: 0.9em;">
+                    • +100 Spins when friend joins<br>
+                    • +0.0001 SA when friend spins<br>
+                    • Track your referrals in real-time
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="message" id="message">+0.0005 SA</div>
 
+    <!-- Footer -->
+    <div class="footer">
+        <button class="footer-btn" onclick="window.location.href='index.html'">
+            <i class="fas fa-home"></i>
+            <span class="tooltip">Home</span>
+        </button>
+        <button class="footer-btn" onclick="window.location.href='Task.html'">
+            <i class="fas fa-tasks"></i>
+            <span class="tooltip">Tasks</span>
+        </button>
+        <button class="footer-btn" onclick="window.location.href='wallet.html'">
+            <i class="fas fa-wallet"></i>
+            <span class="tooltip">Wallet</span>
+        </button>
+        <button class="footer-btn active">
+            <i class="fas fa-gamepad"></i>
+            <span class="tooltip">Spin Game</span>
+        </button>
+    </div>
+
+    <!-- Appwrite SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
     <script>
-        // Game state
-        let score = 0;
-        let clicks = 0;
-        let multiplier = 1;
-        let autoClickerActive = false;
-        let autoClickerInterval;
-        let clickStormActive = false;
-        let clickStreak = 0;
-        let lastClickTime = 0;
-        let specialEventActive = false;
-        let specialEventTimeout;
-        let prestigeLevel = 0;
+    // ---- CONFIGURATION ----
+    const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
+    const APPWRITE_PROJECT = '6839d9640019316a160d';
+    const APPWRITE_DB_ID = '6839dcca000190bf99f6';
+    const APPWRITE_COLLECTION_ID = 'users';
+    const SUPREMEAMER_RECEIVER_BNB = '0xYourBnbAddressHere';
+
+    // Appwrite
+    const { Client, Account, Databases, Query } = Appwrite;
+    const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT);
+    const account = new Account(client);
+    const databases = new Databases(client);
+
+    // Game State
+    let currentUser = null;
+    let userProfile = null;
+    let gameData = {
+        spins: 0,
+        saBalance: 0,
+        usdtBalance: 0,
+        totalSpins: 0,
+        spinPurchases: 0,
+        lastSpinReset: Date.now(),
+        referralCode: '',
+        referrals: 0
+    };
+
+    // Wheel rewards with weighted probabilities
+    const WHEEL_REWARDS = [
+        { type: 'sa', amount: 0.00005, label: '0.00005 SA', weight: 30, color: '#FF6B6B', icon: '🪙' },
+        { type: 'sa', amount: 0.00007, label: '0.00007 SA', weight: 25, color: '#4ECDC4', icon: '🪙' },
+        { type: 'sa', amount: 0.0005, label: '0.0005 SA', weight: 15, color: '#45B7D1', icon: '💎' },
+        { type: 'sa', amount: 0.03, label: '0.03 SA', weight: 5, color: '#FFE66D', icon: '🏆' },
+        { type: 'sa', amount: 0.00001, label: '0.00001 SA', weight: 20, color: '#95E1D3', icon: '⚙️' },
+        { type: 'usdt', amount: 0.01, label: '0.01 USDT', weight: 3, color: '#FCE38A', icon: '💵' },
+        { type: 'spins', amount: 10, label: '+10 Spins', weight: 2, color: '#F38181', icon: '🔁' }
+    ];
+
+    // Spin packages
+    const SPIN_PACKAGES = [
+        { spins: 50000, price: 2.0 },
+        { spins: 75000, price: 2.8 },
+        { spins: 150000, price: 3.5 }
+    ];
+
+    // ---- AUTHENTICATION & USER MANAGEMENT ----
+
+    async function initializeApp() {
+        console.log("🎮 Initializing spin game...");
         
-        // Upgrades system
-        const upgrades = [
-            { id: 1, name: "Better Clicks", description: "Increase base SA per click by 0.0001", cost: 5, baseIncrease: 0.0001, type: "click", count: 0, maxCount: 10 },
-            { id: 2, name: "Multiplier Boost", description: "Permanent 0.1x multiplier increase", cost: 20, baseIncrease: 0.1, type: "multiplier", count: 0, maxCount: 5 },
-            { id: 3, name: "Auto-Clicker Speed", description: "Increase auto-clicker speed by 10%", cost: 30, baseIncrease: 0.1, type: "autoClicker", count: 0, maxCount: 10 },
-            { id: 4, name: "Click Storm Duration", description: "Increase click storm duration by 1 second", cost: 50, baseIncrease: 1, type: "clickStorm", count: 0, maxCount: 5 }
-        ];
-        
-        // Achievements system
-        const achievements = [
-            { id: 1, name: "First Click", description: "Make your first click", condition: () => clicks >= 1, unlocked: false },
-            { id: 2, name: "SA Collector", description: "Reach 10 SA points", condition: () => score >= 10, unlocked: false },
-            { id: 3, name: "Click Master", description: "Reach 100 clicks", condition: () => clicks >= 100, unlocked: false },
-            { id: 4, name: "Multiplier Pro", description: "Reach 5x multiplier", condition: () => multiplier >= 5, unlocked: false },
-            { id: 5, name: "SA Tycoon", description: "Reach 1000 SA points", condition: () => score >= 1000, unlocked: false },
-            { id: 6, name: "Streak Master", description: "Reach a 10-click streak", condition: () => clickStreak >= 10, unlocked: false }
-        ];
-        
-        // DOM elements
-        const scoreElement = document.getElementById('score');
-        const clicksElement = document.getElementById('clicks');
-        const rateElement = document.getElementById('rate');
-        const multiplierElement = document.getElementById('multiplier');
-        const clickArea = document.getElementById('clickArea');
-        const message = document.getElementById('message');
-        const doubleBooster = document.getElementById('doubleBooster');
-        const autoClickerBtn = document.getElementById('autoClicker');
-        const clickStormBtn = document.getElementById('clickStorm');
-        const upgradesList = document.getElementById('upgradesList');
-        const achievementsList = document.getElementById('achievementsList');
-        const clickStreakElement = document.getElementById('clickStreak');
-        const specialEventElement = document.getElementById('specialEvent');
-        const prestigeProgress = document.getElementById('prestigeProgress');
-        const prestigePercent = document.getElementById('prestigePercent');
-        const playerRank = document.getElementById('playerRank');
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        // Format number to 4 decimal places
-        function formatNumber(num) {
-            return num.toFixed(4);
-        }
-        
-        // Update the UI with current game state
-        function updateUI() {
-            scoreElement.textContent = formatNumber(score);
-            clicksElement.textContent = clicks;
+        try {
+            // Check if user is authenticated
+            currentUser = await account.get();
+            console.log("✅ User authenticated:", currentUser.email);
             
-            // Calculate base rate with upgrades
-            let baseRate = 0.0005;
-            const clickUpgrade = upgrades.find(u => u.type === "click");
-            if (clickUpgrade) {
-                baseRate += clickUpgrade.count * clickUpgrade.baseIncrease;
-            }
+            // Set authentication flag
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userId', currentUser.$id);
+            localStorage.setItem('userEmail', currentUser.email);
             
-            rateElement.textContent = formatNumber(baseRate * multiplier);
-            multiplierElement.textContent = `${multiplier.toFixed(1)}x`;
-            clickStreakElement.textContent = `Streak: ${clickStreak}`;
-            playerRank.textContent = `${formatNumber(score)} SA`;
+            // Load user profile and game data
+            await loadUserProfile();
+            await loadGameData();
             
-            // Update booster button states
-            doubleBooster.disabled = score < 10 || multiplier >= 2;
-            autoClickerBtn.disabled = score < 50 || autoClickerActive;
-            clickStormBtn.disabled = score < 100 || clickStormActive;
+            // Initialize UI
+            initializeUI();
             
-            // Update upgrades UI
-            renderUpgrades();
+            // Show welcome message
+            showNotification(`Welcome to Spin & Earn, ${userProfile?.name || currentUser.name || 'Spinner'}!`, "success");
             
-            // Update achievements UI
-            renderAchievements();
+        } catch (error) {
+            console.error("❌ Authentication failed:", error);
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userEmail');
             
-            // Update prestige progress
-            const progress = Math.min(100, (score / 1000) * 100);
-            prestigeProgress.style.width = `${progress}%`;
-            prestigePercent.textContent = `${progress.toFixed(1)}%`;
-        }
-        
-        // Show a message when points are earned
-        function showMessage(value, type = "normal") {
-            message.textContent = `+${formatNumber(value)} SA`;
-            message.style.background = type === "special" ? 
-                "rgba(26, 42, 108, 0.9)" : "rgba(253, 187, 45, 0.9)";
-            message.style.color = type === "special" ? "white" : "#1a2a6c";
-            message.style.opacity = '1';
-            
+            // Show error and redirect
+            showNotification("Please login to play the spin game", "error");
             setTimeout(() => {
-                message.style.opacity = '0';
-            }, 1000);
+                window.location.href = 'login.html';
+            }, 1500);
+            return;
         }
-        
-        // Create particle effects
-        function createParticles(x, y, count = 10, color = "#fdbb2d") {
-            for (let i = 0; i < count; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                particle.style.background = color;
-                
-                // Random position around the click
-                const angle = Math.random() * Math.PI * 2;
-                const distance = Math.random() * 50 + 20;
-                const startX = x + Math.cos(angle) * distance;
-                const startY = y + Math.sin(angle) * distance;
-                
-                particle.style.left = `${startX}px`;
-                particle.style.top = `${startY}px`;
-                
-                // Random size
-                const size = Math.random() * 8 + 4;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                
-                // Random animation duration
-                const duration = Math.random() * 1 + 0.5;
-                particle.style.animation = `floatUp ${duration}s ease-out forwards`;
-                
-                document.body.appendChild(particle);
-                
-                // Remove particle after animation
-                setTimeout(() => {
-                    particle.remove();
-                }, duration * 1000);
-            }
-        }
-        
-        // Handle click on the coin
-        function handleClick(e) {
-            const rect = clickArea.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+    }
+
+    async function loadUserProfile() {
+        try {
+            const response = await databases.listDocuments(
+                APPWRITE_DB_ID, 
+                APPWRITE_COLLECTION_ID, 
+                [Query.equal("userId", currentUser.$id)]
+            );
             
-            // Calculate points earned
-            let baseRate = 0.0005;
-            const clickUpgrade = upgrades.find(u => u.type === "click");
-            if (clickUpgrade) {
-                baseRate += clickUpgrade.count * clickUpgrade.baseIncrease;
-            }
-            
-            let pointsEarned = baseRate * multiplier;
-            
-            // Apply click streak bonus
-            if (clickStreak >= 10) {
-                pointsEarned *= 1.5;
-            }
-            
-            // Apply special event bonus
-            if (specialEventActive) {
-                pointsEarned *= 2;
-            }
-            
-            score += pointsEarned;
-            clicks++;
-            
-            // Update click streak
-            const currentTime = Date.now();
-            if (currentTime - lastClickTime < 1000) {
-                clickStreak++;
+            if (response.documents.length > 0) {
+                userProfile = response.documents[0];
+                console.log("✅ User profile loaded:", userProfile);
             } else {
-                clickStreak = 1;
+                userProfile = {
+                    name: currentUser.name || 'Spinner',
+                    email: currentUser.email,
+                    userId: currentUser.$id
+                };
             }
-            lastClickTime = currentTime;
-            
-            // Check for special event trigger
-            if (clickStreak >= 5 && !specialEventActive) {
-                triggerSpecialEvent();
-            }
-            
-            // Update UI
-            updateUI();
-            
-            // Show message and particles
-            const messageType = specialEventActive ? "special" : "normal";
-            showMessage(pointsEarned, messageType);
-            createParticles(x, y, 10, specialEventActive ? "#1a2a6c" : "#fdbb2d");
-            
-            // Add visual feedback
-            clickArea.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                clickArea.style.transform = 'scale(1)';
-            }, 100);
-            
-            // Check achievements
-            checkAchievements();
+        } catch (error) {
+            console.error("❌ Error loading user profile:", error);
+            userProfile = {
+                name: currentUser.name || 'Spinner',
+                email: currentUser.email,
+                userId: currentUser.$id
+            };
+        }
+    }
+
+    async function loadGameData() {
+        if (!currentUser) return;
+        
+        const userId = currentUser.$id;
+        
+        // Load from localStorage
+        const savedGameData = localStorage.getItem(`spinGameData_${userId}`);
+        if (savedGameData) {
+            gameData = { ...gameData, ...JSON.parse(savedGameData) };
         }
         
-        // Activate auto-clicker
-        function activateAutoClicker() {
-            if (autoClickerActive) return;
-            
-            autoClickerActive = true;
-            
-            // Calculate auto-clicker speed (base 1 second)
-            let speed = 1000;
-            const autoClickerUpgrade = upgrades.find(u => u.type === "autoClicker");
-            if (autoClickerUpgrade) {
-                speed = 1000 / (1 + autoClickerUpgrade.count * autoClickerUpgrade.baseIncrease);
-            }
-            
-            autoClickerInterval = setInterval(() => {
-                let baseRate = 0.0005;
-                const clickUpgrade = upgrades.find(u => u.type === "click");
-                if (clickUpgrade) {
-                    baseRate += clickUpgrade.count * clickUpgrade.baseIncrease;
-                }
-                
-                let pointsEarned = baseRate * multiplier * 0.5; // Auto-clicker is half as effective
-                
-                // Apply special event bonus
-                if (specialEventActive) {
-                    pointsEarned *= 2;
-                }
-                
-                score += pointsEarned;
-                updateUI();
-                
-                // Show auto-clicker message occasionally
-                if (Math.random() < 0.1) {
-                    showMessage(pointsEarned, "normal");
-                }
-            }, speed);
-        }
+        // Check if daily reset is needed
+        checkDailyReset();
         
-        // Activate click storm
-        function activateClickStorm() {
-            if (clickStormActive) return;
-            
-            clickStormActive = true;
-            
-            // Calculate duration (base 5 seconds)
-            let duration = 5000;
-            const clickStormUpgrade = upgrades.find(u => u.type === "clickStorm");
-            if (clickStormUpgrade) {
-                duration += clickStormUpgrade.count * clickStormUpgrade.baseIncrease * 1000;
-            }
-            
-            // Create visual effect
-            clickArea.style.boxShadow = "0 0 30px rgba(26, 42, 108, 0.8)";
-            clickArea.style.borderColor = "#1a2a6c";
-            
-            // Rapid clicks for the duration
-            const stormInterval = setInterval(() => {
-                let baseRate = 0.0005;
-                const clickUpgrade = upgrades.find(u => u.type === "click");
-                if (clickUpgrade) {
-                    baseRate += clickUpgrade.count * clickUpgrade.baseIncrease;
-                }
-                
-                let pointsEarned = baseRate * multiplier * 0.2; // Click storm is less effective per click
-                
-                // Apply special event bonus
-                if (specialEventActive) {
-                    pointsEarned *= 2;
-                }
-                
-                score += pointsEarned;
-                clicks++;
-                updateUI();
-                
-                // Create particles at random positions
-                const x = Math.random() * 200;
-                const y = Math.random() * 200;
-                createParticles(x, y, 3, "#1a2a6c");
-            }, 100);
-            
-            // End click storm after duration
-            setTimeout(() => {
-                clearInterval(stormInterval);
-                clickStormActive = false;
-                clickArea.style.boxShadow = "0 0 20px rgba(253, 187, 45, 0.5)";
-                clickArea.style.borderColor = "#fdbb2d";
-            }, duration);
-        }
+        console.log("🎮 Game data loaded:", gameData);
+    }
+
+    function saveGameData() {
+        if (!currentUser) return;
+        localStorage.setItem(`spinGameData_${currentUser.$id}`, JSON.stringify(gameData));
+    }
+
+    function checkDailyReset() {
+        const now = Date.now();
+        const lastReset = gameData.lastSpinReset;
+        const oneDay = 24 * 60 * 60 * 1000;
         
-        // Trigger special event
-        function triggerSpecialEvent() {
-            if (specialEventActive) return;
-            
-            specialEventActive = true;
-            specialEventElement.style.display = "block";
-            
-            // End special event after 10 seconds
-            specialEventTimeout = setTimeout(() => {
-                specialEventActive = false;
-                specialEventElement.style.display = "none";
-            }, 10000);
+        if (now - lastReset >= oneDay) {
+            // Reset daily spins
+            gameData.spins += 10000; // Add daily bonus
+            gameData.lastSpinReset = now;
+            saveGameData();
+            showNotification("🎉 Daily 10,000 free spins added!", "success");
         }
+    }
+
+    // ---- WHEEL FUNCTIONALITY ----
+
+    function initializeWheel() {
+        const wheel = document.getElementById('wheel');
+        wheel.innerHTML = '';
         
-        // Purchase upgrade
-        function purchaseUpgrade(upgradeId) {
-            const upgrade = upgrades.find(u => u.id === upgradeId);
-            if (!upgrade || upgrade.count >= upgrade.maxCount || score < upgrade.cost) return;
-            
-            score -= upgrade.cost;
-            upgrade.count++;
-            upgrade.cost = Math.floor(upgrade.cost * 1.5); // Increase cost for next purchase
-            
-            // Apply upgrade effect
-            if (upgrade.type === "multiplier") {
-                multiplier += upgrade.baseIncrease;
-            }
-            
-            updateUI();
-            showMessage(`Upgrade: ${upgrade.name}`, "special");
-        }
+        const totalWeight = WHEEL_REWARDS.reduce((sum, reward) => sum + reward.weight, 0);
+        let currentAngle = 0;
+        const anglePerWeight = 360 / totalWeight;
         
-        // Render upgrades in the UI
-        function renderUpgrades() {
-            upgradesList.innerHTML = "";
+        WHEEL_REWARDS.forEach((reward, index) => {
+            const sectionAngle = reward.weight * anglePerWeight;
+            const section = document.createElement('div');
+            section.className = 'wheel-section';
+            section.style.backgroundColor = reward.color;
+            section.style.transform = `rotate(${currentAngle}deg)`;
+            section.style.clipPath = `polygon(0 0, 100% 0, 100% 100%, 0 100%)`;
             
-            upgrades.forEach(upgrade => {
-                const upgradeElement = document.createElement('div');
-                upgradeElement.className = `upgrade ${upgrade.count > 0 ? 'unlocked' : ''} ${score < upgrade.cost || upgrade.count >= upgrade.maxCount ? 'disabled' : ''}`;
-                
-                upgradeElement.innerHTML = `
-                    <div class="upgrade-name">${upgrade.name} (${upgrade.count}/${upgrade.maxCount})</div>
-                    <div class="upgrade-description">${upgrade.description}</div>
-                    <div class="upgrade-cost">Cost: ${formatNumber(upgrade.cost)} SA</div>
-                `;
-                
-                if (score >= upgrade.cost && upgrade.count < upgrade.maxCount) {
-                    upgradeElement.addEventListener('click', () => purchaseUpgrade(upgrade.id));
-                }
-                
-                upgradesList.appendChild(upgradeElement);
-            });
-        }
-        
-        // Check and unlock achievements
-        function checkAchievements() {
-            achievements.forEach(achievement => {
-                if (!achievement.unlocked && achievement.condition()) {
-                    achievement.unlocked = true;
-                    showMessage(`Achievement: ${achievement.name}`, "special");
-                }
-            });
-        }
-        
-        // Render achievements in the UI
-        function renderAchievements() {
-            achievementsList.innerHTML = "";
+            const content = document.createElement('div');
+            content.style.transform = `rotate(${sectionAngle / 2}deg)`;
+            content.style.textAlign = 'center';
+            content.innerHTML = `
+                <div style="font-size: 1.5em; margin-bottom: 5px;">${reward.icon}</div>
+                <div style="font-size: 0.7em; line-height: 1.2;">${reward.label}</div>
+            `;
             
-            achievements.forEach(achievement => {
-                const achievementElement = document.createElement('div');
-                achievementElement.className = `achievement ${achievement.unlocked ? 'unlocked' : ''}`;
-                
-                achievementElement.innerHTML = `
-                    <div class="achievement-icon">${achievement.unlocked ? '🏆' : '🔒'}</div>
-                    <div class="achievement-name">${achievement.name}</div>
-                    <div class="achievement-desc">${achievement.description}</div>
-                `;
-                
-                achievementsList.appendChild(achievementElement);
-            });
-        }
-        
-        // Tab switching functionality
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.getAttribute('data-tab');
-                
-                // Update active tab
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Show corresponding content
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === `${tabId}-tab`) {
-                        content.classList.add('active');
-                    }
-                });
-            });
+            section.appendChild(content);
+            wheel.appendChild(section);
+            currentAngle += sectionAngle;
         });
-        
-        // Initialize event listeners
-        clickArea.addEventListener('click', handleClick);
-        doubleBooster.addEventListener('click', () => {
-            if (score >= 10 && multiplier < 2) {
-                score -= 10;
-                multiplier = 2;
-                updateUI();
-                showMessage("2x Multiplier Activated!", "special");
-            }
-        });
-        autoClickerBtn.addEventListener('click', () => {
-            if (score >= 50 && !autoClickerActive) {
-                score -= 50;
-                activateAutoClicker();
-                updateUI();
-                showMessage("Auto-Clicker Activated!", "special");
-            }
-        });
-        clickStormBtn.addEventListener('click', () => {
-            if (score >= 100 && !clickStormActive) {
-                score -= 100;
-                activateClickStorm();
-                updateUI();
-                showMessage("Click Storm Activated!", "special");
-            }
-        });
-        
-        // Initialize the game
+    }
+
+    function spinWheel() {
+        if (gameData.spins <= 0) {
+            showNotification("Not enough spins! Buy more spins to continue.", "error");
+            return;
+        }
+
+        if (document.getElementById('spinBtn').disabled) {
+            return; // Already spinning
+        }
+
+        // Deduct one spin
+        gameData.spins--;
+        gameData.totalSpins++;
+        saveGameData();
         updateUI();
-        renderUpgrades();
-        renderAchievements();
+
+        // Disable spin button during animation
+        document.getElementById('spinBtn').disabled = true;
+
+        // Select random reward based on weights
+        const totalWeight = WHEEL_REWARDS.reduce((sum, reward) => sum + reward.weight, 0);
+        let random = Math.random() * totalWeight;
+        let selectedReward = null;
+        let cumulativeWeight = 0;
+
+        for (const reward of WHEEL_REWARDS) {
+            cumulativeWeight += reward.weight;
+            if (random <= cumulativeWeight) {
+                selectedReward = reward;
+                break;
+            }
+        }
+
+        // Check USDT eligibility
+        if (selectedReward.type === 'usdt' && gameData.spinPurchases < 5) {
+            // If not eligible for USDT, give a random SA reward instead
+            const saRewards = WHEEL_REWARDS.filter(r => r.type === 'sa');
+            selectedReward = saRewards[Math.floor(Math.random() * saRewards.length)];
+        }
+
+        // Calculate spin angle (multiple full rotations + offset to selected reward)
+        const rewardIndex = WHEEL_REWARDS.findIndex(r => r === selectedReward);
+        const sectionAngle = 360 / WHEEL_REWARDS.length;
+        const targetAngle = 360 * 5 + (360 - rewardIndex * sectionAngle) + Math.random() * sectionAngle;
+
+        // Animate wheel
+        const wheel = document.getElementById('wheel');
+        wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.83, 0.67)';
+        wheel.style.transform = `rotate(${targetAngle}deg)`;
+
+        // Process reward after animation
+        setTimeout(() => {
+            processReward(selectedReward);
+            document.getElementById('spinBtn').disabled = false;
+        }, 4000);
+    }
+
+    function processReward(reward) {
+        let message = '';
+        
+        switch (reward.type) {
+            case 'sa':
+                gameData.saBalance += reward.amount;
+                message = `🎉 You won ${reward.label}!`;
+                break;
+            case 'usdt':
+                gameData.usdtBalance += reward.amount;
+                message = `💰 You won ${reward.label}!`;
+                createConfetti();
+                break;
+            case 'spins':
+                gameData.spins += reward.amount;
+                message = `🎁 You won ${reward.label}!`;
+                break;
+        }
+
+        saveGameData();
+        updateUI();
+        showNotification(message, "success");
+
+        // Special effects for big wins
+        if (reward.amount >= 0.03 || reward.type === 'usdt') {
+            createConfetti();
+            // Play winning sound (would be implemented with audio)
+        }
+    }
+
+    // ---- PURCHASE FUNCTIONALITY ----
+
+    async function buySpins(spinAmount, bnbPrice) {
+        if (!currentUser) {
+            showNotification("Please login first", "error");
+            return;
+        }
+
+        if (!window.ethereum) {
+            showNotification("Please install MetaMask to purchase spins", "error");
+            return;
+        }
+
+        const confirmed = confirm(`Purchase ${spinAmount.toLocaleString()} spins for $${bnbPrice} BNB?`);
+        if (!confirmed) return;
+
+        try {
+            showNotification("Processing payment...", "info");
+
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+
+            // Convert BNB price to wei (simplified - in production you'd use current BNB price)
+            const bnbAmount = (bnbPrice / 300).toFixed(6); // Rough estimate
+
+            const tx = await signer.sendTransaction({
+                to: SUPREMEAMER_RECEIVER_BNB,
+                value: ethers.utils.parseEther(bnbAmount.toString())
+            });
+
+            showNotification("Payment confirmed! Adding spins...", "info");
+            await tx.wait();
+
+            // Add spins and track purchase
+            gameData.spins += spinAmount;
+            gameData.spinPurchases++;
+            saveGameData();
+            updateUI();
+
+            hideBuySpinsModal();
+            showNotification(`✅ ${spinAmount.toLocaleString()} spins added to your account!`, "success");
+            createConfetti();
+
+        } catch (error) {
+            console.error("Purchase error:", error);
+            showNotification("Payment failed. Please try again.", "error");
+        }
+    }
+
+    // ---- REFERRAL SYSTEM ----
+
+    function generateReferralCode() {
+        if (!gameData.referralCode) {
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            gameData.referralCode = code;
+            saveGameData();
+        }
+        return gameData.referralCode;
+    }
+
+    function copyReferralLink() {
+        const code = generateReferralCode();
+        const link = `https://supremeamer.com/ref/${code}`;
+        
+        navigator.clipboard.writeText(link).then(() => {
+            showNotification("Referral link copied to clipboard!", "success");
+        });
+    }
+
+    // ---- UI MANAGEMENT ----
+
+    function initializeUI() {
+        // Update user information
+        document.getElementById('dropdownUsername').textContent = userProfile?.name || currentUser.name || 'Spinner';
+        document.getElementById('dropdownEmail').textContent = currentUser.email;
+
+        // Initialize wheel
+        initializeWheel();
+
+        // Update balances
+        updateUI();
+
+        // Generate referral link
+        generateReferralCode();
+        document.getElementById('referralLink').textContent = `https://supremeamer.com/ref/${gameData.referralCode}`;
+
+        // Start reset timer
+        startResetTimer();
+    }
+
+    function updateUI() {
+        document.getElementById('spinBalance').textContent = gameData.spins.toLocaleString();
+        document.getElementById('saBalance').textContent = gameData.saBalance.toFixed(5) + ' SA';
+        document.getElementById('usdtBalance').textContent = gameData.usdtBalance.toFixed(2) + ' USDT';
+        document.getElementById('availableSpins').textContent = gameData.spins.toLocaleString();
+        
+        // Update spin button state
+        document.getElementById('spinBtn').disabled = gameData.spins <= 0;
+    }
+
+    function startResetTimer() {
+        function updateTimer() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+            
+            const diff = tomorrow - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('resetTimer').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    }
+
+    // ---- MODAL MANAGEMENT ----
+
+    function showBuySpinsModal() {
+        document.getElementById('buySpinsModal').style.display = 'block';
+    }
+
+    function hideBuySpinsModal() {
+        document.getElementById('buySpinsModal').style.display = 'none';
+    }
+
+    function showReferralModal() {
+        document.getElementById('referralModal').style.display = 'block';
+    }
+
+    function hideReferralModal() {
+        document.getElementById('referralModal').style.display = 'none';
+    }
+
+    // ---- NOTIFICATION SYSTEM ----
+
+    function showNotification(message, type = 'info', duration = 3000) {
+        const notification = document.querySelector('.notification');
+        const notificationText = document.querySelector('.notification-text');
+        
+        notificationText.textContent = message;
+        notification.className = 'notification';
+        
+        if (type === 'success') {
+            notification.classList.add('success');
+            notification.querySelector('i').className = 'fas fa-check-circle';
+        } else if (type === 'error') {
+            notification.classList.add('error');
+            notification.querySelector('i').className = 'fas fa-exclamation-circle';
+        } else {
+            notification.classList.add('info');
+            notification.querySelector('i').className = 'fas fa-info-circle';
+        }
+        
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, duration);
+    }
+
+    // ---- CONFETTI EFFECT ----
+
+    function createConfetti() {
+        const container = document.getElementById('confettiContainer');
+        const colors = ['#ff9800', '#fdc500', '#ff3333', '#4CAF50', '#2196F3'];
+        
+        for (let i = 0; i < 100; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.width = `${Math.random() * 10 + 5}px`;
+            confetti.style.height = `${Math.random() * 10 + 5}px`;
+            
+            if (Math.random() > 0.5) {
+                confetti.style.borderRadius = '50%';
+            }
+            
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+            
+            container.appendChild(confetti);
+            
+            setTimeout(() => {
+                confetti.remove();
+            }, 5000);
+        }
+    }
+
+    // ---- THEME MANAGEMENT ----
+
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = themeToggleBtn.querySelector('i');
+    const themeText = themeToggleBtn.querySelector('span');
+
+    function setTheme(light) {
+        if(light) {
+            document.body.classList.add('light');
+            localStorage.setItem('theme','light');
+            themeIcon.className = 'fas fa-sun';
+            themeText.textContent = 'Light Mode';
+        } else {
+            document.body.classList.remove('light');
+            localStorage.setItem('theme','dark');
+            themeIcon.className = 'fas fa-moon';
+            themeText.textContent = 'Dark Mode';
+        }
+    }
+
+    themeToggleBtn.onclick = function() {
+        setTheme(!document.body.classList.contains('light'));
+    };
+
+    // On load, restore theme
+    if(localStorage.getItem('theme')==='light') setTheme(true);
+
+    // ---- EVENT LISTENERS ----
+
+    document.getElementById('profileDropdownBtn').onclick = function(e) {
+        e.stopPropagation();
+        let menu = document.getElementById('profileDropdownMenu');
+        menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    };
+
+    document.addEventListener('click', function() {
+        let menu = document.getElementById('profileDropdownMenu');
+        if (menu.style.display === "block") menu.style.display = "none";
+    });
+
+    document.getElementById('profileDropdownMenu').onclick = function(e) { 
+        e.stopPropagation(); 
+    };
+
+    // Logout Functionality
+    document.getElementById('logoutBtn').onclick = async function(e) {
+        e.preventDefault();
+        try {
+            await account.deleteSession('current');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userEmail');
+            showNotification("Logged out successfully", "success");
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1000);
+        } catch (err) {
+            console.error("Logout error:", err);
+            window.location.href = 'login.html';
+        }
+    };
+
+    document.getElementById('spinBtn').onclick = spinWheel;
+    document.getElementById('buySpinsBtn').onclick = showBuySpinsModal;
+    document.getElementById('referralBtn').onclick = showReferralModal;
+
+    document.getElementById('closeBuyModal').onclick = hideBuySpinsModal;
+    document.getElementById('closeReferralModal').onclick = hideReferralModal;
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        const buyModal = document.getElementById('buySpinsModal');
+        const referralModal = document.getElementById('referralModal');
+        
+        if (event.target === buyModal) {
+            hideBuySpinsModal();
+        }
+        if (event.target === referralModal) {
+            hideReferralModal();
+        }
+    }
+
+    // ---- INITIALIZATION ----
+
+    window.onload = function() {
+        console.log("🎰 Spin game loading...");
+        initializeApp();
+    };
+
+    // Periodic authentication check
+    setInterval(async () => {
+        try {
+            await account.get();
+        } catch (error) {
+            console.error("Session expired, redirecting...");
+            showNotification("Session expired, please login again", "error");
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        }
+    }, 60000);
     </script>
 </body>
 </html>
