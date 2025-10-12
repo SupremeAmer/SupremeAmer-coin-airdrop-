@@ -842,526 +842,689 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
     <script>
     // ---- CONFIGURATION ----
-    const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
-    const APPWRITE_PROJECT = '6839d9640019316a160d';
-    const APPWRITE_DB_ID = '6839dcca000190bf99f6';
-    const APPWRITE_COLLECTION_ID = 'users';
-    const SUPREMEAMER_RECEIVER_BNB = '0xYourBnbAddressHere'; // CHANGE TO YOURS
-    const SUPREMEAMER_TOKEN_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678'; // CHANGE TO YOURS
-    const WITHDRAWAL_EMAIL = 'supremeamerapplicationwithdrawrequest@gmail.com';
+const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
+const APPWRITE_PROJECT = '6839d9640019316a160d';
+const APPWRITE_DB_ID = '6839dcca000190bf99f6';
+const APPWRITE_COLLECTION_ID = 'users';
+const SUPREMEAMER_RECEIVER_BNB = '0xYourBnbAddressHere';
+const SUPREMEAMER_TOKEN_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
+const WITHDRAWAL_EMAIL = 'supremeamerapplicationwithdrawrequest@gmail.com';
 
-    const UPGRADE_FEES = {
-        "0.05": "0.002",
-        "0.1": "0.009"
-    };
-    const UPGRADE_SPEEDS = {
-        "0.05": 0.05,
-        "0.1": 0.1
-    };
-    const NORMAL_SPEED = 0.0002;
-    const WITHDRAW_MIN_SA = 50000;
-    const WITHDRAW_FEE_PERCENT = 6;
-    const WITHDRAW_PROCESSING_FEE_USD = 2;
-    const WITHDRAW_DAYS = [9, 13];
+const UPGRADE_FEES = {
+    "0.05": "0.002",
+    "0.1": "0.009"
+};
+const UPGRADE_SPEEDS = {
+    "0.05": 0.05,
+    "0.1": 0.1
+};
+const NORMAL_SPEED = 0.0002;
+const WITHDRAW_MIN_SA = 50000;
+const WITHDRAW_FEE_PERCENT = 6;
+const WITHDRAW_PROCESSING_FEE_USD = 2;
+const WITHDRAW_DAYS = [9, 13];
 
-    // Appwrite
-    const { Client, Account, Databases, Query } = Appwrite;
-    const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT);
-    const account = new Account(client);
-    const databases = new Databases(client);
+// Appwrite
+const { Client, Account, Databases, Query } = Appwrite;
+const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT);
+const account = new Account(client);
+const databases = new Databases(client);
 
-    // Wallet state
-    let walletConnected = false;
-    let walletAddress = '';
-    let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
-    let miningSpeed = parseFloat(localStorage.getItem('miningSpeed')) || NORMAL_SPEED;
-    let miningUpgrade = JSON.parse(localStorage.getItem('miningUpgrade')) || null;
+// User state
+let currentUser = null;
+let userProfile = null;
 
-    // Theme Toggle Functionality
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    const themeIcon = themeToggleBtn.querySelector('i');
-    const themeText = themeToggleBtn.querySelector('span');
+// Wallet state
+let walletConnected = false;
+let walletAddress = '';
+let minedCoins = 0;
+let miningSpeed = NORMAL_SPEED;
+let miningUpgrade = null;
+
+// ---- AUTHENTICATION & USER MANAGEMENT ----
+
+// Check authentication and load user data
+async function initializeApp() {
+    console.log("Initializing wallet app...");
     
-    function setTheme(light) {
-        if(light) {
-            document.body.classList.add('light');
-            localStorage.setItem('theme','light');
-            themeIcon.className = 'fas fa-sun';
-            themeText.textContent = 'Light Mode';
-        } else {
-            document.body.classList.remove('light');
-            localStorage.setItem('theme','dark');
-            themeIcon.className = 'fas fa-moon';
-            themeText.textContent = 'Dark Mode';
-        }
-    }
-    
-    themeToggleBtn.onclick = function() {
-        setTheme(!document.body.classList.contains('light'));
-    };
-    
-    // On load, restore theme
-    if(localStorage.getItem('theme')==='light') setTheme(true);
-    
-    // Profile Dropdown Functionality
-    document.getElementById('profileDropdownBtn').onclick = function(e) {
-        e.stopPropagation();
-        let menu = document.getElementById('profileDropdownMenu');
-        menu.style.display = (menu.style.display === "block") ? "none" : "block";
-    };
-    
-    document.addEventListener('click', function() {
-        let menu = document.getElementById('profileDropdownMenu');
-        if (menu.style.display === "block") menu.style.display = "none";
-    });
-    
-    document.getElementById('profileDropdownMenu').onclick = function(e) { 
-        e.stopPropagation(); 
-    };
-    
-    // Logout Functionality
-    document.getElementById('logoutBtn').onclick = async function(e) {
-        e.preventDefault();
-        try { 
-            await account.deleteSession('current'); 
-            showNotification("Logged out successfully", "success");
-            setTimeout(() => {
-                window.location.href = "login.html";
-            }, 1000);
-        } catch (err) {
-            console.error("Logout error:", err);
-            showNotification("Error logging out", "error");
-        }
-    };
-    
-    // Display User Information
-    async function displayUser() {
-        try {
-            const user = await account.get();
-            const res = await databases.listDocuments(APPWRITE_DB_ID, APPWRITE_COLLECTION_ID, [Query.equal("userId", user.$id)]);
-            if (res.documents.length > 0) {
-                const profile = res.documents[0];
-                document.getElementById('dropdownUsername').textContent = profile.name;
-                document.getElementById('dropdownEmail').textContent = profile.email;
-                document.getElementById('userEmail').value = profile.email;
-            }
-        } catch (err) {
-            console.error("Error fetching user:", err);
-            // If not logged in, redirect to login page
-            window.location.href = "login.html";
-        }
-    }
-    
-    // Tab Functionality
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            // Remove active class from all tabs and contents
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            // Add active class to clicked tab and corresponding content
-            this.classList.add('active');
-            const tabId = this.getAttribute('data-tab');
-            document.getElementById(tabId + 'Tab').classList.add('active');
-        });
-    });
-    
-    // Notification System
-    function showNotification(message, type = 'info', duration = 3000) {
-        const notification = document.querySelector('.notification');
-        const notificationText = document.querySelector('.notification-text');
+    try {
+        // Check if user is authenticated
+        currentUser = await account.get();
+        console.log("✅ User authenticated:", currentUser.email);
         
-        notificationText.textContent = message;
-        notification.className = 'notification';
+        // Set authentication flag
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', currentUser.$id);
+        localStorage.setItem('userEmail', currentUser.email);
         
-        // Add type class
-        if (type === 'success') {
-            notification.classList.add('success');
-            notification.querySelector('i').className = 'fas fa-check-circle';
-        } else if (type === 'error') {
-            notification.classList.add('error');
-            notification.querySelector('i').className = 'fas fa-exclamation-circle';
-        } else {
-            notification.classList.add('info');
-            notification.querySelector('i').className = 'fas fa-info-circle';
-        }
+        // Load user profile from database
+        await loadUserProfile();
         
-        // Show notification
-        notification.classList.add('show');
+        // Load mining data for this user
+        await loadUserMiningData();
         
-        // Hide after duration
+        // Initialize UI
+        initializeUI();
+        
+        // Show welcome message
+        showNotification(`Welcome to your wallet, ${userProfile?.name || currentUser.name || 'Miner'}!`, "success");
+        
+    } catch (error) {
+        console.error("❌ Authentication failed:", error);
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userEmail');
+        
+        // Show error and redirect
+        showNotification("Please login to access your wallet", "error");
         setTimeout(() => {
-            notification.classList.remove('show');
-        }, duration);
+            window.location.href = 'login.html';
+        }, 1500);
+        return;
     }
-    
-    // Connect Wallet Functionality
-    document.getElementById('connectWalletBtn').onclick = async function() {
-        if (typeof window.ethereum === 'undefined') {
-            showNotification("MetaMask is not installed", "error");
-            document.getElementById('walletStatus').textContent = "MetaMask is not installed. Please install it to continue.";
-            document.getElementById('walletStatus').className = "status-message error-message";
-            return;
-        }
+}
+
+// Load user profile from database
+async function loadUserProfile() {
+    try {
+        const response = await databases.listDocuments(
+            APPWRITE_DB_ID, 
+            APPWRITE_COLLECTION_ID, 
+            [Query.equal("userId", currentUser.$id)]
+        );
         
-        try {
-            // Request account access
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            walletAddress = accounts[0];
-            walletConnected = true;
-            
-            // Update UI
-            document.getElementById('walletAddress').textContent = walletAddress;
-            document.getElementById('copyAddressBtn').style.display = 'block';
-            document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected</span>';
-            document.getElementById('connectWalletBtn').disabled = true;
-            document.getElementById('walletStatus').textContent = "Wallet connected successfully!";
-            document.getElementById('walletStatus').className = "status-message success-message";
-            
-            showNotification("Wallet connected successfully!", "success");
-            
-            // Update balances
-            updateBalances();
-            
-        } catch (error) {
-            console.error("Error connecting wallet:", error);
-            showNotification("Failed to connect wallet", "error");
-            document.getElementById('walletStatus').textContent = "Failed to connect wallet. Please try again.";
-            document.getElementById('walletStatus').className = "status-message error-message";
-        }
-    };
-    
-    // Copy Address Functionality
-    document.getElementById('copyAddressBtn').onclick = function() {
-        navigator.clipboard.writeText(walletAddress).then(() => {
-            showNotification("Wallet address copied to clipboard!", "success");
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-            showNotification("Failed to copy address", "error");
-        });
-    };
-    
-    // Update Balances
-    function updateBalances() {
-        // Update wallet balance
-        document.getElementById('walletBalance').textContent = `${minedCoins.toFixed(4)} SA`;
-        document.getElementById('minedBalance').textContent = `${minedCoins.toFixed(4)} SA`;
-        document.getElementById('availableBalance').textContent = `${minedCoins.toFixed(4)} SA`;
-        document.getElementById('availableWithdraw').textContent = `${minedCoins.toFixed(4)} SA`;
-        
-        // Update current mining speed
-        if (miningUpgrade) {
-            const now = Math.floor(Date.now() / 1000);
-            const upgradeEndTime = miningUpgrade.startTime + (360 * 24 * 3600);
-            
-            if (now < upgradeEndTime) {
-                document.getElementById('currentMiningSpeed').textContent = `${miningUpgrade.upgradeSpeed} SA/sec`;
-            } else {
-                document.getElementById('currentMiningSpeed').textContent = `${NORMAL_SPEED} SA/sec`;
-            }
+        if (response.documents.length > 0) {
+            userProfile = response.documents[0];
+            console.log("✅ User profile loaded:", userProfile);
         } else {
-            document.getElementById('currentMiningSpeed').textContent = `${NORMAL_SPEED} SA/sec`;
-        }
-    }
-    
-    // Withdraw Amount Calculation
-    document.getElementById('withdrawAmount').addEventListener('input', function() {
-        const amount = parseFloat(this.value) || 0;
-        const fee = amount * (WITHDRAW_FEE_PERCENT / 100);
-        const receive = amount - fee;
-        
-        document.getElementById('summaryAmount').textContent = `${amount.toFixed(4)} SA`;
-        document.getElementById('summaryFee').textContent = `${fee.toFixed(4)} SA`;
-        document.getElementById('summaryReceive').textContent = `${receive.toFixed(4)} SA`;
-        
-        // Enable/disable submit button based on validation
-        const submitBtn = document.getElementById('submitWithdrawBtn');
-        const email = document.getElementById('userEmail').value;
-        
-        if (amount >= WITHDRAW_MIN_SA && amount <= minedCoins && email) {
-            submitBtn.disabled = false;
-        } else {
-            submitBtn.disabled = true;
-        }
-    });
-    
-    // Email validation for withdraw form
-    document.getElementById('userEmail').addEventListener('input', function() {
-        const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
-        const email = this.value;
-        const submitBtn = document.getElementById('submitWithdrawBtn');
-        
-        if (amount >= WITHDRAW_MIN_SA && amount <= minedCoins && email) {
-            submitBtn.disabled = false;
-        } else {
-            submitBtn.disabled = true;
-        }
-    });
-    
-    // Submit Withdrawal Request
-    document.getElementById('submitWithdrawBtn').onclick = async function() {
-        const amount = parseFloat(document.getElementById('withdrawAmount').value);
-        const email = document.getElementById('userEmail').value;
-        const today = new Date();
-        
-        // Check if today is a withdrawal day
-        if (!WITHDRAW_DAYS.includes(today.getDate())) {
-            document.getElementById('withdrawStatus').textContent = `Withdrawals only on ${WITHDRAW_DAYS.join('th and ')}th each month!`;
-            document.getElementById('withdrawStatus').className = "status-message error-message";
-            return;
-        }
-        
-        // Validate amount
-        if (amount < WITHDRAW_MIN_SA) {
-            document.getElementById('withdrawStatus').textContent = `Minimum withdrawal amount is ${WITHDRAW_MIN_SA} SA.`;
-            document.getElementById('withdrawStatus').className = "status-message error-message";
-            return;
-        }
-        
-        if (amount > minedCoins) {
-            document.getElementById('withdrawStatus').textContent = `Insufficient balance. You have ${minedCoins.toFixed(4)} SA available.`;
-            document.getElementById('withdrawStatus').className = "status-message error-message";
-            return;
-        }
-        
-        // Check if wallet is connected
-        if (!walletConnected) {
-            document.getElementById('withdrawStatus').textContent = "Please connect your wallet first.";
-            document.getElementById('withdrawStatus').className = "status-message error-message";
-            return;
-        }
-        
-        // Check if user has paid the processing fee
-        if (localStorage.getItem('withdrawEligible') !== 'true') {
-            const confirmed = confirm(`To withdraw, you need to pay a one-time processing fee of $${WITHDRAW_PROCESSING_FEE_USD} worth of BNB.\n\nThis fee helps prevent abuse of the system.`);
-            if (!confirmed) {
-                document.getElementById('withdrawStatus').textContent = "Withdrawal cancelled";
-                document.getElementById('withdrawStatus').className = "status-message error-message";
-                return;
-            }
-            
-            try {
-                document.getElementById('withdrawStatus').textContent = "Processing eligibility fee...";
-                document.getElementById('withdrawStatus').className = "status-message";
-                
-                // In a real implementation, you would calculate the BNB amount based on current price
-                // For this example, we'll use a fixed amount
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const signer = provider.getSigner();
-                
-                // This is a simplified example - in production you would calculate the exact BNB amount
-                const bnbAmount = "0.001"; // Approximate $2 worth of BNB
-                
-                const tx = await signer.sendTransaction({
-                    to: SUPREMEAMER_RECEIVER_BNB,
-                    value: ethers.utils.parseEther(bnbAmount)
-                });
-                
-                showNotification("Processing fee transaction sent!", "info");
-                await tx.wait();
-                
-                localStorage.setItem('withdrawEligible','true');
-                showNotification("Processing fee paid successfully!", "success");
-                document.getElementById('withdrawStatus').textContent = "";
-                
-                // Continue with withdrawal after eligibility
-                processWithdrawalRequest(amount, email);
-            } catch(e) {
-                console.error("Fee payment error:", e);
-                document.getElementById('withdrawStatus').textContent = "Fee payment failed. Please try again.";
-                document.getElementById('withdrawStatus').className = "status-message error-message";
-                showNotification("Fee payment failed", "error");
-                return;
-            }
-        } else {
-            processWithdrawalRequest(amount, email);
-        }
-    };
-    
-    // Process Withdrawal Request
-    function processWithdrawalRequest(amount, email) {
-        document.getElementById('withdrawStatus').textContent = "Processing withdrawal request...";
-        document.getElementById('withdrawStatus').className = "status-message";
-        
-        // Calculate withdrawal details
-        const fee = amount * (WITHDRAW_FEE_PERCENT / 100);
-        const receive = amount - fee;
-        
-        // In a real implementation, you would send this data to your backend
-        // For this example, we'll simulate sending an email
-        setTimeout(() => {
-            // Simulate sending email
-            const emailBody = `
-                New SupremeAmer Withdrawal Request:
-                
-                Wallet Address: ${walletAddress}
-                Email: ${email}
-                Amount Requested: ${amount} SA
-                Withdrawal Fee (${WITHDRAW_FEE_PERCENT}%): ${fee.toFixed(4)} SA
-                Amount to Send: ${receive.toFixed(4)} SA
-                Token Address: ${SUPREMEAMER_TOKEN_ADDRESS}
-                Date: ${new Date().toLocaleString()}
-            `;
-            
-            // In a real implementation, you would use a service like EmailJS or your backend
-            console.log("Email would be sent to:", WITHDRAWAL_EMAIL);
-            console.log("Email content:", emailBody);
-            
-            // Update balances
-            minedCoins -= amount;
-            localStorage.setItem('minedCoins', minedCoins);
-            updateBalances();
-            
-            // Reset form
-            document.getElementById('withdrawAmount').value = '';
-            document.getElementById('submitWithdrawBtn').disabled = true;
-            
-            document.getElementById('withdrawStatus').textContent = "Withdrawal request submitted successfully!";
-            document.getElementById('withdrawStatus').className = "status-message success-message";
-            
-            showNotification("Withdrawal request submitted! You will receive your tokens soon.", "success");
-            
-            alert(`Withdrawal request submitted!\n\nYou will receive: ${receive.toFixed(4)} SA\nProcessing may take 24-48 hours.\n\nThank you for using SupremeAmer Coin!`);
-        }, 2000);
-    }
-    
-    // Upgrade Mining Function
-    window.upgradeMining = async function(speedKey) {
-        if (!walletConnected) {
-            showNotification("Please connect your wallet first", "error");
-            document.getElementById('upgradeStatus').textContent = "Please connect your wallet first.";
-            document.getElementById('upgradeStatus').className = "status-message error-message";
-            return;
-        }
-        
-        if (miningUpgrade) {
-            const now = Math.floor(Date.now() / 1000);
-            const upgradeEndTime = miningUpgrade.startTime + (360 * 24 * 3600);
-            
-            if (now < upgradeEndTime) {
-                showNotification("You already have an active upgrade!", "error");
-                document.getElementById('upgradeStatus').textContent = "You already have an active upgrade!";
-                document.getElementById('upgradeStatus').className = "status-message error-message";
-                return;
-            }
-        }
-        
-        const upgrade = {
-            speed: UPGRADE_SPEEDS[speedKey],
-            cost: UPGRADE_FEES[speedKey]
-        };
-        
-        // Show confirmation
-        const confirmed = confirm(`Upgrade mining speed to ${upgrade.speed} SA/sec for 360 days?\n\nCost: ${upgrade.cost} BNB`);
-        if(!confirmed) return;
-        
-        try {
-            document.getElementById('upgradeStatus').textContent = "Processing upgrade transaction...";
-            document.getElementById('upgradeStatus').className = "status-message";
-            
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
-            
-            const tx = await signer.sendTransaction({
-                to: SUPREMEAMER_RECEIVER_BNB,
-                value: ethers.utils.parseEther(upgrade.cost)
-            });
-            
-            showNotification("Upgrade transaction sent!", "info");
-            await tx.wait();
-            
-            // Set upgrade data
-            miningUpgrade = {
-                upgradeSpeed: upgrade.speed,
-                bnbFee: upgrade.cost,
-                startTime: Math.floor(Date.now() / 1000),
-                lastClaim: Math.floor(Date.now() / 1000)
+            // Create a basic profile if none exists
+            userProfile = {
+                name: currentUser.name || 'Miner',
+                email: currentUser.email,
+                userId: currentUser.$id
             };
-            
-            miningSpeed = upgrade.speed;
-            
-            localStorage.setItem('miningSpeed', miningSpeed.toString());
-            localStorage.setItem('miningUpgrade', JSON.stringify(miningUpgrade));
-            
-            document.getElementById('upgradeStatus').textContent = "Mining upgrade successful!";
-            document.getElementById('upgradeStatus').className = "status-message success-message";
-            document.getElementById('currentMiningSpeed').textContent = `${upgrade.speed} SA/sec`;
-            
-            showNotification(`Mining upgraded to ${upgrade.speed} SA/sec!`, "success");
-            
-        } catch (e) {
-            console.error("Upgrade error:", e);
-            document.getElementById('upgradeStatus').textContent = "Upgrade failed. Please try again.";
-            document.getElementById('upgradeStatus').className = "status-message error-message";
-            showNotification("Upgrade failed", "error");
+            console.log("ℹ️ Using basic user profile");
         }
-    };
+    } catch (error) {
+        console.error("❌ Error loading user profile:", error);
+        // Use basic user info as fallback
+        userProfile = {
+            name: currentUser.name || 'Miner',
+            email: currentUser.email,
+            userId: currentUser.$id
+        };
+    }
+}
+
+// Load user-specific mining data
+async function loadUserMiningData() {
+    if (!currentUser) {
+        console.error("❌ No current user found");
+        return;
+    }
     
-    // Initialize on page load
-    window.onload = function() {
-        // Display user information
-        displayUser();
+    const userId = currentUser.$id;
+    console.log("📊 Loading mining data for user:", userId);
+    
+    // Load from localStorage with user-specific keys
+    const userMinedCoins = localStorage.getItem(`minedCoins_${userId}`);
+    const userMiningSpeed = localStorage.getItem(`miningSpeed_${userId}`);
+    const userUpgradeData = localStorage.getItem(`miningUpgrade_${userId}`);
+    
+    minedCoins = userMinedCoins ? parseFloat(userMinedCoins) : 0;
+    miningSpeed = userMiningSpeed ? parseFloat(userMiningSpeed) : NORMAL_SPEED;
+    miningUpgrade = userUpgradeData ? JSON.parse(userUpgradeData) : null;
+
+    console.log("✅ Mining data loaded:", {
+        minedCoins,
+        miningSpeed,
+        miningUpgrade: miningUpgrade ? 'Yes' : 'No'
+    });
+}
+
+// Enhanced logout function
+async function handleLogout() {
+    try {
+        console.log("🚪 Logging out user...");
+        await account.deleteSession('current');
         
+        // Clear user-specific data
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userEmail');
+        
+        showNotification("Logged out successfully", "success");
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1000);
+    } catch (err) {
+        console.error("❌ Logout error:", err);
+        // Force redirect even if logout fails
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userEmail');
+        window.location.href = 'login.html';
+    }
+}
+
+// Initialize UI after authentication
+function initializeUI() {
+    console.log("🎨 Initializing UI...");
+    
+    // Update user information in dropdown
+    const username = userProfile?.name || currentUser.name || 'Miner';
+    const userEmail = currentUser.email;
+    
+    document.getElementById('dropdownUsername').textContent = username;
+    document.getElementById('dropdownEmail').textContent = userEmail;
+    document.getElementById('userEmail').value = userEmail;
+
+    console.log("✅ User info updated in UI:", { username, userEmail });
+
+    // Update balances
+    updateBalances();
+
+    // Initialize wallet connection
+    initializeWalletConnection();
+
+    // Show success message
+    setTimeout(() => {
+        showNotification(`Wallet loaded successfully! Balance: ${minedCoins.toFixed(4)} SA`, "info");
+    }, 500);
+}
+
+// Initialize wallet connection
+function initializeWalletConnection() {
+    console.log("🔗 Initializing wallet connection...");
+    
+    if (typeof window.ethereum !== 'undefined') {
+        window.ethereum.request({ method: 'eth_accounts' })
+        .then(accounts => {
+            if (accounts.length > 0) {
+                walletAddress = accounts[0];
+                walletConnected = true;
+
+                console.log("✅ Wallet already connected:", walletAddress);
+
+                // Update UI
+                document.getElementById('walletAddress').textContent = walletAddress;
+                document.getElementById('copyAddressBtn').style.display = 'block';
+                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected</span>';
+                document.getElementById('connectWalletBtn').disabled = true;
+                document.getElementById('walletStatus').textContent = "Wallet connected!";
+                document.getElementById('walletStatus').className = "status-message success-message";
+
+                updateBalances();
+            } else {
+                console.log("ℹ️ No wallet accounts found");
+            }
+        })
+        .catch(err => {
+            console.error("❌ Error checking wallet connection:", err);
+        });
+    } else {
+        console.log("❌ MetaMask not installed");
+    }
+
+    // Listen for account changes
+    if (window.ethereum) {
+        window.ethereum.on('accountsChanged', function(accounts) {
+            console.log("🔄 Wallet accounts changed:", accounts);
+            
+            if (accounts.length === 0) {
+                // User disconnected their wallet
+                walletConnected = false;
+                walletAddress = '';
+
+                document.getElementById('walletAddress').textContent = 'Connect Wallet to View Address';
+                document.getElementById('copyAddressBtn').style.display = 'none';
+                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet"></i><span>Connect MetaMask</span>';
+                document.getElementById('connectWalletBtn').disabled = false;
+                document.getElementById('walletStatus').textContent = "Wallet disconnected";
+                document.getElementById('walletStatus').className = "status-message error-message";
+
+                showNotification("Wallet disconnected", "info");
+            } else {
+                // User switched accounts
+                walletAddress = accounts[0];
+
+                document.getElementById('walletAddress').textContent = walletAddress;
+                document.getElementById('copyAddressBtn').style.display = 'block';
+                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected</span>';
+                document.getElementById('connectWalletBtn').disabled = true;
+                document.getElementById('walletStatus').textContent = "Wallet account changed";
+                document.getElementById('walletStatus').className = "status-message info";
+
+                showNotification("Wallet account changed", "info");
+                updateBalances();
+            }
+        });
+    }
+}
+
+// Theme Toggle Functionality
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+const themeIcon = themeToggleBtn.querySelector('i');
+const themeText = themeToggleBtn.querySelector('span');
+
+function setTheme(light) {
+    if(light) {
+        document.body.classList.add('light');
+        localStorage.setItem('theme','light');
+        themeIcon.className = 'fas fa-sun';
+        themeText.textContent = 'Light Mode';
+    } else {
+        document.body.classList.remove('light');
+        localStorage.setItem('theme','dark');
+        themeIcon.className = 'fas fa-moon';
+        themeText.textContent = 'Dark Mode';
+    }
+}
+
+themeToggleBtn.onclick = function() {
+    setTheme(!document.body.classList.contains('light'));
+};
+
+// On load, restore theme
+if(localStorage.getItem('theme')==='light') setTheme(true);
+
+// Profile Dropdown Functionality
+document.getElementById('profileDropdownBtn').onclick = function(e) {
+    e.stopPropagation();
+    let menu = document.getElementById('profileDropdownMenu');
+    menu.style.display = (menu.style.display === "block") ? "none" : "block";
+};
+
+document.addEventListener('click', function() {
+    let menu = document.getElementById('profileDropdownMenu');
+    if (menu.style.display === "block") menu.style.display = "none";
+});
+
+document.getElementById('profileDropdownMenu').onclick = function(e) { 
+    e.stopPropagation(); 
+};
+
+// Logout Functionality
+document.getElementById('logoutBtn').onclick = function(e) {
+    e.preventDefault();
+    handleLogout();
+};
+
+// Tab Functionality
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        // Remove active class from all tabs and contents
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        // Add active class to clicked tab and corresponding content
+        this.classList.add('active');
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId + 'Tab').classList.add('active');
+    });
+});
+
+// Notification System
+function showNotification(message, type = 'info', duration = 3000) {
+    const notification = document.querySelector('.notification');
+    const notificationText = document.querySelector('.notification-text');
+
+    notificationText.textContent = message;
+    notification.className = 'notification';
+
+    // Add type class
+    if (type === 'success') {
+        notification.classList.add('success');
+        notification.querySelector('i').className = 'fas fa-check-circle';
+    } else if (type === 'error') {
+        notification.classList.add('error');
+        notification.querySelector('i').className = 'fas fa-exclamation-circle';
+    } else {
+        notification.classList.add('info');
+        notification.querySelector('i').className = 'fas fa-info-circle';
+    }
+
+    // Show notification
+    notification.classList.add('show');
+
+    // Hide after duration
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, duration);
+}
+
+// Connect Wallet Functionality
+document.getElementById('connectWalletBtn').onclick = async function() {
+    if (!currentUser) {
+        showNotification("Please login first", "error");
+        return;
+    }
+
+    if (typeof window.ethereum === 'undefined') {
+        showNotification("MetaMask is not installed", "error");
+        document.getElementById('walletStatus').textContent = "MetaMask is not installed. Please install it to continue.";
+        document.getElementById('walletStatus').className = "status-message error-message";
+        return;
+    }
+
+    try {
+        console.log("🔗 Connecting wallet...");
+        
+        // Request account access
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        walletAddress = accounts[0];
+        walletConnected = true;
+
+        console.log("✅ Wallet connected:", walletAddress);
+
+        // Update UI
+        document.getElementById('walletAddress').textContent = walletAddress;
+        document.getElementById('copyAddressBtn').style.display = 'block';
+        document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected</span>';
+        document.getElementById('connectWalletBtn').disabled = true;
+        document.getElementById('walletStatus').textContent = "Wallet connected successfully!";
+        document.getElementById('walletStatus').className = "status-message success-message";
+
+        showNotification("Wallet connected successfully!", "success");
+
         // Update balances
         updateBalances();
-        
-        // Check if wallet is already connected
-        if (typeof window.ethereum !== 'undefined') {
-            window.ethereum.request({ method: 'eth_accounts' })
-            .then(accounts => {
-                if (accounts.length > 0) {
-                    walletAddress = accounts[0];
-                    walletConnected = true;
-                    
-                    // Update UI
-                    document.getElementById('walletAddress').textContent = walletAddress;
-                    document.getElementById('copyAddressBtn').style.display = 'block';
-                    document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected</span>';
-                    document.getElementById('connectWalletBtn').disabled = true;
-                    document.getElementById('walletStatus').textContent = "Wallet connected!";
-                    document.getElementById('walletStatus').className = "status-message success-message";
-                    
-                    updateBalances();
-                }
-            })
-            .catch(err => {
-                console.error("Error checking wallet connection:", err);
-            });
+
+    } catch (error) {
+        console.error("❌ Error connecting wallet:", error);
+        showNotification("Failed to connect wallet", "error");
+        document.getElementById('walletStatus').textContent = "Failed to connect wallet. Please try again.";
+        document.getElementById('walletStatus').className = "status-message error-message";
+    }
+};
+
+// Copy Address Functionality
+document.getElementById('copyAddressBtn').onclick = function() {
+    navigator.clipboard.writeText(walletAddress).then(() => {
+        showNotification("Wallet address copied to clipboard!", "success");
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+        showNotification("Failed to copy address", "error");
+    });
+};
+
+// Update Balances
+function updateBalances() {
+    if (!currentUser) {
+        console.error("❌ Cannot update balances: No current user");
+        return;
+    }
+
+    console.log("💰 Updating balances:", minedCoins);
+
+    // Update wallet balance
+    document.getElementById('walletBalance').textContent = `${minedCoins.toFixed(4)} SA`;
+    document.getElementById('minedBalance').textContent = `${minedCoins.toFixed(4)} SA`;
+    document.getElementById('availableBalance').textContent = `${minedCoins.toFixed(4)} SA`;
+    document.getElementById('availableWithdraw').textContent = `${minedCoins.toFixed(4)} SA`;
+
+    // Update current mining speed
+    let currentSpeed = NORMAL_SPEED;
+    if (miningUpgrade) {
+        const now = Math.floor(Date.now() / 1000);
+        const upgradeEndTime = miningUpgrade.startTime + (360 * 24 * 3600);
+
+        if (now < upgradeEndTime) {
+            currentSpeed = miningUpgrade.upgradeSpeed;
         }
-        
-        // Listen for account changes
-        if (window.ethereum) {
-            window.ethereum.on('accountsChanged', function(accounts) {
-                if (accounts.length === 0) {
-                    // User disconnected their wallet
-                    walletConnected = false;
-                    walletAddress = '';
-                    
-                    document.getElementById('walletAddress').textContent = 'Connect Wallet to View Address';
-                    document.getElementById('copyAddressBtn').style.display = 'none';
-                    document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet"></i><span>Connect MetaMask</span>';
-                    document.getElementById('connectWalletBtn').disabled = false;
-                    document.getElementById('walletStatus').textContent = "Wallet disconnected";
-                    document.getElementById('walletStatus').className = "status-message error-message";
-                    
-                    showNotification("Wallet disconnected", "info");
-                } else {
-                    // User switched accounts
-                    walletAddress = accounts[0];
-                    
-                    document.getElementById('walletAddress').textContent = walletAddress;
-                    document.getElementById('copyAddressBtn').style.display = 'block';
-                    document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected</span>';
-                    document.getElementById('connectWalletBtn').disabled = true;
-                    document.getElementById('walletStatus').textContent = "Wallet account changed";
-                    document.getElementById('walletStatus').className = "status-message info";
-                    
-                    showNotification("Wallet account changed", "info");
-                    updateBalances();
-                }
-            });
+    }
+    
+    document.getElementById('currentMiningSpeed').textContent = `${currentSpeed} SA/sec`;
+    
+    console.log("✅ Balances updated successfully");
+}
+
+// Withdraw Amount Calculation
+document.getElementById('withdrawAmount').addEventListener('input', function() {
+    const amount = parseFloat(this.value) || 0;
+    const fee = amount * (WITHDRAW_FEE_PERCENT / 100);
+    const receive = amount - fee;
+
+    document.getElementById('summaryAmount').textContent = `${amount.toFixed(4)} SA`;
+    document.getElementById('summaryFee').textContent = `${fee.toFixed(4)} SA`;
+    document.getElementById('summaryReceive').textContent = `${receive.toFixed(4)} SA`;
+
+    // Enable/disable submit button based on validation
+    const submitBtn = document.getElementById('submitWithdrawBtn');
+    const email = document.getElementById('userEmail').value;
+
+    if (amount >= WITHDRAW_MIN_SA && amount <= minedCoins && email) {
+        submitBtn.disabled = false;
+    } else {
+        submitBtn.disabled = true;
+    }
+});
+
+// Email validation for withdraw form
+document.getElementById('userEmail').addEventListener('input', function() {
+    const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+    const email = this.value;
+    const submitBtn = document.getElementById('submitWithdrawBtn');
+
+    if (amount >= WITHDRAW_MIN_SA && amount <= minedCoins && email) {
+        submitBtn.disabled = false;
+    } else {
+        submitBtn.disabled = true;
+    }
+});
+
+// Submit Withdrawal Request
+document.getElementById('submitWithdrawBtn').onclick = async function() {
+    if (!currentUser) {
+        showNotification("Please login first", "error");
+        return;
+    }
+
+    const amount = parseFloat(document.getElementById('withdrawAmount').value);
+    const email = document.getElementById('userEmail').value;
+    const today = new Date();
+
+    console.log("💸 Processing withdrawal:", { amount, email, today: today.getDate() });
+
+    // Check if today is a withdrawal day
+    if (!WITHDRAW_DAYS.includes(today.getDate())) {
+        document.getElementById('withdrawStatus').textContent = `Withdrawals only on ${WITHDRAW_DAYS.join('th and ')}th each month!`;
+        document.getElementById('withdrawStatus').className = "status-message error-message";
+        return;
+    }
+
+    // Validate amount
+    if (amount < WITHDRAW_MIN_SA) {
+        document.getElementById('withdrawStatus').textContent = `Minimum withdrawal amount is ${WITHDRAW_MIN_SA} SA.`;
+        document.getElementById('withdrawStatus').className = "status-message error-message";
+        return;
+    }
+
+    if (amount > minedCoins) {
+        document.getElementById('withdrawStatus').textContent = `Insufficient balance. You have ${minedCoins.toFixed(4)} SA available.`;
+        document.getElementById('withdrawStatus').className = "status-message error-message";
+        return;
+    }
+
+    // Check if wallet is connected
+    if (!walletConnected) {
+        document.getElementById('withdrawStatus').textContent = "Please connect your wallet first.";
+        document.getElementById('withdrawStatus').className = "status-message error-message";
+        return;
+    }
+
+    // Check if user has paid the processing fee
+    if (localStorage.getItem('withdrawEligible') !== 'true') {
+        const confirmed = confirm(`To withdraw, you need to pay a one-time processing fee of $${WITHDRAW_PROCESSING_FEE_USD} worth of BNB.\n\nThis fee helps prevent abuse of the system.`);
+        if (!confirmed) {
+            document.getElementById('withdrawStatus').textContent = "Withdrawal cancelled";
+            document.getElementById('withdrawStatus').className = "status-message error-message";
+            return;
         }
+
+        try {
+            document.getElementById('withdrawStatus').textContent = "Processing eligibility fee...";
+            document.getElementById('withdrawStatus').className = "status-message";
+
+            // In a real implementation, you would calculate the BNB amount based on current price
+            const bnbAmount = "0.001"; // Approximate $2 worth of BNB
+
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+
+            const tx = await signer.sendTransaction({
+                to: SUPREMEAMER_RECEIVER_BNB,
+                value: ethers.utils.parseEther(bnbAmount)
+            });
+
+            showNotification("Processing fee transaction sent!", "info");
+            await tx.wait();
+
+            localStorage.setItem('withdrawEligible','true');
+            showNotification("Processing fee paid successfully!", "success");
+            document.getElementById('withdrawStatus').textContent = "";
+
+            // Continue with withdrawal after eligibility
+            processWithdrawalRequest(amount, email);
+        } catch(e) {
+            console.error("❌ Fee payment error:", e);
+            document.getElementById('withdrawStatus').textContent = "Fee payment failed. Please try again.";
+            document.getElementById('withdrawStatus').className = "status-message error-message";
+            showNotification("Fee payment failed", "error");
+            return;
+        }
+    } else {
+        processWithdrawalRequest(amount, email);
+    }
+};
+
+// Process Withdrawal Request
+function processWithdrawalRequest(amount, email) {
+    document.getElementById('withdrawStatus').textContent = "Processing withdrawal request...";
+    document.getElementById('withdrawStatus').className = "status-message";
+
+    // Calculate withdrawal details
+    const fee = amount * (WITHDRAW_FEE_PERCENT / 100);
+    const receive = amount - fee;
+
+    console.log("✅ Processing withdrawal:", { amount, fee, receive });
+
+    // Simulate processing
+    setTimeout(() => {
+        // Update balances
+        minedCoins -= amount;
+        localStorage.setItem(`minedCoins_${currentUser.$id}`, minedCoins.toString());
+        updateBalances();
+
+        // Reset form
+        document.getElementById('withdrawAmount').value = '';
+        document.getElementById('submitWithdrawBtn').disabled = true;
+
+        document.getElementById('withdrawStatus').textContent = "Withdrawal request submitted successfully!";
+        document.getElementById('withdrawStatus').className = "status-message success-message";
+
+        showNotification("Withdrawal request submitted! You will receive your tokens soon.", "success");
+
+        alert(`Withdrawal request submitted!\n\nYou will receive: ${receive.toFixed(4)} SA\nProcessing may take 24-48 hours.\n\nThank you for using SupremeAmer Coin!`);
+    }, 2000);
+}
+
+// Upgrade Mining Function
+window.upgradeMining = async function(speedKey) {
+    if (!currentUser) {
+        showNotification("Please login first", "error");
+        return;
+    }
+
+    if (!walletConnected) {
+        showNotification("Please connect your wallet first", "error");
+        document.getElementById('upgradeStatus').textContent = "Please connect your wallet first.";
+        document.getElementById('upgradeStatus').className = "status-message error-message";
+        return;
+    }
+
+    if (miningUpgrade) {
+        const now = Math.floor(Date.now() / 1000);
+        const upgradeEndTime = miningUpgrade.startTime + (360 * 24 * 3600);
+
+        if (now < upgradeEndTime) {
+            showNotification("You already have an active upgrade!", "error");
+            document.getElementById('upgradeStatus').textContent = "You already have an active upgrade!";
+            document.getElementById('upgradeStatus').className = "status-message error-message";
+            return;
+        }
+    }
+
+    const upgrade = {
+        speed: UPGRADE_SPEEDS[speedKey],
+        cost: UPGRADE_FEES[speedKey]
     };
+
+    // Show confirmation
+    const confirmed = confirm(`Upgrade mining speed to ${upgrade.speed} SA/sec for 360 days?\n\nCost: ${upgrade.cost} BNB`);
+    if(!confirmed) return;
+
+    try {
+        document.getElementById('upgradeStatus').textContent = "Processing upgrade transaction...";
+        document.getElementById('upgradeStatus').className = "status-message";
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        const tx = await signer.sendTransaction({
+            to: SUPREMEAMER_RECEIVER_BNB,
+            value: ethers.utils.parseEther(upgrade.cost)
+        });
+
+        showNotification("Upgrade transaction sent!", "info");
+        await tx.wait();
+
+        // Set upgrade data
+        miningUpgrade = {
+            upgradeSpeed: upgrade.speed,
+            bnbFee: upgrade.cost,
+            startTime: Math.floor(Date.now() / 1000),
+            lastClaim: Math.floor(Date.now() / 1000)
+        };
+
+        miningSpeed = upgrade.speed;
+
+        localStorage.setItem(`miningSpeed_${currentUser.$id}`, miningSpeed.toString());
+        localStorage.setItem(`miningUpgrade_${currentUser.$id}`, JSON.stringify(miningUpgrade));
+
+        document.getElementById('upgradeStatus').textContent = "Mining upgrade successful!";
+        document.getElementById('upgradeStatus').className = "status-message success-message";
+        document.getElementById('currentMiningSpeed').textContent = `${upgrade.speed} SA/sec`;
+
+        showNotification(`Mining upgraded to ${upgrade.speed} SA/sec!`, "success");
+
+    } catch (e) {
+        console.error("❌ Upgrade error:", e);
+        document.getElementById('upgradeStatus').textContent = "Upgrade failed. Please try again.";
+        document.getElementById('upgradeStatus').className = "status-message error-message";
+        showNotification("Upgrade failed", "error");
+    }
+};
+
+// Initialize app on page load
+window.onload = function() {
+    console.log("🚀 Wallet page loading...");
+    initializeApp();
+};
+
+// Add periodic authentication check
+setInterval(async () => {
+    try {
+        await account.get();
+        // User is still authenticated
+    } catch (error) {
+        console.error("❌ Session expired, redirecting to login...");
+        showNotification("Session expired, please login again", "error");
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 2000);
+    }
+}, 60000); // Check every minute
     </script>
 </body>
 </html>
