@@ -5,115 +5,303 @@
   <title>Register - SupremeAmer Coin Airdrop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
   <style>
+    :root {
+      --primary: #ff9800;
+      --primary-dark: #f57c00;
+      --primary-light: #ffb74d;
+      --dark-bg: #121212;
+      --card-bg: rgba(30, 30, 40, 0.85);
+      --text-light: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.7);
+      --error: #ff4c4c;
+      --success: #36ff9b;
+      --border-radius: 16px;
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #1e1e2f 65%, #ff9800 100%);
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1e1e2f 65%, var(--primary) 100%);
       font-family: 'Montserrat', Arial, sans-serif;
-      margin: 0;
+      padding: 20px;
+      color: var(--text-light);
     }
+    
     .register-card {
-      background: rgba(35, 35, 60, 0.8);
-      backdrop-filter: blur(8px);
-      border-radius: 24px;
-      box-shadow: 0 12px 40px #ff980055, 0 2px 24px #0008;
-      padding: 2.7em 2.1em 2.3em 2.1em;
-      min-width: 330px;
-      max-width: 90vw;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: var(--border-radius);
+      box-shadow: 0 16px 40px rgba(255, 152, 0, 0.15), 0 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      border: 1.5px solid #fff2;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: var(--transition);
     }
-    .register-card h2 {
-      color: #ffb900;
-      margin-bottom: 0.6em;
-      letter-spacing: 1px;
-      font-size: 2em;
+    
+    .register-card:hover {
+      box-shadow: 0 20px 50px rgba(255, 152, 0, 0.2), 0 10px 40px rgba(0, 0, 0, 0.4);
     }
-    .register-card label {
-      display: block;
-      font-size: 1em;
-      margin-bottom: 0.2em;
-      color: #fff;
+    
+    .logo {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .logo h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 0.25rem;
+    }
+    
+    .logo p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
       font-weight: 400;
-      letter-spacing: 0.5px;
     }
+    
+    .register-card h2 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .form-group {
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+    
+    .input-wrapper {
+      position: relative;
+    }
+    
+    .input-wrapper i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+    
     .register-card input {
       width: 100%;
-      padding: 12px 14px;
-      margin-bottom: 1.3em;
-      border: 1.5px solid #ff980055;
-      border-radius: 8px;
-      font-size: 1em;
-      background: rgba(255,255,255,0.07);
-      color: #fff;
+      padding: 14px 14px 14px 42px;
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-light);
       outline: none;
-      transition: border 0.2s, box-shadow 0.2s;
+      transition: var(--transition);
       font-family: inherit;
     }
+    
     .register-card input:focus {
-      border: 1.5px solid #ff9800;
-      box-shadow: 0 0 0 2px #ff980066;
-      background: rgba(255,255,255,0.13);
+      border: 1.5px solid var(--primary);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
     }
+    
+    .register-card input::placeholder {
+      color: var(--text-muted);
+    }
+    
+    .password-requirements {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      padding-left: 1rem;
+    }
+    
+    .password-requirements ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    
+    .password-requirements li {
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .requirement-met {
+      color: var(--success);
+    }
+    
+    .requirement-unmet {
+      color: var(--text-muted);
+    }
+    
     .register-card button {
       width: 100%;
-      padding: 13px 0;
-      background: linear-gradient(90deg, #fdc500 40%, #ff9800 100%);
+      padding: 14px 0;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
       color: #222;
       border: none;
-      border-radius: 12px;
-      font-size: 1.1em;
-      font-weight: 700;
-      letter-spacing: 1px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 16px #ff980055;
-      margin-top: 0.2em;
-      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
+      margin-top: 0.5rem;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
+    
     .register-card button:hover, .register-card button:focus {
-      background: linear-gradient(90deg, #ff9800 40%, #fdc500 100%);
-      box-shadow: 0 6px 24px #ff980088;
-      transform: translateY(-2px) scale(1.03);
+      background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+      box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+      transform: translateY(-2px);
     }
+    
+    .register-card button:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
     .register-card .error, .register-card .success {
       width: 100%;
       text-align: center;
-      margin-bottom: 0.5em;
-      font-size: 1em;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
       min-height: 1.5em;
+      padding: 10px;
+      border-radius: 8px;
     }
-    .register-card .error { color: #ff4c4c; }
-    .register-card .success { color: #36ff9b; }
+    
+    .register-card .error { 
+      background: rgba(255, 76, 76, 0.1);
+      color: var(--error);
+      border: 1px solid rgba(255, 76, 76, 0.2);
+    }
+    
+    .register-card .success { 
+      background: rgba(54, 255, 155, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(54, 255, 155, 0.2);
+    }
+    
+    .login-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .login-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    
+    .login-link a:hover {
+      color: var(--primary-light);
+      text-decoration: underline;
+    }
+    
     @media (max-width: 480px) {
-      .register-card { min-width: 90vw; padding: 1.2em; }
-      .register-card h2 { font-size: 1.3em; }
+      .register-card { 
+        padding: 2rem 1.5rem; 
+      }
+      
+      .logo h1 {
+        font-size: 1.5rem;
+      }
+      
+      .register-card h2 {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
   <form id="registerForm" class="register-card" autocomplete="off">
-    <h2>Sign up for Airdrop</h2>
+    <div class="logo">
+      <h1>SupremeAmer Coin</h1>
+      <p>Airdrop Program</p>
+    </div>
+    
+    <h2>Create Account</h2>
+    
     <div class="error" id="error"></div>
     <div class="success" id="success"></div>
-    <label for="username">Username</label>
-    <input type="text" id="username" name="username" placeholder="Your username" required autocomplete="username">
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" placeholder="Choose a password" required autocomplete="new-password">
-    <button type="submit">Register</button>
+    
+    <div class="form-group">
+      <label for="username">Username</label>
+      <div class="input-wrapper">
+        <i>👤</i>
+        <input type="text" id="username" name="username" placeholder="Your username" required autocomplete="username">
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <div class="input-wrapper">
+        <i>✉️</i>
+        <input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="input-wrapper">
+        <i>🔒</i>
+        <input type="password" id="password" name="password" placeholder="Choose a strong password" required autocomplete="new-password">
+      </div>
+      <div class="password-requirements">
+        <ul>
+          <li id="length-req" class="requirement-unmet">At least 8 characters</li>
+          <li id="case-req" class="requirement-unmet">Mix of uppercase and lowercase</li>
+          <li id="number-req" class="requirement-unmet">At least one number</li>
+        </ul>
+      </div>
+    </div>
+    
+    <button type="submit" id="registerBtn">
+      <span>Create Account</span>
+    </button>
+    
+    <div class="login-link">
+      Already have an account? <a href="login.html">Sign In</a>
+    </div>
   </form>
 
   <script>
     // ---- CONFIGURATION ----
-    const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1'; // e.g. https://cloud.appwrite.io/v1
+    const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
     const APPWRITE_PROJECT = '6839d9640019316a160d';
     const APPWRITE_DB_ID = '6839dcca000190bf99f6';
     const APPWRITE_COLLECTION_ID = 'users';
@@ -125,25 +313,68 @@
       .setProject(APPWRITE_PROJECT);
     const account = new Account(client);
     const databases = new Databases(client);
-    // ---- REDIRECT IF ALREADY REGISTERED/LOGGED IN ----
-(async function checkAlreadyRegistered() {
-  try {
-    await account.get(); // If this works, user is logged in
-    window.location.href = 'login.html';
-  } catch (e) {
-    // User is not logged in; do nothing, let them register
-  }
-})();
+
+    // ---- REDIRECT IF ALREADY LOGGED IN ----
+    (async function checkAlreadyLoggedIn() {
+      try {
+        await account.get();
+        // Already logged in, redirect to main.html
+        window.location.href = 'main.html';
+      } catch (e) {
+        // Not logged in, stay on the register page
+      }
+    })();
+
+    // ---- PASSWORD VALIDATION ----
+    const passwordInput = document.getElementById('password');
+    const lengthReq = document.getElementById('length-req');
+    const caseReq = document.getElementById('case-req');
+    const numberReq = document.getElementById('number-req');
+    const registerBtn = document.getElementById('registerBtn');
+
+    function validatePassword(password) {
+      const hasMinLength = password.length >= 8;
+      const hasMixedCase = /[a-z]/.test(password) && /[A-Z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      
+      // Update requirement indicators
+      lengthReq.className = hasMinLength ? 'requirement-met' : 'requirement-unmet';
+      caseReq.className = hasMixedCase ? 'requirement-met' : 'requirement-unmet';
+      numberReq.className = hasNumber ? 'requirement-met' : 'requirement-unmet';
+      
+      return hasMinLength && hasMixedCase && hasNumber;
+    }
+
+    passwordInput.addEventListener('input', function() {
+      validatePassword(this.value);
+    });
 
     document.getElementById('registerForm').onsubmit = async function(e) {
       e.preventDefault();
       document.getElementById('error').textContent = '';
       document.getElementById('success').textContent = '';
+      
       const username = document.getElementById('username').value.trim();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
+      // Basic validation
+      if (!username || !email || !password) {
+        document.getElementById('error').textContent = 'Please fill in all fields.';
+        return;
+      }
+
+      // Password validation
+      if (!validatePassword(password)) {
+        document.getElementById('error').textContent = 'Please ensure your password meets all requirements.';
+        return;
+      }
+
       try {
+        // Show loading state
+        registerBtn.innerHTML = '<span>Creating Account...</span>';
+        registerBtn.disabled = true;
+
         // 1. Create user in Appwrite Auth
         await account.create(ID.unique(), email, password, username);
 
@@ -163,10 +394,19 @@
           }
         );
 
-        document.getElementById('success').textContent = 'Registration successful! Redirecting...';
-        setTimeout(() => window.location.href = 'main.html', 1200);
+        document.getElementById('success').textContent = 'Registration successful! Redirecting to login...';
+        
+        // Logout and redirect to login page
+        setTimeout(async () => {
+          await account.deleteSession('current');
+          window.location.href = 'login.html';
+        }, 1500);
       } catch (err) {
-        document.getElementById('error').textContent = (err.message || 'Registration failed.');
+        document.getElementById('error').textContent = (err.message || 'Registration failed. Please try again.');
+        
+        // Reset button state
+        registerBtn.innerHTML = '<span>Create Account</span>';
+        registerBtn.disabled = false;
       }
     };
   </script>
