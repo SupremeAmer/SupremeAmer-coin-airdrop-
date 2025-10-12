@@ -21,13 +21,13 @@
       --border-radius: 16px;
       --transition: all 0.3s ease;
     }
-    
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
       min-height: 100vh;
       display: flex;
@@ -38,7 +38,7 @@
       padding: 20px;
       color: var(--text-light);
     }
-    
+
     .login-card {
       background: var(--card-bg);
       backdrop-filter: blur(12px);
@@ -53,29 +53,29 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       transition: var(--transition);
     }
-    
+
     .login-card:hover {
       box-shadow: 0 20px 50px rgba(255, 152, 0, 0.2), 0 10px 40px rgba(0, 0, 0, 0.4);
     }
-    
+
     .logo {
       margin-bottom: 1.5rem;
       text-align: center;
     }
-    
+
     .logo h1 {
       font-size: 1.8rem;
       font-weight: 700;
       color: var(--text-light);
       margin-bottom: 0.25rem;
     }
-    
+
     .logo p {
       font-size: 0.9rem;
       color: var(--text-muted);
       font-weight: 400;
     }
-    
+
     .login-card h2 {
       color: var(--primary);
       margin-bottom: 1.5rem;
@@ -83,12 +83,12 @@
       font-weight: 600;
       text-align: center;
     }
-    
+
     .form-group {
       width: 100%;
       margin-bottom: 1.5rem;
     }
-    
+
     .form-group label {
       display: block;
       font-size: 0.9rem;
@@ -96,11 +96,11 @@
       color: var(--text-light);
       font-weight: 500;
     }
-    
+
     .input-wrapper {
       position: relative;
     }
-    
+
     .input-wrapper i {
       position: absolute;
       left: 14px;
@@ -108,7 +108,7 @@
       transform: translateY(-50%);
       color: var(--text-muted);
     }
-    
+
     .login-card input {
       width: 100%;
       padding: 14px 14px 14px 42px;
@@ -121,17 +121,17 @@
       transition: var(--transition);
       font-family: inherit;
     }
-    
+
     .login-card input:focus {
       border: 1.5px solid var(--primary);
       background: rgba(255, 255, 255, 0.08);
       box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
     }
-    
+
     .login-card input::placeholder {
       color: var(--text-muted);
     }
-    
+
     .login-card button {
       width: 100%;
       padding: 14px 0;
@@ -150,13 +150,13 @@
       justify-content: center;
       gap: 8px;
     }
-    
+
     .login-card button:hover, .login-card button:focus {
       background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
       box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
       transform: translateY(-2px);
     }
-    
+
     .login-card .error, .login-card .success {
       width: 100%;
       text-align: center;
@@ -166,19 +166,19 @@
       padding: 10px;
       border-radius: 8px;
     }
-    
+
     .login-card .error { 
       background: rgba(255, 76, 76, 0.1);
       color: var(--error);
       border: 1px solid rgba(255, 76, 76, 0.2);
     }
-    
+
     .login-card .success { 
       background: rgba(54, 255, 155, 0.1);
       color: var(--success);
       border: 1px solid rgba(54, 255, 155, 0.2);
     }
-    
+
     .divider {
       width: 100%;
       display: flex;
@@ -187,46 +187,46 @@
       color: var(--text-muted);
       font-size: 0.9rem;
     }
-    
+
     .divider::before, .divider::after {
       content: "";
       flex: 1;
       height: 1px;
       background: rgba(255, 255, 255, 0.1);
     }
-    
+
     .divider span {
       padding: 0 1rem;
     }
-    
+
     .register-link {
       text-align: center;
       margin-top: 1rem;
       color: var(--text-muted);
       font-size: 0.9rem;
     }
-    
+
     .register-link a {
       color: var(--primary);
       text-decoration: none;
       font-weight: 500;
       transition: var(--transition);
     }
-    
+
     .register-link a:hover {
       color: var(--primary-light);
       text-decoration: underline;
     }
-    
+
     @media (max-width: 480px) {
       .login-card { 
         padding: 2rem 1.5rem; 
       }
-      
+
       .logo h1 {
         font-size: 1.5rem;
       }
-      
+
       .login-card h2 {
         font-size: 1.5rem;
       }
@@ -239,12 +239,12 @@
       <h1>SupremeAmer Coin</h1>
       <p>Airdrop Program</p>
     </div>
-    
+
     <h2>Welcome Back</h2>
-    
+
     <div class="error" id="error"></div>
     <div class="success" id="success"></div>
-    
+
     <div class="form-group">
       <label for="email">Email Address</label>
       <div class="input-wrapper">
@@ -252,7 +252,7 @@
         <input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
       </div>
     </div>
-    
+
     <div class="form-group">
       <label for="password">Password</label>
       <div class="input-wrapper">
@@ -260,15 +260,15 @@
         <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
       </div>
     </div>
-    
+
     <button type="submit">
       <span>Login</span>
     </button>
-    
+
     <div class="divider">
       <span>OR</span>
     </div>
-    
+
     <div class="register-link">
       Don't have an account? <a href="register.html">Create Account</a>
     </div>
@@ -290,10 +290,11 @@
     (async function checkAlreadyLoggedIn() {
       try {
         await account.get();
-        // Already logged in, redirect to main.html
-        window.location.href = 'main.html';
+        // Already logged in, redirect to index.html (mining dashboard)
+        window.location.href = 'index.html';
       } catch (e) {
         // Not logged in, stay on the login page
+        console.log('User not logged in, showing login form');
       }
     })();
 
@@ -301,7 +302,7 @@
       e.preventDefault();
       document.getElementById('error').textContent = '';
       document.getElementById('success').textContent = '';
-      
+
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
@@ -319,19 +320,42 @@
         submitBtn.disabled = true;
 
         // 1. Create session (login)
-        await account.createEmailSession(email, password);
+        const session = await account.createEmailSession(email, password);
+        console.log('Login successful:', session);
 
         document.getElementById('success').textContent = 'Login successful! Redirecting...';
-        setTimeout(() => window.location.href = 'main.html', 1200);
-      } catch (err) {
-        document.getElementById('error').textContent = (err.message || 'Login failed. Check your credentials.');
         
+        // Store login state in localStorage for quick check
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('loginTime', Date.now().toString());
+        
+        setTimeout(() => window.location.href = 'index.html', 1200);
+      } catch (err) {
+        console.error('Login error:', err);
+        let errorMessage = 'Login failed. Check your credentials.';
+        
+        if (err.message.includes('Invalid credentials')) {
+          errorMessage = 'Invalid email or password. Please try again.';
+        } else if (err.message.includes('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+        
+        document.getElementById('error').textContent = errorMessage;
+
         // Reset button state
         const submitBtn = document.querySelector('button[type="submit"]');
         submitBtn.innerHTML = '<span>Login</span>';
         submitBtn.disabled = false;
       }
     };
+
+    // Handle page visibility changes (tab switching)
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        // Page became visible, check if we're still logged in
+        checkAlreadyLoggedIn();
+      }
+    });
   </script>
 </body>
 </html>
