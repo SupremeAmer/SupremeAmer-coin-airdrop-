@@ -1028,647 +1028,780 @@
     <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
     <script>
-    // ---- CONFIGURATION ----
-    const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
-    const APPWRITE_PROJECT = '6839d9640019316a160d';
-    const APPWRITE_DB_ID = '6839dcca000190bf99f6';
-    const APPWRITE_COLLECTION_ID = 'users';
-    const SUPREMEAMER_RECEIVER_BNB = '0xYourBnbAddressHere'; // CHANGE TO YOURS
+        // ---- CONFIGURATION ----
+const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
+const APPWRITE_PROJECT = '6839d9640019316a160d';
+const APPWRITE_DB_ID = '6839dcca000190bf99f6';
+const APPWRITE_COLLECTION_ID = 'users';
+const SUPREMEAMER_RECEIVER_BNB = '0xYourBnbAddressHere';
 
-    const UPGRADE_FEES = {
-        "0.05": "0.002",
-        "0.1": "0.009"
-    };
-    const UPGRADE_SPEEDS = {
-        "0.05": 0.05,
-        "0.1": 0.1
-    };
-    const NORMAL_SPEED = 0.0002;
-    const UPGRADE_DURATION = 360 * 24 * 3600;
-    const CLAIM_INTERVAL = 30 * 24 * 3600;
-    const WITHDRAW_ELIGIBILITY_FEE_BNB = "0.0017";
-    const WITHDRAW_MIN_SA = 50000;
-    const WITHDRAW_FEE_PERCENT = 6;
-    const WITHDRAW_DAYS = [9, 13];
+const UPGRADE_FEES = {
+    "0.05": "0.002",
+    "0.1": "0.009"
+};
+const UPGRADE_SPEEDS = {
+    "0.05": 0.05,
+    "0.1": 0.1
+};
+const NORMAL_SPEED = 0.0002;
+const UPGRADE_DURATION = 360 * 24 * 3600;
+const CLAIM_INTERVAL = 30 * 24 * 3600;
+const WITHDRAW_ELIGIBILITY_FEE_BNB = "0.0017";
+const WITHDRAW_MIN_SA = 50000;
+const WITHDRAW_FEE_PERCENT = 6;
+const WITHDRAW_DAYS = [9, 13];
 
-    // Appwrite
-    const { Client, Account, Databases, Query } = Appwrite;
-    const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT);
-    const account = new Account(client);
-    const databases = new Databases(client);
+// Appwrite
+const { Client, Account, Databases, Query } = Appwrite;
+const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT);
+const account = new Account(client);
+const databases = new Databases(client);
 
-    // Mining state
-    let minedCoins = parseFloat(localStorage.getItem('minedCoins')) || 0;
-    let miningActive = localStorage.getItem('miningActive') === 'true';
-    let miningStartTime = parseInt(localStorage.getItem('miningStartTime')) || 0;
-    let miningSpeed = parseFloat(localStorage.getItem('miningSpeed')) || NORMAL_SPEED;
-    let miningMultiplier = parseInt(localStorage.getItem('miningMultiplier')) || 1;
-    let sessionDuration = 7 * 60 * 60; // 7 hours in seconds
-    let miningInterval;
-    
-    // Upgrade state
-    let miningUpgrade = JSON.parse(localStorage.getItem('miningUpgrade')) || null;
-    let upgradeActive = false;
-    
-    // Background mining state
-    let backgroundMiningData = JSON.parse(localStorage.getItem('backgroundMining')) || null;
+// User state
+let currentUser = null;
+let userProfile = null;
 
-    // Theme Toggle Functionality
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    const themeIcon = themeToggleBtn.querySelector('i');
-    const themeText = themeToggleBtn.querySelector('span');
-    
-    function setTheme(light) {
-        if(light) {
-            document.body.classList.add('light');
-            localStorage.setItem('theme','light');
-            themeIcon.className = 'fas fa-sun';
-            themeText.textContent = 'Light Mode';
-        } else {
-            document.body.classList.remove('light');
-            localStorage.setItem('theme','dark');
-            themeIcon.className = 'fas fa-moon';
-            themeText.textContent = 'Dark Mode';
-        }
-    }
-    
-    themeToggleBtn.onclick = function() {
-        setTheme(!document.body.classList.contains('light'));
-    };
-    
-    // On load, restore theme
-    if(localStorage.getItem('theme')==='light') setTheme(true);
-    
-    // Profile Dropdown Functionality
-    document.getElementById('profileDropdownBtn').onclick = function(e) {
-        e.stopPropagation();
-        let menu = document.getElementById('profileDropdownMenu');
-        menu.style.display = (menu.style.display === "block") ? "none" : "block";
-    };
-    
-    document.addEventListener('click', function() {
-        let menu = document.getElementById('profileDropdownMenu');
-        if (menu.style.display === "block") menu.style.display = "none";
-    });
-    
-    document.getElementById('profileDropdownMenu').onclick = function(e) { 
-        e.stopPropagation(); 
-    };
-    
-    // Logout Functionality - FIXED
-    document.getElementById('logoutBtn').onclick = async function(e) {
-        e.preventDefault();
-        try { 
-            await account.deleteSession('current'); 
-            showNotification("Logged out successfully", "success");
-            setTimeout(() => {
-                window.location.href = "login.html";
-            }, 1000);
-        } catch (err) {
-            console.error("Logout error:", err);
-            showNotification("Error logging out", "error");
-        }
-    };
-    
-    // Display User Information
-    async function displayUser() {
-        try {
-            const user = await account.get();
-            const res = await databases.listDocuments(APPWRITE_DB_ID, APPWRITE_COLLECTION_ID, [Query.equal("userId", user.$id)]);
-            if (res.documents.length > 0) {
-                const profile = res.documents[0];
-                document.getElementById('dropdownUsername').textContent = profile.name;
-                document.getElementById('dropdownEmail').textContent = profile.email;
-            }
-        } catch (err) {
-            console.error("Error fetching user:", err);
-            // If not logged in, redirect to login page
-            window.location.href = "login.html";
-        }
-    }
-    
-    // Upgrade Modal Functionality
-    function showUpgradeModal() {
-        document.getElementById('upgradeModal').style.display = 'flex';
-    }
-    
-    function hideUpgradeModal() {
-        document.getElementById('upgradeModal').style.display = 'none';
-    }
-    
-    document.getElementById('showUpgradeBtn').onclick = showUpgradeModal;
-    document.getElementById('closeUpgradeModal').onclick = hideUpgradeModal;
-    
-    // Close modal when clicking outside
-    document.getElementById('upgradeModal').onclick = function(e) {
-        if (e.target === this) {
-            hideUpgradeModal();
-        }
-    };
-    
-    // Notification System
-    function showNotification(message, type = 'info', duration = 3000) {
-        const notification = document.querySelector('.notification');
-        const notificationText = document.querySelector('.notification-text');
+// Mining state
+let minedCoins = 0;
+let miningActive = false;
+let miningStartTime = 0;
+let miningSpeed = NORMAL_SPEED;
+let miningMultiplier = 1;
+let sessionDuration = 7 * 60 * 60;
+let miningInterval;
+
+// Upgrade state
+let miningUpgrade = null;
+let upgradeActive = false;
+
+// Background mining state
+let backgroundMiningData = null;
+
+// ---- AUTHENTICATION & USER MANAGEMENT ----
+
+// Check authentication and load user data
+async function initializeApp() {
+    try {
+        // Check if user is authenticated
+        currentUser = await account.get();
+        console.log("User authenticated:", currentUser.email);
         
-        notificationText.textContent = message;
-        notification.className = 'notification';
+        // Set authentication flag
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', currentUser.$id);
         
-        // Add type class
-        if (type === 'success') {
-            notification.classList.add('success');
-            notification.querySelector('i').className = 'fas fa-check-circle';
-        } else if (type === 'error') {
-            notification.classList.add('error');
-            notification.querySelector('i').className = 'fas fa-exclamation-circle';
-        } else {
-            notification.classList.add('info');
-            notification.querySelector('i').className = 'fas fa-info-circle';
-        }
+        // Load user profile from database
+        await loadUserProfile();
         
-        // Show notification
-        notification.classList.add('show');
+        // Load mining data for this user
+        await loadUserMiningData();
         
-        // Hide after duration
+        // Initialize UI
+        initializeUI();
+        
+        // Show welcome message
+        showNotification(`Welcome back, ${userProfile?.name || currentUser.name || 'Miner'}!`, "success");
+        
+    } catch (error) {
+        console.error("Authentication failed:", error);
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
+        showNotification("Please login to continue", "error");
         setTimeout(() => {
-            notification.classList.remove('show');
-        }, duration);
+            window.location.href = 'login.html';
+        }, 2000);
+        return;
     }
-    
-    // ---- PERSISTENT MINING SYSTEM ----
-    
-    // Check for background mining when page loads
-    function checkBackgroundMining() {
-        if (backgroundMiningData) {
-            const now = Math.floor(Date.now() / 1000);
-            const elapsed = now - backgroundMiningData.lastUpdate;
-            
-            if (elapsed > 0) {
-                // Calculate coins earned while offline
-                const offlineCoins = elapsed * backgroundMiningData.speed * backgroundMiningData.multiplier;
-                minedCoins += offlineCoins;
-                localStorage.setItem('minedCoins', minedCoins);
-                
-                showNotification(`Earned ${offlineCoins.toFixed(4)} SA while offline!`, "success");
-            }
-            
-            // Clear background mining data
-            localStorage.removeItem('backgroundMining');
-        }
-    }
-    
-    // Save mining state when page is about to close
-    window.addEventListener('beforeunload', function() {
-        if (miningActive) {
-            localStorage.setItem('backgroundMining', JSON.stringify({
-                lastUpdate: Math.floor(Date.now() / 1000),
-                speed: miningSpeed,
-                multiplier: miningMultiplier
-            }));
-        }
-    });
-    
-    // Mining functionality
-    function updateMining() {
-        if (!miningActive) return;
+}
+
+// Load user profile from database
+async function loadUserProfile() {
+    try {
+        const response = await databases.listDocuments(
+            APPWRITE_DB_ID, 
+            APPWRITE_COLLECTION_ID, 
+            [Query.equal("userId", currentUser.$id)]
+        );
         
-        const now = Math.floor(Date.now() / 1000);
-        const elapsed = now - miningStartTime;
-        
-        if (elapsed >= sessionDuration) {
-            // Session completed
-            stopMining();
-            showNotification("Mining session completed!", "success");
-            return;
-        }
-        
-        // Calculate coins earned
-        const coinsEarned = miningSpeed * miningMultiplier;
-        minedCoins += coinsEarned;
-        localStorage.setItem('minedCoins', minedCoins);
-        
-        // Update UI
-        updateUI();
-    }
-    
-    function startMining() {
-        if (miningActive) return;
-        
-        miningActive = true;
-        miningStartTime = Math.floor(Date.now() / 1000);
-        
-        localStorage.setItem('miningActive', 'true');
-        localStorage.setItem('miningStartTime', miningStartTime.toString());
-        
-        // Update UI
-        document.getElementById('mineBtnText').textContent = 'Mining...';
-        document.getElementById('mineBtn').querySelector('i').className = 'fas fa-cog fa-spin';
-        document.getElementById('sessionStatus').textContent = 'Mining in progress...';
-        
-        // Start interval
-        miningInterval = setInterval(updateMining, 1000);
-        
-        showNotification("Mining session started!", "success");
-    }
-    
-    function stopMining() {
-        miningActive = false;
-        localStorage.setItem('miningActive', 'false');
-        
-        // Update UI
-        document.getElementById('mineBtnText').textContent = 'Start Mining';
-        document.getElementById('mineBtn').querySelector('i').className = 'fas fa-play';
-        document.getElementById('sessionStatus').textContent = 'Ready to start mining';
-        
-        // Clear interval
-        clearInterval(miningInterval);
-    }
-    
-    function resumeMining() {
-        if (!miningActive) return;
-        
-        const now = Math.floor(Date.now() / 1000);
-        const elapsed = now - miningStartTime;
-        
-        if (elapsed >= sessionDuration) {
-            // Session completed while away
-            stopMining();
-            showNotification("Mining session completed!", "success");
-            return;
-        }
-        
-        // Update UI
-        document.getElementById('mineBtnText').textContent = 'Mining...';
-        document.getElementById('mineBtn').querySelector('i').className = 'fas fa-cog fa-spin';
-        document.getElementById('sessionStatus').textContent = 'Mining in progress...';
-        
-        // Start interval
-        miningInterval = setInterval(updateMining, 1000);
-    }
-    
-    function updateUI() {
-        // Update mined coins
-        document.getElementById('minedCoins').textContent = `${minedCoins.toFixed(4)} SA`;
-        
-        // Update timer and progress
-        if (miningActive) {
-            const now = Math.floor(Date.now() / 1000);
-            const elapsed = now - miningStartTime;
-            const remaining = Math.max(sessionDuration - elapsed, 0);
-            
-            // Format time
-            const hours = Math.floor(remaining / 3600);
-            const minutes = Math.floor((remaining % 3600) / 60);
-            const seconds = remaining % 60;
-            
-            document.getElementById('timer').textContent = 
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            // Update progress
-            const progress = (elapsed / sessionDuration) * 100;
-            document.getElementById('miningProgress').style.width = `${progress}%`;
-            document.getElementById('sessionProgress').textContent = `${Math.round(progress)}%`;
-            
-            // Update session time
-            const elapsedHours = Math.floor(elapsed / 3600);
-            const elapsedMinutes = Math.floor((elapsed % 3600) / 60);
-            const elapsedSeconds = elapsed % 60;
-            
-            document.getElementById('sessionTime').textContent = 
-                `Session: ${elapsedHours.toString().padStart(2, '0')}:${elapsedMinutes.toString().padStart(2, '0')}:${elapsedSeconds.toString().padStart(2, '0')} / 07:00:00`;
-            
-            // Save last update time
-            localStorage.setItem('lastUpdateTime', now.toString());
-        }
-        
-        // Update mining rate
-        document.getElementById('miningRate').textContent = (miningSpeed * miningMultiplier).toFixed(4);
-        
-        // Update multiplier
-        document.getElementById('multiplier').textContent = `${miningMultiplier}x`;
-        
-        // Update claim status
-        updateClaimStatus();
-    }
-    
-    function updateClaimStatus() {
-        const claimStatus = document.getElementById('claimStatus');
-        
-        if (upgradeActive && miningUpgrade) {
-            const now = Math.floor(Date.now() / 1000);
-            const upgradeEndTime = miningUpgrade.startTime + UPGRADE_DURATION;
-            const timeLeft = upgradeEndTime - now;
-            const nextClaim = miningUpgrade.lastClaim + CLAIM_INTERVAL;
-            const canClaim = now >= nextClaim;
-            
-            if (timeLeft > 0) {
-                const daysLeft = Math.floor(timeLeft / (24 * 3600));
-                const hoursLeft = Math.floor((timeLeft % (24 * 3600)) / 3600);
-                
-                claimStatus.innerHTML = `Upgrade: <b>${miningUpgrade.upgradeSpeed} SA/sec</b>, ${daysLeft}d ${hoursLeft}h left<br>
-                Next claim: <b>${new Date(nextClaim * 1000).toLocaleDateString()}</b> ${canClaim ? '<span style="color:#00ffb3;">Ready!</span>' : ''}`;
-            } else {
-                // Upgrade expired
-                upgradeActive = false;
-                miningUpgrade = null;
-                localStorage.removeItem('miningUpgrade');
-                miningSpeed = NORMAL_SPEED;
-                localStorage.setItem('miningSpeed', miningSpeed.toString());
-                claimStatus.innerHTML = "";
-                showNotification("Your mining upgrade has expired", "info");
-            }
+        if (response.documents.length > 0) {
+            userProfile = response.documents[0];
+            console.log("User profile loaded:", userProfile);
         } else {
-            claimStatus.innerHTML = "";
+            // Create a basic profile if none exists
+            userProfile = {
+                name: currentUser.name || 'Miner',
+                email: currentUser.email,
+                userId: currentUser.$id,
+                joinedDate: new Date().toISOString()
+            };
+            console.log("Using basic user profile");
+        }
+    } catch (error) {
+        console.error("Error loading user profile:", error);
+        // Use basic user info as fallback
+        userProfile = {
+            name: currentUser.name || 'Miner',
+            email: currentUser.email,
+            userId: currentUser.$id
+        };
+    }
+}
+
+// Load user-specific mining data
+async function loadUserMiningData() {
+    const userId = currentUser.$id;
+    
+    // Load from localStorage with user-specific keys
+    minedCoins = parseFloat(localStorage.getItem(`minedCoins_${userId}`)) || 0;
+    miningActive = localStorage.getItem(`miningActive_${userId}`) === 'true';
+    miningStartTime = parseInt(localStorage.getItem(`miningStartTime_${userId}`)) || 0;
+    miningSpeed = parseFloat(localStorage.getItem(`miningSpeed_${userId}`)) || NORMAL_SPEED;
+    miningMultiplier = parseInt(localStorage.getItem(`miningMultiplier_${userId}`)) || 1;
+    
+    // Load upgrade data
+    const upgradeData = localStorage.getItem(`miningUpgrade_${userId}`);
+    miningUpgrade = upgradeData ? JSON.parse(upgradeData) : null;
+    
+    // Load background mining data
+    const bgData = localStorage.getItem(`backgroundMining_${userId}`);
+    backgroundMiningData = bgData ? JSON.parse(bgData) : null;
+
+    console.log("Mining data loaded for user:", userId);
+}
+
+// Save user-specific mining data
+function saveUserMiningData() {
+    if (!currentUser) return;
+    
+    const userId = currentUser.$id;
+    
+    localStorage.setItem(`minedCoins_${userId}`, minedCoins.toString());
+    localStorage.setItem(`miningActive_${userId}`, miningActive.toString());
+    localStorage.setItem(`miningStartTime_${userId}`, miningStartTime.toString());
+    localStorage.setItem(`miningSpeed_${userId}`, miningSpeed.toString());
+    localStorage.setItem(`miningMultiplier_${userId}`, miningMultiplier.toString());
+    
+    if (miningUpgrade) {
+        localStorage.setItem(`miningUpgrade_${userId}`, JSON.stringify(miningUpgrade));
+    }
+}
+
+// Enhanced logout function
+async function handleLogout() {
+    try {
+        // Save current state before logout
+        saveUserMiningData();
+        
+        await account.deleteSession('current');
+        
+        // Clear user-specific data
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
+        
+        showNotification("Logged out successfully", "success");
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1000);
+    } catch (err) {
+        console.error("Logout error:", err);
+        // Force redirect even if logout fails
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
+        window.location.href = 'login.html';
+    }
+}
+
+// Initialize UI after authentication
+function initializeUI() {
+    // Update user information in dropdown
+    document.getElementById('dropdownUsername').textContent = userProfile?.name || currentUser.name || 'Miner';
+    document.getElementById('dropdownEmail').textContent = currentUser.email;
+
+    // Check for background mining
+    checkBackgroundMining();
+    
+    // Check for existing upgrade
+    if (miningUpgrade) {
+        const now = Math.floor(Date.now() / 1000);
+        const upgradeEndTime = miningUpgrade.startTime + UPGRADE_DURATION;
+        
+        if (now < upgradeEndTime) {
+            upgradeActive = true;
+            miningSpeed = miningUpgrade.upgradeSpeed;
+        } else {
+            // Upgrade expired
+            miningUpgrade = null;
+            localStorage.removeItem(`miningUpgrade_${currentUser.$id}`);
+            miningSpeed = NORMAL_SPEED;
+            localStorage.setItem(`miningSpeed_${currentUser.$id}`, miningSpeed.toString());
         }
     }
     
+    updateUI();
+    
+    // Resume mining if active
+    if (miningActive) {
+        resumeMining();
+    }
+
     // Initialize with a welcome message
     setTimeout(() => {
-        showNotification("Welcome to SupremeAmer Coin Mining!", "info");
+        showNotification("Mining dashboard ready!", "info");
     }, 1000);
-    
-    // Particles Background
-    function createParticles() {
-        const particlesContainer = document.getElementById('particles');
-        const particleCount = window.innerWidth < 600 ? 30 : 50;
-        
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.classList.add('particle');
-            
-            // Random size between 2px and 6px
-            const size = Math.random() * 4 + 2;
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            
-            // Random position
-            particle.style.left = `${Math.random() * 100}vw`;
-            particle.style.top = `${Math.random() * 100}vh`;
-            
-            // Random color
-            const colors = ['#ff9800', '#fdc500', '#ff3333', '#4CAF50', '#2196F3'];
-            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            // Random animation duration
-            const duration = Math.random() * 20 + 10;
-            particle.style.animationDuration = `${duration}s`;
-            
-            // Random delay
-            particle.style.animationDelay = `${Math.random() * 10}s`;
-            
-            particlesContainer.appendChild(particle);
-        }
+}
+
+// Theme Toggle Functionality
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+const themeIcon = themeToggleBtn.querySelector('i');
+const themeText = themeToggleBtn.querySelector('span');
+
+function setTheme(light) {
+    if(light) {
+        document.body.classList.add('light');
+        localStorage.setItem('theme','light');
+        themeIcon.className = 'fas fa-sun';
+        themeText.textContent = 'Light Mode';
+    } else {
+        document.body.classList.remove('light');
+        localStorage.setItem('theme','dark');
+        themeIcon.className = 'fas fa-moon';
+        themeText.textContent = 'Dark Mode';
     }
-    createParticles();
+}
+
+themeToggleBtn.onclick = function() {
+    setTheme(!document.body.classList.contains('light'));
+};
+
+// On load, restore theme
+if(localStorage.getItem('theme')==='light') setTheme(true);
+
+// Profile Dropdown Functionality
+document.getElementById('profileDropdownBtn').onclick = function(e) {
+    e.stopPropagation();
+    let menu = document.getElementById('profileDropdownMenu');
+    menu.style.display = (menu.style.display === "block") ? "none" : "block";
+};
+
+document.addEventListener('click', function() {
+    let menu = document.getElementById('profileDropdownMenu');
+    if (menu.style.display === "block") menu.style.display = "none";
+});
+
+document.getElementById('profileDropdownMenu').onclick = function(e) { 
+    e.stopPropagation(); 
+};
+
+// Logout Functionality
+document.getElementById('logoutBtn').onclick = function(e) {
+    e.preventDefault();
+    handleLogout();
+};
+
+// Upgrade Modal Functionality
+function showUpgradeModal() {
+    document.getElementById('upgradeModal').style.display = 'flex';
+}
+
+function hideUpgradeModal() {
+    document.getElementById('upgradeModal').style.display = 'none';
+}
+
+document.getElementById('showUpgradeBtn').onclick = showUpgradeModal;
+document.getElementById('closeUpgradeModal').onclick = hideUpgradeModal;
+
+// Close modal when clicking outside
+document.getElementById('upgradeModal').onclick = function(e) {
+    if (e.target === this) {
+        hideUpgradeModal();
+    }
+};
+
+// Notification System
+function showNotification(message, type = 'info', duration = 3000) {
+    const notification = document.querySelector('.notification');
+    const notificationText = document.querySelector('.notification-text');
     
-    // Confetti Effect
-    function createConfetti() {
-        const container = document.getElementById('confettiContainer');
+    notificationText.textContent = message;
+    notification.className = 'notification';
+    
+    // Add type class
+    if (type === 'success') {
+        notification.classList.add('success');
+        notification.querySelector('i').className = 'fas fa-check-circle';
+    } else if (type === 'error') {
+        notification.classList.add('error');
+        notification.querySelector('i').className = 'fas fa-exclamation-circle';
+    } else {
+        notification.classList.add('info');
+        notification.querySelector('i').className = 'fas fa-info-circle';
+    }
+    
+    // Show notification
+    notification.classList.add('show');
+    
+    // Hide after duration
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, duration);
+}
+
+// ---- MINING SYSTEM ----
+
+// Check for background mining when page loads
+function checkBackgroundMining() {
+    if (backgroundMiningData) {
+        const now = Math.floor(Date.now() / 1000);
+        const elapsed = now - backgroundMiningData.lastUpdate;
+        
+        if (elapsed > 0) {
+            // Calculate coins earned while offline
+            const offlineCoins = elapsed * backgroundMiningData.speed * backgroundMiningData.multiplier;
+            minedCoins += offlineCoins;
+            saveUserMiningData();
+            
+            showNotification(`Earned ${offlineCoins.toFixed(4)} SA while offline!`, "success");
+        }
+        
+        // Clear background mining data
+        localStorage.removeItem(`backgroundMining_${currentUser.$id}`);
+    }
+}
+
+// Save mining state when page is about to close
+window.addEventListener('beforeunload', function() {
+    if (miningActive && currentUser) {
+        localStorage.setItem(`backgroundMining_${currentUser.$id}`, JSON.stringify({
+            lastUpdate: Math.floor(Date.now() / 1000),
+            speed: miningSpeed,
+            multiplier: miningMultiplier
+        }));
+    }
+    saveUserMiningData();
+});
+
+// Mining functionality
+function updateMining() {
+    if (!miningActive || !currentUser) return;
+    
+    const now = Math.floor(Date.now() / 1000);
+    const elapsed = now - miningStartTime;
+    
+    if (elapsed >= sessionDuration) {
+        // Session completed
+        stopMining();
+        showNotification("Mining session completed!", "success");
+        return;
+    }
+    
+    // Calculate coins earned
+    const coinsEarned = miningSpeed * miningMultiplier;
+    minedCoins += coinsEarned;
+    saveUserMiningData();
+    
+    // Update UI
+    updateUI();
+}
+
+function startMining() {
+    if (miningActive || !currentUser) return;
+    
+    miningActive = true;
+    miningStartTime = Math.floor(Date.now() / 1000);
+    
+    saveUserMiningData();
+    
+    // Update UI
+    document.getElementById('mineBtnText').textContent = 'Mining...';
+    document.getElementById('mineBtn').querySelector('i').className = 'fas fa-cog fa-spin';
+    document.getElementById('sessionStatus').textContent = 'Mining in progress...';
+    
+    // Start interval
+    miningInterval = setInterval(updateMining, 1000);
+    
+    showNotification("Mining session started!", "success");
+}
+
+function stopMining() {
+    miningActive = false;
+    saveUserMiningData();
+    
+    // Update UI
+    document.getElementById('mineBtnText').textContent = 'Start Mining';
+    document.getElementById('mineBtn').querySelector('i').className = 'fas fa-play';
+    document.getElementById('sessionStatus').textContent = 'Ready to start mining';
+    
+    // Clear interval
+    clearInterval(miningInterval);
+}
+
+function resumeMining() {
+    if (!miningActive || !currentUser) return;
+    
+    const now = Math.floor(Date.now() / 1000);
+    const elapsed = now - miningStartTime;
+    
+    if (elapsed >= sessionDuration) {
+        // Session completed while away
+        stopMining();
+        showNotification("Mining session completed!", "success");
+        return;
+    }
+    
+    // Update UI
+    document.getElementById('mineBtnText').textContent = 'Mining...';
+    document.getElementById('mineBtn').querySelector('i').className = 'fas fa-cog fa-spin';
+    document.getElementById('sessionStatus').textContent = 'Mining in progress...';
+    
+    // Start interval
+    miningInterval = setInterval(updateMining, 1000);
+}
+
+function updateUI() {
+    // Update mined coins
+    document.getElementById('minedCoins').textContent = `${minedCoins.toFixed(4)} SA`;
+    
+    // Update timer and progress
+    if (miningActive) {
+        const now = Math.floor(Date.now() / 1000);
+        const elapsed = now - miningStartTime;
+        const remaining = Math.max(sessionDuration - elapsed, 0);
+        
+        // Format time
+        const hours = Math.floor(remaining / 3600);
+        const minutes = Math.floor((remaining % 3600) / 60);
+        const seconds = remaining % 60;
+        
+        document.getElementById('timer').textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Update progress
+        const progress = (elapsed / sessionDuration) * 100;
+        document.getElementById('miningProgress').style.width = `${progress}%`;
+        document.getElementById('sessionProgress').textContent = `${Math.round(progress)}%`;
+        
+        // Update session time
+        const elapsedHours = Math.floor(elapsed / 3600);
+        const elapsedMinutes = Math.floor((elapsed % 3600) / 60);
+        const elapsedSeconds = elapsed % 60;
+        
+        document.getElementById('sessionTime').textContent = 
+            `Session: ${elapsedHours.toString().padStart(2, '0')}:${elapsedMinutes.toString().padStart(2, '0')}:${elapsedSeconds.toString().padStart(2, '0')} / 07:00:00`;
+    }
+    
+    // Update mining rate
+    document.getElementById('miningRate').textContent = (miningSpeed * miningMultiplier).toFixed(4);
+    
+    // Update multiplier
+    document.getElementById('multiplier').textContent = `${miningMultiplier}x`;
+    
+    // Update claim status
+    updateClaimStatus();
+}
+
+function updateClaimStatus() {
+    const claimStatus = document.getElementById('claimStatus');
+    
+    if (upgradeActive && miningUpgrade) {
+        const now = Math.floor(Date.now() / 1000);
+        const upgradeEndTime = miningUpgrade.startTime + UPGRADE_DURATION;
+        const timeLeft = upgradeEndTime - now;
+        const nextClaim = miningUpgrade.lastClaim + CLAIM_INTERVAL;
+        const canClaim = now >= nextClaim;
+        
+        if (timeLeft > 0) {
+            const daysLeft = Math.floor(timeLeft / (24 * 3600));
+            const hoursLeft = Math.floor((timeLeft % (24 * 3600)) / 3600);
+            
+            claimStatus.innerHTML = `Upgrade: <b>${miningUpgrade.upgradeSpeed} SA/sec</b>, ${daysLeft}d ${hoursLeft}h left<br>
+            Next claim: <b>${new Date(nextClaim * 1000).toLocaleDateString()}</b> ${canClaim ? '<span style="color:#00ffb3;">Ready!</span>' : ''}`;
+        } else {
+            // Upgrade expired
+            upgradeActive = false;
+            miningUpgrade = null;
+            localStorage.removeItem(`miningUpgrade_${currentUser.$id}`);
+            miningSpeed = NORMAL_SPEED;
+            localStorage.setItem(`miningSpeed_${currentUser.$id}`, miningSpeed.toString());
+            claimStatus.innerHTML = "";
+            showNotification("Your mining upgrade has expired", "info");
+        }
+    } else {
+        claimStatus.innerHTML = "";
+    }
+}
+
+// Particles Background
+function createParticles() {
+    const particlesContainer = document.getElementById('particles');
+    const particleCount = window.innerWidth < 600 ? 30 : 50;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Random size between 2px and 6px
+        const size = Math.random() * 4 + 2;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random position
+        particle.style.left = `${Math.random() * 100}vw`;
+        particle.style.top = `${Math.random() * 100}vh`;
+        
+        // Random color
         const colors = ['#ff9800', '#fdc500', '#ff3333', '#4CAF50', '#2196F3'];
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         
-        for (let i = 0; i < 100; i++) {
-            const confetti = document.createElement('div');
-            confetti.classList.add('confetti');
-            
-            // Random position
-            confetti.style.left = `${Math.random() * 100}vw`;
-            
-            // Random size
-            const size = Math.random() * 10 + 5;
-            confetti.style.width = `${size}px`;
-            confetti.style.height = `${size}px`;
-            
-            // Random shape
-            if (Math.random() > 0.5) {
-                confetti.style.borderRadius = '50%';
-            } else {
-                confetti.style.borderRadius = '0';
-            }
-            
-            // Random color
-            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            // Random animation duration
-            const duration = Math.random() * 3 + 2;
-            confetti.style.animationDuration = `${duration}s`;
-            
-            container.appendChild(confetti);
-            
-            // Remove after animation
-            setTimeout(() => {
-                confetti.remove();
-            }, duration * 1000);
+        // Random animation duration
+        const duration = Math.random() * 20 + 10;
+        particle.style.animationDuration = `${duration}s`;
+        
+        // Random delay
+        particle.style.animationDelay = `${Math.random() * 10}s`;
+        
+        particlesContainer.appendChild(particle);
+    }
+}
+
+// Confetti Effect
+function createConfetti() {
+    const container = document.getElementById('confettiContainer');
+    const colors = ['#ff9800', '#fdc500', '#ff3333', '#4CAF50', '#2196F3'];
+    
+    for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        
+        // Random position
+        confetti.style.left = `${Math.random() * 100}vw`;
+        
+        // Random size
+        const size = Math.random() * 10 + 5;
+        confetti.style.width = `${size}px`;
+        confetti.style.height = `${size}px`;
+        
+        // Random shape
+        if (Math.random() > 0.5) {
+            confetti.style.borderRadius = '50%';
+        } else {
+            confetti.style.borderRadius = '0';
         }
+        
+        // Random color
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        
+        // Random animation duration
+        const duration = Math.random() * 3 + 2;
+        confetti.style.animationDuration = `${duration}s`;
+        
+        container.appendChild(confetti);
+        
+        // Remove after animation
+        setTimeout(() => {
+            confetti.remove();
+        }, duration * 1000);
+    }
+}
+
+// Mining button event
+document.getElementById('mineBtn').onclick = function() {
+    if (!currentUser) {
+        showNotification("Please login first", "error");
+        return;
     }
     
-    // Mining button event
-    document.getElementById('mineBtn').onclick = function() {
-        if (miningActive) {
-            stopMining();
-            showNotification("Mining stopped", "info");
-        } else {
-            startMining();
-        }
-    };
+    if (miningActive) {
+        stopMining();
+        showNotification("Mining stopped", "info");
+    } else {
+        startMining();
+    }
+};
+
+// Withdraw button event
+document.getElementById('withdrawBtn').onclick = function() {
+    if (!currentUser) {
+        showNotification("Please login first", "error");
+        return;
+    }
     
-    // Withdraw button event
-    document.getElementById('withdrawBtn').onclick = function() {
-        const today = new Date();
-        
-        // Check if today is a withdrawal day
-        if (!WITHDRAW_DAYS.includes(today.getDate())) {
-            document.getElementById('withdrawStatus').textContent = `Withdrawals only on ${WITHDRAW_DAYS.join('th and ')}th each month!`;
-            document.getElementById('withdrawStatus').classList.add('error-message');
-            return;
-        }
-        
-        if (minedCoins < WITHDRAW_MIN_SA) {
-            document.getElementById('withdrawStatus').textContent = `Need at least ${WITHDRAW_MIN_SA} SA to withdraw.`;
-            document.getElementById('withdrawStatus').classList.add('error-message');
-            return;
-        }
-        
-        // Clear status
-        document.getElementById('withdrawStatus').textContent = "";
-        document.getElementById('withdrawStatus').classList.remove('error-message');
-        
-        // Check wallet connection
-        if(!window.ethereum) {
-            document.getElementById('withdrawStatus').textContent = "Please connect a BNB wallet first.";
-            document.getElementById('withdrawStatus').classList.add('error-message');
-            return;
-        }
-        
-        // Check eligibility fee
-        if (localStorage.getItem('withdrawEligible')!=='true') {
-            const confirmed = confirm(`To withdraw, you need to pay a one-time eligibility fee of ${WITHDRAW_ELIGIBILITY_FEE_BNB} BNB.\n\nThis fee helps prevent abuse of the system.`);
-            if (!confirmed) {
-                document.getElementById('withdrawStatus').textContent = "Withdrawal cancelled";
-                document.getElementById('withdrawStatus').classList.add('error-message');
-                return;
-            }
-            
-            // Simulate eligibility fee payment
-            document.getElementById('withdrawStatus').textContent = "Processing eligibility fee...";
-            showNotification("Processing eligibility fee payment...", "info");
-            
-            setTimeout(() => {
-                localStorage.setItem('withdrawEligible','true');
-                showNotification("Eligibility fee paid successfully!", "success");
-                document.getElementById('withdrawStatus').textContent = "";
-                
-                // Continue with withdrawal after eligibility
-                processWithdrawal();
-            }, 2000);
-        } else {
-            processWithdrawal();
-        }
-    };
+    const today = new Date();
     
-    function processWithdrawal() {
-        // Calculate withdrawal with fee
-        const feeAmount = minedCoins * (WITHDRAW_FEE_PERCENT / 100);
-        const sendAmount = minedCoins - feeAmount;
-        
-        const confirmed = confirm(`Confirm withdrawal of ${minedCoins.toFixed(2)} SA?\n\nYou will receive: ${sendAmount.toFixed(2)} SA (${WITHDRAW_FEE_PERCENT}% fee)`);
+    // Check if today is a withdrawal day
+    if (!WITHDRAW_DAYS.includes(today.getDate())) {
+        document.getElementById('withdrawStatus').textContent = `Withdrawals only on ${WITHDRAW_DAYS.join('th and ')}th each month!`;
+        document.getElementById('withdrawStatus').classList.add('error-message');
+        return;
+    }
+    
+    if (minedCoins < WITHDRAW_MIN_SA) {
+        document.getElementById('withdrawStatus').textContent = `Need at least ${WITHDRAW_MIN_SA} SA to withdraw.`;
+        document.getElementById('withdrawStatus').classList.add('error-message');
+        return;
+    }
+    
+    // Clear status
+    document.getElementById('withdrawStatus').textContent = "";
+    document.getElementById('withdrawStatus').classList.remove('error-message');
+    
+    // Check wallet connection
+    if(!window.ethereum) {
+        document.getElementById('withdrawStatus').textContent = "Please connect a BNB wallet first.";
+        document.getElementById('withdrawStatus').classList.add('error-message');
+        return;
+    }
+    
+    // Check eligibility fee
+    if (localStorage.getItem('withdrawEligible')!=='true') {
+        const confirmed = confirm(`To withdraw, you need to pay a one-time eligibility fee of ${WITHDRAW_ELIGIBILITY_FEE_BNB} BNB.\n\nThis fee helps prevent abuse of the system.`);
         if (!confirmed) {
             document.getElementById('withdrawStatus').textContent = "Withdrawal cancelled";
             document.getElementById('withdrawStatus').classList.add('error-message');
             return;
         }
         
-        // Simulate withdrawal processing
-        document.getElementById('withdrawStatus').textContent = "Processing withdrawal...";
-        showNotification("Processing withdrawal transaction...", "info");
+        // Simulate eligibility fee payment
+        document.getElementById('withdrawStatus').textContent = "Processing eligibility fee...";
+        showNotification("Processing eligibility fee payment...", "info");
         
         setTimeout(() => {
-            // Reset mined coins
-            minedCoins = 0;
-            localStorage.setItem('minedCoins', '0');
-            
-            // Update UI
-            updateUI();
+            localStorage.setItem('withdrawEligible','true');
+            showNotification("Eligibility fee paid successfully!", "success");
             document.getElementById('withdrawStatus').textContent = "";
             
-            // Show success
-            createConfetti();
-            showNotification(`Withdrawal successful! ${sendAmount.toFixed(2)} SA sent to your wallet.`, "success");
-            
-            alert(`Withdrawal completed!\n\nSent: ${sendAmount.toFixed(2)} SA\nFee: ${feeAmount.toFixed(2)} SA (${WITHDRAW_FEE_PERCENT}%)\n\nThank you for using SupremeAmer Coin!`);
-        }, 3000);
+            // Continue with withdrawal after eligibility
+            processWithdrawal();
+        }, 2000);
+    } else {
+        processWithdrawal();
+    }
+};
+
+function processWithdrawal() {
+    // Calculate withdrawal with fee
+    const feeAmount = minedCoins * (WITHDRAW_FEE_PERCENT / 100);
+    const sendAmount = minedCoins - feeAmount;
+    
+    const confirmed = confirm(`Confirm withdrawal of ${minedCoins.toFixed(2)} SA?\n\nYou will receive: ${sendAmount.toFixed(2)} SA (${WITHDRAW_FEE_PERCENT}% fee)`);
+    if (!confirmed) {
+        document.getElementById('withdrawStatus').textContent = "Withdrawal cancelled";
+        document.getElementById('withdrawStatus').classList.add('error-message');
+        return;
     }
     
-    // Upgrade mining function
-    window.upgradeMining = function(speedKey) {
-        hideUpgradeModal();
+    // Simulate withdrawal processing
+    document.getElementById('withdrawStatus').textContent = "Processing withdrawal...";
+    showNotification("Processing withdrawal transaction...", "info");
+    
+    setTimeout(() => {
+        // Reset mined coins
+        minedCoins = 0;
+        saveUserMiningData();
         
-        if (upgradeActive) {
-            showNotification("You already have an active upgrade!", "error");
-            return;
-        }
+        // Update UI
+        updateUI();
+        document.getElementById('withdrawStatus').textContent = "";
         
-        if(!window.ethereum) {
-            showNotification("Please connect a BNB wallet first", "error");
-            return;
-        }
+        // Show success
+        createConfetti();
+        showNotification(`Withdrawal successful! ${sendAmount.toFixed(2)} SA sent to your wallet.`, "success");
         
-        const upgrade = {
-            speed: UPGRADE_SPEEDS[speedKey],
-            cost: UPGRADE_FEES[speedKey]
+        alert(`Withdrawal completed!\n\nSent: ${sendAmount.toFixed(2)} SA\nFee: ${feeAmount.toFixed(2)} SA (${WITHDRAW_FEE_PERCENT}%)\n\nThank you for using SupremeAmer Coin!`);
+    }, 3000);
+}
+
+// Upgrade mining function
+window.upgradeMining = function(speedKey) {
+    if (!currentUser) {
+        showNotification("Please login first", "error");
+        return;
+    }
+    
+    hideUpgradeModal();
+    
+    if (upgradeActive) {
+        showNotification("You already have an active upgrade!", "error");
+        return;
+    }
+    
+    if(!window.ethereum) {
+        showNotification("Please connect a BNB wallet first", "error");
+        return;
+    }
+    
+    const upgrade = {
+        speed: UPGRADE_SPEEDS[speedKey],
+        cost: UPGRADE_FEES[speedKey]
+    };
+    
+    // Show confirmation
+    const confirmed = confirm(`Upgrade mining speed to ${upgrade.speed} SA/sec for 360 days?\n\nCost: ${upgrade.cost} BNB`);
+    if(!confirmed) return;
+    
+    showNotification("Processing upgrade transaction...", "info");
+    
+    // Simulate transaction
+    setTimeout(() => {
+        miningSpeed = upgrade.speed;
+        
+        // Set upgrade data
+        miningUpgrade = {
+            upgradeSpeed: upgrade.speed,
+            bnbFee: upgrade.cost,
+            startTime: Math.floor(Date.now() / 1000),
+            lastClaim: Math.floor(Date.now() / 1000)
         };
         
-        // Show confirmation
-        const confirmed = confirm(`Upgrade mining speed to ${upgrade.speed} SA/sec for 360 days?\n\nCost: ${upgrade.cost} BNB`);
-        if(!confirmed) return;
+        upgradeActive = true;
         
-        showNotification("Processing upgrade transaction...", "info");
+        saveUserMiningData();
         
-        // Simulate transaction
-        setTimeout(() => {
-            miningSpeed = upgrade.speed;
-            
-            // Set upgrade data
-            miningUpgrade = {
-                upgradeSpeed: upgrade.speed,
-                bnbFee: upgrade.cost,
-                startTime: Math.floor(Date.now() / 1000),
-                lastClaim: Math.floor(Date.now() / 1000)
-            };
-            
-            upgradeActive = true;
-            
-            localStorage.setItem('miningSpeed', miningSpeed.toString());
-            localStorage.setItem('miningUpgrade', JSON.stringify(miningUpgrade));
-            
-            showNotification(`Mining upgraded to ${upgrade.speed} SA/sec!`, "success");
-            createConfetti();
-            updateUI();
-        }, 2000);
-    };
-    
-    // Timer click for claim
-    document.getElementById('timer').onclick = function() {
-        if (upgradeActive && miningUpgrade) {
-            const now = Math.floor(Date.now() / 1000);
-            const nextClaim = miningUpgrade.lastClaim + CLAIM_INTERVAL;
-            
-            if (now >= nextClaim) {
-                // Calculate claimable amount
-                const seconds = now - miningUpgrade.lastClaim;
-                const claimAmount = seconds * miningUpgrade.upgradeSpeed;
-                
-                // Add to mined coins
-                minedCoins += claimAmount;
-                miningUpgrade.lastClaim = now;
-                
-                localStorage.setItem('minedCoins', minedCoins);
-                localStorage.setItem('miningUpgrade', JSON.stringify(miningUpgrade));
-                
-                updateUI();
-                createConfetti();
-                showNotification(`You claimed ${claimAmount.toFixed(4)} SA!`, "success");
-            } else {
-                const timeLeft = nextClaim - now;
-                const days = Math.floor(timeLeft / (24 * 3600));
-                const hours = Math.floor((timeLeft % (24 * 3600)) / 3600);
-                
-                showNotification(`Next claim available in ${days}d ${hours}h`, "info");
-            }
-        }
-    };
-    
-    // Initialize on page load
-    window.onload = function() {
-        // Display user information
-        displayUser();
-        
-        // Check for background mining
-        checkBackgroundMining();
-        
-        // Check for existing upgrade
-        if (miningUpgrade) {
-            const now = Math.floor(Date.now() / 1000);
-            const upgradeEndTime = miningUpgrade.startTime + UPGRADE_DURATION;
-            
-            if (now < upgradeEndTime) {
-                upgradeActive = true;
-                miningSpeed = miningUpgrade.upgradeSpeed;
-            } else {
-                // Upgrade expired
-                miningUpgrade = null;
-                localStorage.removeItem('miningUpgrade');
-                miningSpeed = NORMAL_SPEED;
-                localStorage.setItem('miningSpeed', miningSpeed.toString());
-            }
-        }
-        
+        showNotification(`Mining upgraded to ${upgrade.speed} SA/sec!`, "success");
+        createConfetti();
         updateUI();
+    }, 2000);
+};
+
+// Timer click for claim
+document.getElementById('timer').onclick = function() {
+    if (!currentUser) return;
+    
+    if (upgradeActive && miningUpgrade) {
+        const now = Math.floor(Date.now() / 1000);
+        const nextClaim = miningUpgrade.lastClaim + CLAIM_INTERVAL;
         
-        // Resume mining if active
-        if (miningActive) {
-            resumeMining();
+        if (now >= nextClaim) {
+            // Calculate claimable amount
+            const seconds = now - miningUpgrade.lastClaim;
+            const claimAmount = seconds * miningUpgrade.upgradeSpeed;
+            
+            // Add to mined coins
+            minedCoins += claimAmount;
+            miningUpgrade.lastClaim = now;
+            
+            saveUserMiningData();
+            
+            updateUI();
+            createConfetti();
+            showNotification(`You claimed ${claimAmount.toFixed(4)} SA!`, "success");
+        } else {
+            const timeLeft = nextClaim - now;
+            const days = Math.floor(timeLeft / (24 * 3600));
+            const hours = Math.floor((timeLeft % (24 * 3600)) / 3600);
+            
+            showNotification(`Next claim available in ${days}d ${hours}h`, "info");
         }
-    };
+    }
+};
+
+// Initialize app on page load
+window.onload = function() {
+    createParticles();
+    initializeApp();
+};
     </script>
-</body>
-</html>
+    </body>
+    </html>
+                    
+                
+            
