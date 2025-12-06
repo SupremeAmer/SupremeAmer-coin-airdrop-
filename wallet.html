@@ -352,6 +352,110 @@
             transform: none;
         }
         
+        /* Wallet Selection Modal */
+        .wallet-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .wallet-modal-content {
+            background: var(--card-bg-dark);
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        body.light .wallet-modal-content {
+            background: var(--card-bg-light);
+        }
+        
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .wallet-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .wallet-option-btn {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: inherit;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        
+        .wallet-option-btn:hover {
+            background: rgba(255, 152, 0, 0.2);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .wallet-option-btn i {
+            font-size: 1.5em;
+            width: 40px;
+        }
+        
+        .wallet-option-meta i {
+            color: #f6851b; /* MetaMask orange */
+        }
+        
+        .wallet-option-trust i {
+            color: #3375bb; /* Trust Wallet blue */
+        }
+        
+        .wallet-option-text {
+            flex: 1;
+        }
+        
+        .wallet-option-desc {
+            font-size: 0.85em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.5em;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .close-modal:hover {
+            opacity: 1;
+        }
+        
         /* Form Styles */
         .form-group {
             margin-bottom: 20px;
@@ -610,6 +714,37 @@
         <span class="notification-text">Notification message</span>
     </div>
     
+    <!-- Wallet Selection Modal -->
+    <div class="wallet-modal" id="walletModal">
+        <div class="wallet-modal-content">
+            <button class="close-modal" id="closeWalletModal">&times;</button>
+            <h2 style="color: var(--secondary-color); margin-bottom: 20px;">Select Wallet</h2>
+            <p style="margin-bottom: 25px; opacity: 0.9;">Choose your preferred wallet to connect</p>
+            
+            <div class="wallet-options">
+                <button class="wallet-option-btn wallet-option-meta" id="metamaskBtn">
+                    <i class="fab fa-ethereum"></i>
+                    <div class="wallet-option-text">
+                        <div>MetaMask</div>
+                        <div class="wallet-option-desc">Browser extension or mobile app</div>
+                    </div>
+                </button>
+                
+                <button class="wallet-option-btn wallet-option-trust" id="trustWalletBtn">
+                    <i class="fas fa-wallet"></i>
+                    <div class="wallet-option-text">
+                        <div>Trust Wallet</div>
+                        <div class="wallet-option-desc">Mobile wallet app</div>
+                    </div>
+                </button>
+            </div>
+            
+            <div style="margin-top: 20px; font-size: 0.9em; opacity: 0.7;">
+                Need help? <a href="#" style="color: var(--primary-color); text-decoration: none;">Learn how to connect</a>
+            </div>
+        </div>
+    </div>
+    
     <!-- Enhanced Header -->
     <header class="header">
         <div class="logo-section">
@@ -682,7 +817,7 @@
             
             <button class="action-btn" id="connectWalletBtn">
                 <i class="fas fa-wallet"></i>
-                <span>Connect MetaMask</span>
+                <span>Connect Wallet</span>
             </button>
             
             <div class="status-message" id="walletStatus"></div>
@@ -690,6 +825,9 @@
             <div style="margin-top: 20px; text-align: left;">
                 <h3 style="color: var(--secondary-color); margin-bottom: 10px;">Wallet Information</h3>
                 <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                    <div style="margin-bottom: 10px;">
+                        <strong>Connected Wallet:</strong> <span id="connectedWalletType">Not Connected</span>
+                    </div>
                     <div style="margin-bottom: 10px;">
                         <strong>Mined Balance:</strong> <span id="minedBalance">0 SA</span>
                     </div>
@@ -864,6 +1002,14 @@ const WITHDRAW_FEE_PERCENT = 6;
 const WITHDRAW_PROCESSING_FEE_USD = 2;
 const WITHDRAW_DAYS = [9, 13];
 
+// Wallet connection deep links
+const DEEP_LINKS = {
+    METAMASK_MOBILE: 'https://metamask.app.link/dapp/',
+    TRUST_WALLET: 'https://link.trustwallet.com/open_url?coin_id=60&url=',
+    METAMASK_EXTENSION: 'https://metamask.io/download/',
+    TRUST_WALLET_DOWNLOAD: 'https://trustwallet.com/download'
+};
+
 // Appwrite
 const { Client, Account, Databases, Query } = Appwrite;
 const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT);
@@ -877,6 +1023,7 @@ let userProfile = null;
 // Wallet state
 let walletConnected = false;
 let walletAddress = '';
+let walletType = ''; // 'metamask' or 'trust'
 let minedCoins = 0;
 let miningSpeed = NORMAL_SPEED;
 let miningUpgrade = null;
@@ -1043,14 +1190,16 @@ function initializeWalletConnection() {
             if (accounts.length > 0) {
                 walletAddress = accounts[0];
                 walletConnected = true;
+                walletType = 'metamask';
 
                 console.log("✅ Wallet already connected:", walletAddress);
 
                 // Update UI
                 document.getElementById('walletAddress').textContent = walletAddress;
                 document.getElementById('copyAddressBtn').style.display = 'block';
-                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected</span>';
+                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected to MetaMask</span>';
                 document.getElementById('connectWalletBtn').disabled = true;
+                document.getElementById('connectedWalletType').textContent = 'MetaMask';
                 document.getElementById('walletStatus').textContent = "Wallet connected!";
                 document.getElementById('walletStatus').className = "status-message success-message";
 
@@ -1062,8 +1211,13 @@ function initializeWalletConnection() {
         .catch(err => {
             console.error("❌ Error checking wallet connection:", err);
         });
-    } else {
-        console.log("❌ MetaMask not installed");
+    }
+
+    // Check for Trust Wallet
+    if (typeof window.trustwallet !== 'undefined' || 
+        (window.ethereum && window.ethereum.isTrust)) {
+        console.log("✅ Trust Wallet detected");
+        walletType = 'trust';
     }
 
     // Listen for account changes
@@ -1075,11 +1229,13 @@ function initializeWalletConnection() {
                 // User disconnected their wallet
                 walletConnected = false;
                 walletAddress = '';
+                walletType = '';
 
                 document.getElementById('walletAddress').textContent = 'Connect Wallet to View Address';
                 document.getElementById('copyAddressBtn').style.display = 'none';
-                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet"></i><span>Connect MetaMask</span>';
+                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet"></i><span>Connect Wallet</span>';
                 document.getElementById('connectWalletBtn').disabled = false;
+                document.getElementById('connectedWalletType').textContent = 'Not Connected';
                 document.getElementById('walletStatus').textContent = "Wallet disconnected";
                 document.getElementById('walletStatus').className = "status-message error-message";
 
@@ -1101,6 +1257,224 @@ function initializeWalletConnection() {
         });
     }
 }
+
+// ---- WALLET CONNECTION FUNCTIONS ----
+
+// Open wallet selection modal
+document.getElementById('connectWalletBtn').onclick = function() {
+    if (!currentUser) {
+        showNotification("Please login first", "error");
+        return;
+    }
+    
+    // Show wallet selection modal
+    document.getElementById('walletModal').style.display = 'flex';
+};
+
+// Close wallet modal
+document.getElementById('closeWalletModal').onclick = function() {
+    document.getElementById('walletModal').style.display = 'none';
+};
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('walletModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// Connect to MetaMask
+document.getElementById('metamaskBtn').onclick = async function() {
+    console.log("🦊 Connecting to MetaMask...");
+    document.getElementById('walletModal').style.display = 'none';
+    
+    // Check if we're on mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        // Try to open MetaMask mobile app
+        try {
+            // Check if MetaMask is already installed
+            if (typeof window.ethereum !== 'undefined') {
+                await connectMetaMask();
+            } else {
+                // Open MetaMask mobile app or redirect to download
+                window.location.href = DEEP_LINKS.METAMASK_MOBILE + window.location.href;
+                showNotification("Opening MetaMask app...", "info");
+            }
+        } catch (error) {
+            console.error("❌ Mobile MetaMask connection error:", error);
+            // Fallback to regular connection
+            await connectMetaMask();
+        }
+    } else {
+        // Desktop connection
+        await connectMetaMask();
+    }
+};
+
+// Connect MetaMask function
+async function connectMetaMask() {
+    if (typeof window.ethereum === 'undefined') {
+        // MetaMask not installed, redirect to download
+        showNotification("MetaMask not installed. Redirecting to download page...", "info");
+        window.open(DEEP_LINKS.METAMASK_EXTENSION, '_blank');
+        return;
+    }
+
+    try {
+        document.getElementById('walletStatus').textContent = "Connecting to MetaMask...";
+        document.getElementById('walletStatus').className = "status-message";
+        
+        // Request account access
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        walletAddress = accounts[0];
+        walletConnected = true;
+        walletType = 'metamask';
+
+        console.log("✅ MetaMask connected:", walletAddress);
+
+        // Update UI
+        document.getElementById('walletAddress').textContent = walletAddress;
+        document.getElementById('copyAddressBtn').style.display = 'block';
+        document.getElementById('connectWalletBtn').innerHTML = '<i class="fab fa-ethereum"></i><span>Connected to MetaMask</span>';
+        document.getElementById('connectWalletBtn').disabled = true;
+        document.getElementById('connectedWalletType').textContent = 'MetaMask';
+        document.getElementById('walletStatus').textContent = "MetaMask connected successfully!";
+        document.getElementById('walletStatus').className = "status-message success-message";
+
+        showNotification("MetaMask connected successfully!", "success");
+
+        // Update balances
+        updateBalances();
+
+    } catch (error) {
+        console.error("❌ MetaMask connection error:", error);
+        
+        if (error.code === 4001) {
+            // User rejected the connection request
+            showNotification("MetaMask connection rejected", "error");
+            document.getElementById('walletStatus').textContent = "MetaMask connection rejected by user.";
+            document.getElementById('walletStatus').className = "status-message error-message";
+        } else {
+            showNotification("Failed to connect MetaMask", "error");
+            document.getElementById('walletStatus').textContent = "Failed to connect MetaMask. Please try again.";
+            document.getElementById('walletStatus').className = "status-message error-message";
+        }
+    }
+}
+
+// Connect to Trust Wallet
+document.getElementById('trustWalletBtn').onclick = async function() {
+    console.log("🔷 Connecting to Trust Wallet...");
+    document.getElementById('walletModal').style.display = 'none';
+    
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        // Open Trust Wallet deep link
+        const currentUrl = encodeURIComponent(window.location.href);
+        const trustLink = DEEP_LINKS.TRUST_WALLET + currentUrl;
+        
+        // Try to open Trust Wallet app
+        window.location.href = trustLink;
+        
+        // Fallback after 2 seconds
+        setTimeout(async () => {
+            if (!walletConnected) {
+                await connectTrustWallet();
+            }
+        }, 2000);
+        
+        showNotification("Opening Trust Wallet app...", "info");
+    } else {
+        // Desktop connection
+        await connectTrustWallet();
+    }
+};
+
+// Connect Trust Wallet function
+async function connectTrustWallet() {
+    // Check if Trust Wallet is available
+    if (typeof window.ethereum === 'undefined') {
+        // Trust Wallet not detected, redirect to download
+        showNotification("Trust Wallet not detected. Redirecting to download page...", "info");
+        window.open(DEEP_LINKS.TRUST_WALLET_DOWNLOAD, '_blank');
+        return;
+    }
+
+    try {
+        document.getElementById('walletStatus').textContent = "Connecting to Trust Wallet...";
+        document.getElementById('walletStatus').className = "status-message";
+        
+        // Check if it's Trust Wallet
+        let isTrustWallet = false;
+        
+        if (window.ethereum.isTrust) {
+            isTrustWallet = true;
+        } else if (window.ethereum.providers) {
+            // Check in providers array
+            isTrustWallet = window.ethereum.providers.some(provider => provider.isTrust);
+        }
+        
+        if (!isTrustWallet) {
+            throw new Error("Trust Wallet not detected");
+        }
+
+        // Request account access
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        walletAddress = accounts[0];
+        walletConnected = true;
+        walletType = 'trust';
+
+        console.log("✅ Trust Wallet connected:", walletAddress);
+
+        // Update UI
+        document.getElementById('walletAddress').textContent = walletAddress;
+        document.getElementById('copyAddressBtn').style.display = 'block';
+        document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet"></i><span>Connected to Trust Wallet</span>';
+        document.getElementById('connectWalletBtn').disabled = true;
+        document.getElementById('connectedWalletType').textContent = 'Trust Wallet';
+        document.getElementById('walletStatus').textContent = "Trust Wallet connected successfully!";
+        document.getElementById('walletStatus').className = "status-message success-message";
+
+        showNotification("Trust Wallet connected successfully!", "success");
+
+        // Update balances
+        updateBalances();
+
+    } catch (error) {
+        console.error("❌ Trust Wallet connection error:", error);
+        
+        if (error.code === 4001) {
+            showNotification("Trust Wallet connection rejected", "error");
+            document.getElementById('walletStatus').textContent = "Trust Wallet connection rejected by user.";
+            document.getElementById('walletStatus').className = "status-message error-message";
+        } else {
+            showNotification("Failed to connect Trust Wallet. Please make sure Trust Wallet is installed.", "error");
+            document.getElementById('walletStatus').textContent = "Failed to connect Trust Wallet.";
+            document.getElementById('walletStatus').className = "status-message error-message";
+            
+            // Offer download link
+            setTimeout(() => {
+                if (confirm("Trust Wallet not detected. Would you like to download it?")) {
+                    window.open(DEEP_LINKS.TRUST_WALLET_DOWNLOAD, '_blank');
+                }
+            }, 1000);
+        }
+    }
+}
+
+// Copy Address Functionality
+document.getElementById('copyAddressBtn').onclick = function() {
+    navigator.clipboard.writeText(walletAddress).then(() => {
+        showNotification("Wallet address copied to clipboard!", "success");
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+        showNotification("Failed to copy address", "error");
+    });
+};
 
 // Theme Toggle Functionality
 const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -1192,61 +1566,6 @@ function showNotification(message, type = 'info', duration = 3000) {
         notification.classList.remove('show');
     }, duration);
 }
-
-// Connect Wallet Functionality
-document.getElementById('connectWalletBtn').onclick = async function() {
-    if (!currentUser) {
-        showNotification("Please login first", "error");
-        return;
-    }
-
-    if (typeof window.ethereum === 'undefined') {
-        showNotification("MetaMask is not installed", "error");
-        document.getElementById('walletStatus').textContent = "MetaMask is not installed. Please install it to continue.";
-        document.getElementById('walletStatus').className = "status-message error-message";
-        return;
-    }
-
-    try {
-        console.log("🔗 Connecting wallet...");
-        
-        // Request account access
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        walletAddress = accounts[0];
-        walletConnected = true;
-
-        console.log("✅ Wallet connected:", walletAddress);
-
-        // Update UI
-        document.getElementById('walletAddress').textContent = walletAddress;
-        document.getElementById('copyAddressBtn').style.display = 'block';
-        document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected</span>';
-        document.getElementById('connectWalletBtn').disabled = true;
-        document.getElementById('walletStatus').textContent = "Wallet connected successfully!";
-        document.getElementById('walletStatus').className = "status-message success-message";
-
-        showNotification("Wallet connected successfully!", "success");
-
-        // Update balances
-        updateBalances();
-
-    } catch (error) {
-        console.error("❌ Error connecting wallet:", error);
-        showNotification("Failed to connect wallet", "error");
-        document.getElementById('walletStatus').textContent = "Failed to connect wallet. Please try again.";
-        document.getElementById('walletStatus').className = "status-message error-message";
-    }
-};
-
-// Copy Address Functionality
-document.getElementById('copyAddressBtn').onclick = function() {
-    navigator.clipboard.writeText(walletAddress).then(() => {
-        showNotification("Wallet address copied to clipboard!", "success");
-    }).catch(err => {
-        console.error('Failed to copy: ', err);
-        showNotification("Failed to copy address", "error");
-    });
-};
 
 // Update Balances
 function updateBalances() {
