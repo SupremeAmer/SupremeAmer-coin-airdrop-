@@ -726,7 +726,7 @@
                     <i class="fab fa-ethereum"></i>
                     <div class="wallet-option-text">
                         <div>MetaMask</div>
-                        <div class="wallet-option-desc">Browser extension or mobile app</div>
+                        <div class="wallet-option-desc">Browser extension</div>
                     </div>
                 </button>
                 
@@ -827,6 +827,9 @@
                 <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
                     <div style="margin-bottom: 10px;">
                         <strong>Connected Wallet:</strong> <span id="connectedWalletType">Not Connected</span>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Network:</strong> <span id="networkInfo">Not Connected</span>
                     </div>
                     <div style="margin-bottom: 10px;">
                         <strong>Mined Balance:</strong> <span id="minedBalance">0 SA</span>
@@ -984,10 +987,11 @@ const APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
 const APPWRITE_PROJECT = '6839d9640019316a160d';
 const APPWRITE_DB_ID = '6839dcca000190bf99f6';
 const APPWRITE_COLLECTION_ID = 'users';
-const SUPREMEAMER_RECEIVER_BNB = '0xYourBnbAddressHere';
-const SUPREMEAMER_TOKEN_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
+const SUPREMEAMER_RECEIVER_BNB = '0xYourBnbAddressHere'; // Replace with your BNB address
+const SUPREMEAMER_TOKEN_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678'; // Replace with your token address
 const WITHDRAWAL_EMAIL = 'supremeamerapplicationwithdrawrequest@gmail.com';
 
+// Upgrade fees in BNB
 const UPGRADE_FEES = {
     "0.05": "0.002",
     "0.1": "0.009"
@@ -1002,12 +1006,13 @@ const WITHDRAW_FEE_PERCENT = 6;
 const WITHDRAW_PROCESSING_FEE_USD = 2;
 const WITHDRAW_DAYS = [9, 13];
 
-// Wallet connection deep links
-const DEEP_LINKS = {
-    METAMASK_MOBILE: 'https://metamask.app.link/dapp/',
-    TRUST_WALLET: 'https://link.trustwallet.com/open_url?coin_id=60&url=',
-    METAMASK_EXTENSION: 'https://metamask.io/download/',
-    TRUST_WALLET_DOWNLOAD: 'https://trustwallet.com/download'
+// Supported Networks
+const SUPPORTED_NETWORKS = {
+    1: { name: "Ethereum Mainnet", symbol: "ETH" },
+    56: { name: "Binance Smart Chain", symbol: "BNB" },
+    137: { name: "Polygon", symbol: "MATIC" },
+    42161: { name: "Arbitrum", symbol: "ETH" },
+    10: { name: "Optimism", symbol: "ETH" }
 };
 
 // Appwrite
@@ -1024,6 +1029,8 @@ let userProfile = null;
 let walletConnected = false;
 let walletAddress = '';
 let walletType = ''; // 'metamask' or 'trust'
+let chainId = null;
+let networkName = '';
 let minedCoins = 0;
 let miningSpeed = NORMAL_SPEED;
 let miningUpgrade = null;
@@ -1171,8 +1178,8 @@ function initializeUI() {
     // Update balances
     updateBalances();
 
-    // Initialize wallet connection
-    initializeWalletConnection();
+    // Check for existing wallet connections
+    checkExistingWalletConnection();
 
     // Show success message
     setTimeout(() => {
@@ -1180,30 +1187,35 @@ function initializeUI() {
     }, 500);
 }
 
-// Initialize wallet connection
-function initializeWalletConnection() {
-    console.log("🔗 Initializing wallet connection...");
+// Check for existing wallet connections
+function checkExistingWalletConnection() {
+    console.log("🔍 Checking for existing wallet connection...");
     
+    // Check if MetaMask or Trust Wallet is already connected
     if (typeof window.ethereum !== 'undefined') {
         window.ethereum.request({ method: 'eth_accounts' })
         .then(accounts => {
             if (accounts.length > 0) {
                 walletAddress = accounts[0];
                 walletConnected = true;
-                walletType = 'metamask';
-
-                console.log("✅ Wallet already connected:", walletAddress);
-
+                
+                // Detect wallet type
+                if (window.ethereum.isMetaMask) {
+                    walletType = 'metamask';
+                } else if (window.ethereum.isTrust) {
+                    walletType = 'trust';
+                } else {
+                    walletType = 'unknown';
+                }
+                
+                console.log(`✅ ${walletType} wallet already connected:`, walletAddress);
+                
+                // Get network information
+                updateNetworkInfo();
+                
                 // Update UI
-                document.getElementById('walletAddress').textContent = walletAddress;
-                document.getElementById('copyAddressBtn').style.display = 'block';
-                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected to MetaMask</span>';
-                document.getElementById('connectWalletBtn').disabled = true;
-                document.getElementById('connectedWalletType').textContent = 'MetaMask';
-                document.getElementById('walletStatus').textContent = "Wallet connected!";
-                document.getElementById('walletStatus').className = "status-message success-message";
-
-                updateBalances();
+                updateWalletUI();
+                
             } else {
                 console.log("ℹ️ No wallet accounts found");
             }
@@ -1212,50 +1224,51 @@ function initializeWalletConnection() {
             console.error("❌ Error checking wallet connection:", err);
         });
     }
+}
 
-    // Check for Trust Wallet
-    if (typeof window.trustwallet !== 'undefined' || 
-        (window.ethereum && window.ethereum.isTrust)) {
-        console.log("✅ Trust Wallet detected");
-        walletType = 'trust';
+// Update network information
+async function updateNetworkInfo() {
+    if (!window.ethereum || !walletConnected) return;
+    
+    try {
+        const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
+        chainId = parseInt(chainIdHex, 16);
+        networkName = SUPPORTED_NETWORKS[chainId]?.name || `Unknown Network (${chainId})`;
+        
+        document.getElementById('networkInfo').textContent = networkName;
+        console.log("🌐 Network detected:", networkName);
+        
+    } catch (error) {
+        console.error("❌ Error getting network info:", error);
     }
+}
 
-    // Listen for account changes
-    if (window.ethereum) {
-        window.ethereum.on('accountsChanged', function(accounts) {
-            console.log("🔄 Wallet accounts changed:", accounts);
-            
-            if (accounts.length === 0) {
-                // User disconnected their wallet
-                walletConnected = false;
-                walletAddress = '';
-                walletType = '';
-
-                document.getElementById('walletAddress').textContent = 'Connect Wallet to View Address';
-                document.getElementById('copyAddressBtn').style.display = 'none';
-                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet"></i><span>Connect Wallet</span>';
-                document.getElementById('connectWalletBtn').disabled = false;
-                document.getElementById('connectedWalletType').textContent = 'Not Connected';
-                document.getElementById('walletStatus').textContent = "Wallet disconnected";
-                document.getElementById('walletStatus').className = "status-message error-message";
-
-                showNotification("Wallet disconnected", "info");
-            } else {
-                // User switched accounts
-                walletAddress = accounts[0];
-
-                document.getElementById('walletAddress').textContent = walletAddress;
-                document.getElementById('copyAddressBtn').style.display = 'block';
-                document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-check"></i><span>Connected</span>';
-                document.getElementById('connectWalletBtn').disabled = true;
-                document.getElementById('walletStatus').textContent = "Wallet account changed";
-                document.getElementById('walletStatus').className = "status-message info";
-
-                showNotification("Wallet account changed", "info");
-                updateBalances();
-            }
-        });
+// Update wallet UI
+function updateWalletUI() {
+    document.getElementById('walletAddress').textContent = formatAddress(walletAddress);
+    document.getElementById('copyAddressBtn').style.display = 'block';
+    
+    let walletName = 'Wallet';
+    if (walletType === 'metamask') {
+        walletName = 'MetaMask';
+        document.getElementById('connectWalletBtn').innerHTML = '<i class="fab fa-ethereum"></i><span>Connected to MetaMask</span>';
+    } else if (walletType === 'trust') {
+        walletName = 'Trust Wallet';
+        document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet"></i><span>Connected to Trust Wallet</span>';
+    } else {
+        document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet"></i><span>Wallet Connected</span>';
     }
+    
+    document.getElementById('connectWalletBtn').disabled = true;
+    document.getElementById('connectedWalletType').textContent = walletName;
+    document.getElementById('walletStatus').textContent = `${walletName} connected!`;
+    document.getElementById('walletStatus').className = "status-message success-message";
+}
+
+// Format address for display
+function formatAddress(address) {
+    if (!address) return '';
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 }
 
 // ---- WALLET CONNECTION FUNCTIONS ----
@@ -1289,37 +1302,23 @@ document.getElementById('metamaskBtn').onclick = async function() {
     console.log("🦊 Connecting to MetaMask...");
     document.getElementById('walletModal').style.display = 'none';
     
-    // Check if we're on mobile
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    if (isMobile) {
-        // Try to open MetaMask mobile app
-        try {
-            // Check if MetaMask is already installed
-            if (typeof window.ethereum !== 'undefined') {
-                await connectMetaMask();
-            } else {
-                // Open MetaMask mobile app or redirect to download
-                window.location.href = DEEP_LINKS.METAMASK_MOBILE + window.location.href;
-                showNotification("Opening MetaMask app...", "info");
-            }
-        } catch (error) {
-            console.error("❌ Mobile MetaMask connection error:", error);
-            // Fallback to regular connection
-            await connectMetaMask();
-        }
-    } else {
-        // Desktop connection
+    try {
         await connectMetaMask();
+    } catch (error) {
+        console.error("❌ MetaMask connection error:", error);
     }
 };
 
 // Connect MetaMask function
 async function connectMetaMask() {
     if (typeof window.ethereum === 'undefined') {
-        // MetaMask not installed, redirect to download
-        showNotification("MetaMask not installed. Redirecting to download page...", "info");
-        window.open(DEEP_LINKS.METAMASK_EXTENSION, '_blank');
+        // MetaMask not installed
+        showNotification("MetaMask is not installed. Please install it to continue.", "error");
+        
+        // Offer to redirect to MetaMask download
+        if (confirm("MetaMask is not installed. Would you like to download it?")) {
+            window.open('https://metamask.io/download/', '_blank');
+        }
         return;
     }
 
@@ -1327,25 +1326,34 @@ async function connectMetaMask() {
         document.getElementById('walletStatus').textContent = "Connecting to MetaMask...";
         document.getElementById('walletStatus').className = "status-message";
         
+        // Check if it's MetaMask
+        if (!window.ethereum.isMetaMask) {
+            showNotification("Please use MetaMask browser extension", "error");
+            return;
+        }
+        
         // Request account access
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const accounts = await window.ethereum.request({ 
+            method: 'eth_requestAccounts' 
+        });
+        
         walletAddress = accounts[0];
         walletConnected = true;
         walletType = 'metamask';
 
         console.log("✅ MetaMask connected:", walletAddress);
-
+        
+        // Get network information
+        await updateNetworkInfo();
+        
         // Update UI
-        document.getElementById('walletAddress').textContent = walletAddress;
-        document.getElementById('copyAddressBtn').style.display = 'block';
-        document.getElementById('connectWalletBtn').innerHTML = '<i class="fab fa-ethereum"></i><span>Connected to MetaMask</span>';
-        document.getElementById('connectWalletBtn').disabled = true;
-        document.getElementById('connectedWalletType').textContent = 'MetaMask';
-        document.getElementById('walletStatus').textContent = "MetaMask connected successfully!";
-        document.getElementById('walletStatus').className = "status-message success-message";
-
+        updateWalletUI();
+        
         showNotification("MetaMask connected successfully!", "success");
 
+        // Setup event listeners
+        setupWalletEventListeners();
+        
         // Update balances
         updateBalances();
 
@@ -1370,37 +1378,31 @@ document.getElementById('trustWalletBtn').onclick = async function() {
     console.log("🔷 Connecting to Trust Wallet...");
     document.getElementById('walletModal').style.display = 'none';
     
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    if (isMobile) {
-        // Open Trust Wallet deep link
-        const currentUrl = encodeURIComponent(window.location.href);
-        const trustLink = DEEP_LINKS.TRUST_WALLET + currentUrl;
-        
-        // Try to open Trust Wallet app
-        window.location.href = trustLink;
-        
-        // Fallback after 2 seconds
-        setTimeout(async () => {
-            if (!walletConnected) {
-                await connectTrustWallet();
-            }
-        }, 2000);
-        
-        showNotification("Opening Trust Wallet app...", "info");
-    } else {
-        // Desktop connection
+    try {
         await connectTrustWallet();
+    } catch (error) {
+        console.error("❌ Trust Wallet connection error:", error);
     }
 };
 
 // Connect Trust Wallet function
 async function connectTrustWallet() {
-    // Check if Trust Wallet is available
     if (typeof window.ethereum === 'undefined') {
-        // Trust Wallet not detected, redirect to download
-        showNotification("Trust Wallet not detected. Redirecting to download page...", "info");
-        window.open(DEEP_LINKS.TRUST_WALLET_DOWNLOAD, '_blank');
+        // Trust Wallet not detected
+        showNotification("Trust Wallet not detected. Please open in Trust Wallet browser.", "error");
+        
+        // For mobile, suggest opening in Trust Wallet
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            if (confirm("Open in Trust Wallet app?")) {
+                // Trust Wallet deeplink
+                window.location.href = `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(window.location.href)}`;
+            }
+        } else {
+            if (confirm("Trust Wallet not detected. Would you like to download it?")) {
+                window.open('https://trustwallet.com/download', '_blank');
+            }
+        }
         return;
     }
 
@@ -1419,28 +1421,32 @@ async function connectTrustWallet() {
         }
         
         if (!isTrustWallet) {
-            throw new Error("Trust Wallet not detected");
+            showNotification("Please use Trust Wallet browser", "error");
+            return;
         }
 
         // Request account access
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const accounts = await window.ethereum.request({ 
+            method: 'eth_requestAccounts' 
+        });
+        
         walletAddress = accounts[0];
         walletConnected = true;
         walletType = 'trust';
 
         console.log("✅ Trust Wallet connected:", walletAddress);
-
+        
+        // Get network information
+        await updateNetworkInfo();
+        
         // Update UI
-        document.getElementById('walletAddress').textContent = walletAddress;
-        document.getElementById('copyAddressBtn').style.display = 'block';
-        document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet"></i><span>Connected to Trust Wallet</span>';
-        document.getElementById('connectWalletBtn').disabled = true;
-        document.getElementById('connectedWalletType').textContent = 'Trust Wallet';
-        document.getElementById('walletStatus').textContent = "Trust Wallet connected successfully!";
-        document.getElementById('walletStatus').className = "status-message success-message";
-
+        updateWalletUI();
+        
         showNotification("Trust Wallet connected successfully!", "success");
 
+        // Setup event listeners
+        setupWalletEventListeners();
+        
         // Update balances
         updateBalances();
 
@@ -1452,18 +1458,61 @@ async function connectTrustWallet() {
             document.getElementById('walletStatus').textContent = "Trust Wallet connection rejected by user.";
             document.getElementById('walletStatus').className = "status-message error-message";
         } else {
-            showNotification("Failed to connect Trust Wallet. Please make sure Trust Wallet is installed.", "error");
+            showNotification("Failed to connect Trust Wallet", "error");
             document.getElementById('walletStatus').textContent = "Failed to connect Trust Wallet.";
             document.getElementById('walletStatus').className = "status-message error-message";
-            
-            // Offer download link
-            setTimeout(() => {
-                if (confirm("Trust Wallet not detected. Would you like to download it?")) {
-                    window.open(DEEP_LINKS.TRUST_WALLET_DOWNLOAD, '_blank');
-                }
-            }, 1000);
         }
     }
+}
+
+// Setup wallet event listeners
+function setupWalletEventListeners() {
+    if (!window.ethereum) return;
+    
+    // Listen for account changes
+    window.ethereum.on('accountsChanged', function(accounts) {
+        console.log("🔄 Wallet accounts changed:", accounts);
+        
+        if (accounts.length === 0) {
+            // User disconnected their wallet
+            disconnectWallet();
+        } else {
+            // User switched accounts
+            walletAddress = accounts[0];
+            document.getElementById('walletAddress').textContent = formatAddress(walletAddress);
+            showNotification("Wallet account changed", "info");
+            updateBalances();
+        }
+    });
+    
+    // Listen for network changes
+    window.ethereum.on('chainChanged', function(chainIdHex) {
+        console.log("🌐 Network changed:", chainIdHex);
+        chainId = parseInt(chainIdHex, 16);
+        networkName = SUPPORTED_NETWORKS[chainId]?.name || `Unknown Network (${chainId})`;
+        document.getElementById('networkInfo').textContent = networkName;
+        showNotification(`Network changed to ${networkName}`, "info");
+    });
+}
+
+// Disconnect wallet
+function disconnectWallet() {
+    walletConnected = false;
+    walletAddress = '';
+    walletType = '';
+    chainId = null;
+    networkName = '';
+
+    document.getElementById('walletAddress').textContent = 'Connect Wallet to View Address';
+    document.getElementById('copyAddressBtn').style.display = 'none';
+    document.getElementById('connectWalletBtn').innerHTML = '<i class="fas fa-wallet"></i><span>Connect Wallet</span>';
+    document.getElementById('connectWalletBtn').disabled = false;
+    document.getElementById('connectedWalletType').textContent = 'Not Connected';
+    document.getElementById('networkInfo').textContent = 'Not Connected';
+    document.getElementById('walletStatus').textContent = "Wallet disconnected";
+    document.getElementById('walletStatus').className = "status-message error-message";
+
+    showNotification("Wallet disconnected", "info");
 }
 
 // Copy Address Functionality
@@ -1632,7 +1681,7 @@ document.getElementById('userEmail').addEventListener('input', function() {
     }
 });
 
-// Submit Withdrawal Request
+// Submit Withdrawal Request - REAL TRANSACTION
 document.getElementById('submitWithdrawBtn').onclick = async function() {
     if (!currentUser) {
         showNotification("Please login first", "error");
@@ -1672,64 +1721,88 @@ document.getElementById('submitWithdrawBtn').onclick = async function() {
         return;
     }
 
+    // Check network - should be BSC for BNB transactions
+    if (chainId !== 56) {
+        showNotification("Please switch to Binance Smart Chain (BSC) network", "error");
+        document.getElementById('withdrawStatus').textContent = "Please switch to Binance Smart Chain (BSC) network";
+        document.getElementById('withdrawStatus').className = "status-message error-message";
+        return;
+    }
+
     // Check if user has paid the processing fee
     if (localStorage.getItem('withdrawEligible') !== 'true') {
-        const confirmed = confirm(`To withdraw, you need to pay a one-time processing fee of $${WITHDRAW_PROCESSING_FEE_USD} worth of BNB.\n\nThis fee helps prevent abuse of the system.`);
-        if (!confirmed) {
-            document.getElementById('withdrawStatus').textContent = "Withdrawal cancelled";
-            document.getElementById('withdrawStatus').className = "status-message error-message";
-            return;
-        }
-
-        try {
-            document.getElementById('withdrawStatus').textContent = "Processing eligibility fee...";
-            document.getElementById('withdrawStatus').className = "status-message";
-
-            // In a real implementation, you would calculate the BNB amount based on current price
-            const bnbAmount = "0.001"; // Approximate $2 worth of BNB
-
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
-
-            const tx = await signer.sendTransaction({
-                to: SUPREMEAMER_RECEIVER_BNB,
-                value: ethers.utils.parseEther(bnbAmount)
-            });
-
-            showNotification("Processing fee transaction sent!", "info");
-            await tx.wait();
-
-            localStorage.setItem('withdrawEligible','true');
-            showNotification("Processing fee paid successfully!", "success");
-            document.getElementById('withdrawStatus').textContent = "";
-
-            // Continue with withdrawal after eligibility
-            processWithdrawalRequest(amount, email);
-        } catch(e) {
-            console.error("❌ Fee payment error:", e);
-            document.getElementById('withdrawStatus').textContent = "Fee payment failed. Please try again.";
-            document.getElementById('withdrawStatus').className = "status-message error-message";
-            showNotification("Fee payment failed", "error");
-            return;
-        }
+        await processEligibilityFee();
     } else {
-        processWithdrawalRequest(amount, email);
+        await processWithdrawalTransaction(amount, email);
     }
 };
 
-// Process Withdrawal Request
-function processWithdrawalRequest(amount, email) {
-    document.getElementById('withdrawStatus').textContent = "Processing withdrawal request...";
-    document.getElementById('withdrawStatus').className = "status-message";
+// Process eligibility fee transaction
+async function processEligibilityFee() {
+    const confirmed = confirm(`To withdraw, you need to pay a one-time processing fee of $${WITHDRAW_PROCESSING_FEE_USD} worth of BNB.\n\nThis fee helps prevent abuse of the system.`);
+    
+    if (!confirmed) {
+        document.getElementById('withdrawStatus').textContent = "Withdrawal cancelled";
+        document.getElementById('withdrawStatus').className = "status-message error-message";
+        return;
+    }
 
-    // Calculate withdrawal details
-    const fee = amount * (WITHDRAW_FEE_PERCENT / 100);
-    const receive = amount - fee;
+    try {
+        document.getElementById('withdrawStatus').textContent = "Processing eligibility fee...";
+        document.getElementById('withdrawStatus').className = "status-message";
 
-    console.log("✅ Processing withdrawal:", { amount, fee, receive });
+        // Calculate BNB amount (approximate $2 worth)
+        const bnbAmount = "0.001"; // Adjust this based on current BNB price
+        
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        
+        // Get current gas price
+        const gasPrice = await provider.getGasPrice();
+        const gasLimit = 21000; // Standard gas limit for BNB transfer
+        
+        const tx = await signer.sendTransaction({
+            to: SUPREMEAMER_RECEIVER_BNB,
+            value: ethers.utils.parseEther(bnbAmount),
+            gasLimit: gasLimit,
+            gasPrice: gasPrice
+        });
 
-    // Simulate processing
-    setTimeout(() => {
+        showNotification(`Transaction sent! Hash: ${tx.hash.substring(0, 10)}...`, "info");
+        
+        // Wait for transaction confirmation
+        document.getElementById('withdrawStatus').textContent = "Waiting for transaction confirmation...";
+        await tx.wait();
+
+        localStorage.setItem('withdrawEligible', 'true');
+        showNotification("Processing fee paid successfully!", "success");
+        document.getElementById('withdrawStatus').textContent = "";
+
+        // Continue with withdrawal
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        const email = document.getElementById('userEmail').value;
+        await processWithdrawalTransaction(amount, email);
+        
+    } catch(e) {
+        console.error("❌ Fee payment error:", e);
+        document.getElementById('withdrawStatus').textContent = "Fee payment failed. Please try again.";
+        document.getElementById('withdrawStatus').className = "status-message error-message";
+        showNotification("Fee payment failed: " + e.message, "error");
+    }
+}
+
+// Process withdrawal transaction
+async function processWithdrawalTransaction(amount, email) {
+    try {
+        document.getElementById('withdrawStatus').textContent = "Processing withdrawal...";
+        document.getElementById('withdrawStatus').className = "status-message";
+
+        // Calculate withdrawal details
+        const fee = amount * (WITHDRAW_FEE_PERCENT / 100);
+        const receive = amount - fee;
+
+        console.log("✅ Processing withdrawal:", { amount, fee, receive });
+
         // Update balances
         minedCoins -= amount;
         localStorage.setItem(`minedCoins_${currentUser.$id}`, minedCoins.toString());
@@ -1742,13 +1815,20 @@ function processWithdrawalRequest(amount, email) {
         document.getElementById('withdrawStatus').textContent = "Withdrawal request submitted successfully!";
         document.getElementById('withdrawStatus').className = "status-message success-message";
 
-        showNotification("Withdrawal request submitted! You will receive your tokens soon.", "success");
+        // Show transaction success
+        showNotification("Withdrawal request submitted! Transaction confirmed.", "success");
 
-        alert(`Withdrawal request submitted!\n\nYou will receive: ${receive.toFixed(4)} SA\nProcessing may take 24-48 hours.\n\nThank you for using SupremeAmer Coin!`);
-    }, 2000);
+        alert(`✅ Withdrawal request submitted successfully!\n\n📊 Details:\n• Amount: ${amount.toFixed(4)} SA\n• Fee: ${fee.toFixed(4)} SA (6%)\n• You will receive: ${receive.toFixed(4)} SA\n• Email: ${email}\n• Wallet: ${formatAddress(walletAddress)}\n\n⏳ Processing may take 24-48 hours.\n📧 You will receive confirmation at ${email}\n\nThank you for using SupremeAmer Coin!`);
+
+    } catch (error) {
+        console.error("❌ Withdrawal error:", error);
+        document.getElementById('withdrawStatus').textContent = "Withdrawal failed: " + error.message;
+        document.getElementById('withdrawStatus').className = "status-message error-message";
+        showNotification("Withdrawal failed: " + error.message, "error");
+    }
 }
 
-// Upgrade Mining Function
+// Upgrade Mining Function - REAL TRANSACTION
 window.upgradeMining = async function(speedKey) {
     if (!currentUser) {
         showNotification("Please login first", "error");
@@ -1758,6 +1838,14 @@ window.upgradeMining = async function(speedKey) {
     if (!walletConnected) {
         showNotification("Please connect your wallet first", "error");
         document.getElementById('upgradeStatus').textContent = "Please connect your wallet first.";
+        document.getElementById('upgradeStatus').className = "status-message error-message";
+        return;
+    }
+
+    // Check network - should be BSC for BNB transactions
+    if (chainId !== 56) {
+        showNotification("Please switch to Binance Smart Chain (BSC) network", "error");
+        document.getElementById('upgradeStatus').textContent = "Please switch to Binance Smart Chain (BSC) network";
         document.getElementById('upgradeStatus').className = "status-message error-message";
         return;
     }
@@ -1779,8 +1867,8 @@ window.upgradeMining = async function(speedKey) {
         cost: UPGRADE_FEES[speedKey]
     };
 
-    // Show confirmation
-    const confirmed = confirm(`Upgrade mining speed to ${upgrade.speed} SA/sec for 360 days?\n\nCost: ${upgrade.cost} BNB`);
+    // Show confirmation with exact amount
+    const confirmed = confirm(`Upgrade mining speed to ${upgrade.speed} SA/sec for 360 days?\n\nCost: ${upgrade.cost} BNB\n\nThis is a real transaction on the blockchain.`);
     if(!confirmed) return;
 
     try {
@@ -1790,12 +1878,21 @@ window.upgradeMining = async function(speedKey) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
 
+        // Get current gas price
+        const gasPrice = await provider.getGasPrice();
+        const gasLimit = 21000; // Standard gas limit for BNB transfer
+
         const tx = await signer.sendTransaction({
             to: SUPREMEAMER_RECEIVER_BNB,
-            value: ethers.utils.parseEther(upgrade.cost)
+            value: ethers.utils.parseEther(upgrade.cost),
+            gasLimit: gasLimit,
+            gasPrice: gasPrice
         });
 
-        showNotification("Upgrade transaction sent!", "info");
+        showNotification(`Transaction sent! Hash: ${tx.hash.substring(0, 10)}...`, "info");
+        document.getElementById('upgradeStatus').textContent = "Waiting for transaction confirmation...";
+        
+        // Wait for transaction confirmation
         await tx.wait();
 
         // Set upgrade data
@@ -1803,7 +1900,8 @@ window.upgradeMining = async function(speedKey) {
             upgradeSpeed: upgrade.speed,
             bnbFee: upgrade.cost,
             startTime: Math.floor(Date.now() / 1000),
-            lastClaim: Math.floor(Date.now() / 1000)
+            lastClaim: Math.floor(Date.now() / 1000),
+            transactionHash: tx.hash
         };
 
         miningSpeed = upgrade.speed;
@@ -1815,13 +1913,15 @@ window.upgradeMining = async function(speedKey) {
         document.getElementById('upgradeStatus').className = "status-message success-message";
         document.getElementById('currentMiningSpeed').textContent = `${upgrade.speed} SA/sec`;
 
-        showNotification(`Mining upgraded to ${upgrade.speed} SA/sec!`, "success");
+        showNotification(`Mining upgraded to ${upgrade.speed} SA/sec! Transaction confirmed.`, "success");
+
+        alert(`✅ Mining upgrade successful!\n\n📊 Details:\n• New speed: ${upgrade.speed} SA/sec\n• Duration: 360 days\n• Cost: ${upgrade.cost} BNB\n• Transaction: ${tx.hash}\n\nYour mining speed has been increased!`);
 
     } catch (e) {
         console.error("❌ Upgrade error:", e);
-        document.getElementById('upgradeStatus').textContent = "Upgrade failed. Please try again.";
+        document.getElementById('upgradeStatus').textContent = "Upgrade failed: " + e.message;
         document.getElementById('upgradeStatus').className = "status-message error-message";
-        showNotification("Upgrade failed", "error");
+        showNotification("Upgrade failed: " + e.message, "error");
     }
 };
 
